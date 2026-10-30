@@ -1137,3 +1137,112 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   disposition for a whole sim v2 section, expanded by the script; `C-RANGE`; planted
   overlap (`C-DUPLICATE`) and gap (`C-RANGE` + `C-MISSING`) tests (decision 4).
 - Next: review; then 6b freeze with the sim-code table.
+
+### 2026-10-31 · REG-R1 · verdict
+- Result: done. Section rows (`..` in the UID cell) expand before every other row check;
+  `Context.sections` maps each UID to its section label (`§N` or heading text, headings in
+  code fences ignored); `C-RANGE` for malformed, reversed, `IMP`, empty, mixed-kind, no
+  label, or not exactly one whole section (subsections included). Orchestrator reran:
+  `--selftest` 10 of 10; plain run only `C-MISSING` (1572); 36 tests pass; register §2.1
+  paragraph and §5 row read.
+- Notes for 6c-6e prompts: section numbers repeat across documents (a section row is bound
+  to one set and kind by its terms); three unnumbered headings hold live rows
+  (`PART C — CONSTRAINTS`, 15 SYS rows; `Library loading splits in two`; `The design
+  rows`): writers take labels from the script's `ctx.sections`, never retype them.
+- Verdict: accept
+- Next: 6b freeze waits for the owner's code-disposition table (decision 3).
+
+### 2026-10-31 · L7-1 · prompt
+- Worker: vantage-planner (opus, high)
+- Prompt: `program/prompts/L7-1.md` — step 7 decisions: `Q-L1` consequences in the lab
+  design, lab messages in the RCT fields tables, max-age/recovery as provisional
+  calibration keys the generator requires, `IMP-0030` text, `IMP-0022`..`0031` re-pointed,
+  `paused` note in the RCT layout table, open questions down to `Q-L4`, D20 in the plan.
+  Reading of "the engine refuses a setup without them": the values are component
+  calibration (`RCT:IMP-0024/0025`), so no code default anywhere and the lab generator
+  refuses a component without them; a built bundle missing one keeps `SYS-0019`'s ERROR.
+- Next: review; then freeze 7.
+
+### 2026-10-31 · SP-1 · prompt
+- Worker: vantage-mechanic (sonnet, medium)
+- Prompt: `program/prompts/SP-1.md` — `paused` note on `MeasStatus.status` in
+  `livemeas_layout.hpp`; concept page "31 of 31" note (backup first) (decision 6).
+- Next: review.
+
+### 2026-10-31 · SP-1 · verdict
+- Result: done. `MeasStatus.status` comment in `livemeas_layout.hpp` carries the `paused`
+  note (one line); concept page sentence has the "measured before D16-D18, re-run on the
+  lab" note; backup `vantage_concept_before_SP-1.html` beside the earlier one; HTML parses.
+- Verdict: accept
+- Next: commit with interfaces after LAB-WP-01.
+
+### 2026-10-31 · L7-1 · verdict
+- Result: done. Lab design: `calibration` key removed from the description (values only in
+  `catalogue/provisional.yaml`), generator refuses a component without them, formula moved
+  to §7 as the provisional value's reason; §7 rows for both keys; lab messages point to
+  `interfaces`; §4.3 command corrected to `build.bat -P base -t sil -p vs2026` (orchestrator
+  catch: `-p` is the platform); `IMP-0030` proposal replaced by a pointer; open questions
+  down to `Q-L4`. RCT design: *Lab-only messages* table (`LabSample` 1-2, `LabImage` 1-4),
+  `paused` note, `IMP-0022`..`0031` re-pointed (`vantage-lab: <path>::<symbol>`), Box/UID/
+  Serves/WP/Change/Tests cells unchanged (worker's script check). Plan: D20. trace_check
+  PASS (78 reqs, 36 tests); `--status` unchanged; `--fields` FAIL (2) only on the two
+  `adas.lab.*` rows, closed by `LAB-05`.
+- Accepted deviations: `IMP-0030` tightened to 58 words (cap 60; the dropped clause is
+  implied by "per run one control" and `IMP-0031`); new row `LAB-54` (`LAB-WP-02`) writes
+  the calibration part of `provisional.yaml`, so the generator's refusal does not wait for
+  `LAB-37` (`LAB-WP-06`); `LabImage.width`/`height` typed `uint32`.
+- Orchestrator decisions on its questions: `adas-interfaces` stays `1.1.0` (only on the
+  unmerged `vantage` branch; additive); `LAB-05` also wires `adas_generate_protos` (added
+  to the LAB-WP-01 prompt). Left for a later design-row edit: `IMP-0028` still says "a
+  component's description file" (the description sits in the topology file, `Q-L5`).
+- Verdict: accept
+- Next: step 7 frozen; LAB-WP-01.
+
+### 2026-10-31 · 7 · decision
+- Result: **step 7 frozen** (owner decision 5: frozen once its landings land; landed by
+  L7-1). Interfaces is committed after LAB-WP-01 so `--fields` is never committed red.
+- Next: LAB-WP-01; then commits interfaces, vantage, vantage-lab, vantage-dev.
+
+### 2026-10-31 · LAB-WP-01 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-01.md` — `vantage-lab` as a standard component (stub,
+  build.yml, copied machinery, CMake, pyproject), configuring with no topology; the two
+  lab protos in `interfaces` wired into `adas_generate_protos`; `CPY-1`, `--fields`,
+  `check_signal_header --message` clean.
+- Next: review.
+
+### 2026-10-31 · LAB-WP-01 · verdict
+- Result: done. `vantage-lab`: 6-line stub (`adas-toolchain/1.0.6`), `conf/build.yml`
+  (`base.sil`, vs2026 + ubuntu_gcc, `adas-interfaces/1.1.0`, `protobuf/3.21.12`,
+  `shared-library`, `src/platform/lab_sil`, `python_envs.lab`), copied machinery via
+  `sync_copy_files.py` (dry run named only lab files), CMake with an empty
+  `lab_add_topology`, `pyproject.toml`. `interfaces`: `proto/lab/lab_sample.proto`,
+  `lab_image.proto` (header "lab-only, never a production port"), wired into
+  `adas_generate_protos`. Evidence: interfaces vs2026 ctest 32/32 (18 s); `--fields`
+  clean (14 messages, 6 enums); `check_signal_header --message adas.lab.*` PASS; lab
+  `build.py -t sil -p vs2026` PASS (22 s, nothing to compile); `check_invariants` clean
+  (10 s); trace_check PASS; orchestrator: interfaces `tests/python` 17 passed (3 s).
+- Accepted deviations: `CMakePresets.json` and `requirements.lock` (made by
+  `lock_python_env.py`) are needed by the standard build; the sync tool also places
+  `gui.bat`, `setup.bat`, `scripts/setup.py`. Design text to follow (a later design-row
+  edit, with `IMP-0028`'s wording): `LAB-03` lists eight copied files; `LAB-04`/`LAB-06`
+  (or §8) name the presets and the lock file. `ubuntu_gcc` not yet built (R-TEST-6).
+- Verdict: accept
+- Next: commits; LAB-WP-02.
+
+### 2026-10-31 · COMMIT · decision
+- Result: reference scan of every committed file: clean. Pushed, normal pushes, each
+  proven with `git ls-remote`: interfaces `vantage` `132727e..835cb07` (L7-1 RCT edits,
+  SP-1, LAB-05); vantage-lab `main` `af584ec..b3f7f28` (LAB-WP-01); vantage `main`
+  `9c9ec00..85a4587` (lab design, frozen, LAB-WP-01 ticked). The 6b files stay
+  uncommitted until the owner freezes 6b.
+- Next: vantage-dev commit (three pointers, D20, ledger, prompts); LAB-WP-02 running.
+
+### 2026-10-31 · LAB-WP-02 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-02.md` — topology loader, generator, provisional
+  calibration file, template, `lab_add_topology`, the running example (scenario `base`):
+  five libraries with bundles and `index.json`; all loaded into one process (the protobuf
+  duplicate-registration risk); unit tests under `tests/unit/` (the design names no file
+  for them — recorded here as an accepted gap).
+- Next: review.
