@@ -44,6 +44,8 @@ Concept (plain English, with examples and evidence):
 | D11 | `.claude/` is a pinned import of selected 1v files (`.claude/IMPORTED.md`); local changes are listed there and back-ported at migration. | 2026-10-30 |
 | D12 | Requirement sets live in the module they describe (`interfaces`, `vantage`) so they travel with it at migration; only program documents live in this repo. `selftest_mutations.yaml` is added to a set only when it gets a check worth planting. | 2026-10-30 |
 | D13 | **viz is out of this design.** Vantage does not depend on viz, which removes the viz ↔ sim loop and lets vantage be one package. The live measurement (named "board" until 2026-10-30) is Vantage's boundary and must carry **everything viz shows today**, so any viewer can be built on it later; how viz uses it is decided later. `viz` is not a submodule of this workspace. | 2026-10-30 |
+| D14 | **What the contract is, after gate G1:** the messages, their fields, the live measurement layout and the RCT SYS rows. A change to any of these goes to the owner first. Filling in the file path of a lab or Vantage design row is a design-row edit, not a contract change. | 2026-10-30 |
+| D15 | **The migration register disposes every sim v2 row exactly once.** An implementation (IMP) row inherits the disposition of the SW rows it serves; only exceptions are listed. A check script computes the inheritance and fails on any sim v2 UID that is missing or listed twice. | 2026-10-30 |
 
 ## 3. Where everything lives
 
@@ -110,23 +112,11 @@ reproduce it.
   (tied to the open camera-ECU logging decision).
 - **Adoption order** for components already in 1v (df, vdy, perception-core), so
   merging the `vantage` branch never breaks 1v.
-- **Live measurement layout** (D13): the shared-memory contract between Vantage and
-  any reader, one layout header in `interfaces` (`cpp/livemeas/`, package `adas.livemeas`). It carries everything viz shows
-  today:
-  - **`MeasDescription`, once per run:** layout version; run number; every stage with
-    mode (simulate / measured / off), implementation and build hash; every port
-    with its proto type and the **FileDescriptorSet**, so a viewer decodes
-    without generated code (R-SIM-11); plug-in identities and hashes; config
-    bundles (path + hash); declared periods; declared overrides;
-  - **one `MeasCycle` per engine step:** step number and simulation time; every port's
-    bytes with its signal header, origin tag (measured / truth / mocked /
-    simulated / overridden), valid, held/fresh and age; the refSync each run used;
-  - **badges and counts:** fallback counts per port, not matched to car inputs,
-    warming up, readiness timeouts, computed-not-consumed, identity broken;
-  - **`MeasStatus`:** running / paused / finished, heartbeat, dropped cycles, run
-    outcome (pass / fail / crash / timeout);
-  - **images** (camera frames), `MeasBulk`: by reference into a second segment,
-    never inline in a `MeasCycle`.
+- **Live measurement layout** (D13): the shared-memory contract between Vantage
+  and any reader, one layout header in `interfaces` (`cpp/livemeas/`, package
+  `adas.livemeas`). It carries everything viz shows today. Its parts and why:
+  `RCT_Architecture.md` §6; every field and the layout:
+  `RCT_Implementation_Design.md`.
 
 ### Plan B — workspace (`program/WORKSPACE_Plan.md`, no requirement layers)
 Create `vantage-dev`, the `vantage` fork and `vantage-lab`; bring over root
@@ -151,7 +141,7 @@ of hand-written, plus a fake car that produces the known right answer.
 - The "algorithm" is plain arithmetic over inputs (and a running sum for
   components with memory), so a wrong input sample always changes the output.
 - The fake car reuses the executable model already written
-  (`modules/sim/misc/mts_bench/experiments/scheduler_model/` in 1v, study notes)
+  (in 1v's git-ignored sim study notes)
   as its timing logic.
 - First milestone: the running example only (X, Y, Z, A–E). More topologies are
   added as files, one corner case at a time.
@@ -200,9 +190,13 @@ start writing refSyncs one at a time.
 | 3 | `program/VANTAGE_PROGRAM.md` + `program/ORCHESTRATION_LEDGER.md` | 1, 2 |
 | 4 | `program/WORKSPACE_Plan.md` | 3 |
 | 5 | Plan A set (`interfaces/docs/resim_contract/`) | 4 (branch exists) |
-| 6 | Plan C context: `VANTAGE_Architecture.md`, `VANTAGE_Migration_Register.md` | 5 |
-| 7 | `VANTAGE_Lab_Design.md` | 5, 6 |
-| 8 | Plan C requirements + design + test spec | 6, 7 |
+| 6a | `VANTAGE_Architecture.md` (frozen before 6b) | 5 |
+| 6b | `VANTAGE_Migration_Register.md` part 1: sim code reused / replaced / corrected / new; the disposition words; the register check script (D15) | 6a |
+| 6c | Register: disposition of every sim v2 SYS row | 6b |
+| 6d | Register: disposition of every sim v2 SW row (two worker packages) | 6b |
+| 6e | Register: disposition of every row of the sim v2 parity set | 6b |
+| 7 | `VANTAGE_Lab_Design.md` | 5, 6a |
+| 8 | Plan C requirements + design + test spec | 6a–6e, 7 |
 
 ## 7. Rules that apply everywhere
 
@@ -218,5 +212,5 @@ L&T EPS where code requires it. No reference-tool names in tracked files.
 
 - Concept: `C:\ws\lt_learning\sim\vantage_concept.html`
 - Reuse analysis: 1v-superproject `docs/vantage_event_resim_plan.md`
-- Evidence (study notes, git-ignored in 1v): `modules/sim/misc/mts_bench/05_sync_and_scheduling.md`,
-  `experiments/` and `experiments/scheduler_model/`
+- Evidence: the sync-and-scheduling notes, the experiments and the scheduler
+  executable model, in 1v's git-ignored sim study notes.
