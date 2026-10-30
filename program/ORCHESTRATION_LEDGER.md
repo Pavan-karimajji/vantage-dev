@@ -33,3 +33,11 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   build made the separate `sim/vantage` package unnecessary once viz is out.
 - Next: owner reviews `WORKSPACE_Plan.md`; then B0.1 (owner creates `vantage`
   and `vantage-lab` repos).
+
+### 2026-10-30 · B0.1 · verdict
+- Result: owner created `vantage` and `vantage-lab` on GitHub; both reachable, empty.
+  First local commit `05dc171`. B0.4/B2.2 corrected: the recipe reads package
+  name and version from `project()` in `CMakeLists.txt`, not `conf/build.yml`.
+- Verdict: accept
+- Why: owner step done and verified with `git ls-remote`.
+- Next: B0.2–B1.1, run directly by this session (owner's instruction 2026-10-30).
