@@ -1,0 +1,307 @@
+# Planted violations for `trace_check.py --selftest` (R-REQ-9).
+#
+# Declared here, beside layers.yaml, never inside trace_check.py -- the checker
+# must contain no module's document names, or "copy it to any module" is not
+# true. Each entry makes one edit to a throwaway copy of this directory and
+# asserts the named check catches it.
+#
+# A check nobody has seen fail is a check nobody should believe.
+
+mutations:
+  - expect: C-DANGLING
+    file: SBR_System_Requirements.md
+    why: a trace to a UID that does not exist
+    find: |-
+      **Verify.** T · `SYT-SBR-01`   **Trace.** `STK-0001`
+    replace: |-
+      **Verify.** T · `SYT-SBR-01`   **Trace.** `STK-9999`
+
+  - expect: C-TWOWAY
+    file: SBR_Test_Spec.md
+    why: the two halves of a link disagreeing
+    find: |-
+      **Serves.** `SYS-0002`
+    replace: |-
+      **Serves.** `SYS-0003`
+
+  - expect: C-STATUS
+    file: SBR_Stakeholder_Requirements.md
+    why: a Status field smuggled into a specification
+    find: |-
+      **Shall.** The system shall remind an occupant
+    replace: |-
+      **Status.** frozen
+      **Shall.** The system shall remind an occupant
+
+  - expect: C-BINDS
+    file: SBR_System_Requirements.md
+    why: a boundary requirement bound to an undeclared port
+    find: |-
+      **Binds.** `occupancy`, `sbr.outputs`
+    replace: |-
+      **Binds.** `not_a_port`
+
+  - expect: C-ITEM
+    file: SBR_Software_Requirements.md
+    why: a software item invented at the point of use
+    find: |-
+      **Item.** `esc`
+    replace: |-
+      **Item.** `not_an_item`
+
+  - expect: C-HEADLINE
+    file: SBR_Stakeholder_Requirements.md
+    why: a headline over the character cap
+    find: |-
+      — Stay silent for an empty seat
+    replace: |-
+      — Stay silent for an empty seat, and also say a great deal more than any headline needs to say about it
+
+  - expect: C-WORDS
+    file: SBR_System_Requirements.md
+    why: Shall plus Accept over the word cap, which means more than one obligation
+    find: |-
+      **Shall.** The component shall clear the reminder within one cycle of the belt becoming buckled.
+    replace: |-
+      **Shall.** The component shall clear the reminder within one cycle of the belt becoming buckled, and shall also record the clearing time, and shall report the clearing reason, and shall keep a count of clearings, and shall expose that count on a diagnostic port, and shall reset the count at ignition, and shall do all of this within the same cycle without any additional latency whatsoever.
+
+  - expect: C-ORPHAN
+    file: SBR_Software_Requirements.md
+    why: a requirement with no test -- unverifiable as written
+    find: |-
+      **Verify.** T · `UT-state-01`   **Trace.** `SYS-0001`, `SYS-0005`
+    replace: |-
+      **Trace.** `SYS-0001`, `SYS-0005`
+
+  - expect: C-NOPLANT
+    file: SBR_Test_Spec.md
+    why: an A-method check with no planted-violation case
+    find: |-
+      - `.c2` **PASS:** the planted violation is reported
+    replace: |-
+      - `.cX` **PASS:** the planted violation is reported
+
+  - expect: C-CATEGORY
+    file: SBR_Stakeholder_Requirements.md
+    why: a category the module does not declare
+    find: |-
+      **Category.** `feature`
+      **Verify.** T · `STT-03`
+    replace: |-
+      **Category.** `safety`
+      **Verify.** T · `STT-03`
+
+  - expect: C-KPI-UNMEASURED
+    file: SBR_Stakeholder_Requirements.md
+    why: a KPI whose Accept states no number and no cannot-measure mark
+    find: |-
+      **Accept.** Over the acceptance corpus, reminders raised while every occupied seat is belted occur at most `⊘` times per 100 hours.
+    replace: |-
+      **Accept.** Over the acceptance corpus, false reminders shall be rare.
+
+  - expect: C-CATEGORY-EMPTY
+    file: layers.yaml
+    why: a category declared but populated by nothing
+    find: |-
+        categories: [feature, kpi]
+    replace: |-
+        categories: [feature, kpi, safety]
+
+  - expect: C-COMMENTARY
+    file: SBR_System_Requirements.md
+    why: >-
+      commentary swamping the requirements -- the one size R-REQ-14 caps.
+      Five requirements at a cap of 6 allow 30 commentary lines; this document
+      uses 4, so 40 more takes it well over. This is the shape that made two
+      sim documents unreadable at 81 and 990 lines per requirement.
+    find: |-
+      ---
+    replace: |-
+      Background line 1 -- prose that belongs in a design note, not here.
+      Background line 2 -- prose that belongs in a design note, not here.
+      Background line 3 -- prose that belongs in a design note, not here.
+      Background line 4 -- prose that belongs in a design note, not here.
+      Background line 5 -- prose that belongs in a design note, not here.
+      Background line 6 -- prose that belongs in a design note, not here.
+      Background line 7 -- prose that belongs in a design note, not here.
+      Background line 8 -- prose that belongs in a design note, not here.
+      Background line 9 -- prose that belongs in a design note, not here.
+      Background line 10 -- prose that belongs in a design note, not here.
+      Background line 11 -- prose that belongs in a design note, not here.
+      Background line 12 -- prose that belongs in a design note, not here.
+      Background line 13 -- prose that belongs in a design note, not here.
+      Background line 14 -- prose that belongs in a design note, not here.
+      Background line 15 -- prose that belongs in a design note, not here.
+      Background line 16 -- prose that belongs in a design note, not here.
+      Background line 17 -- prose that belongs in a design note, not here.
+      Background line 18 -- prose that belongs in a design note, not here.
+      Background line 19 -- prose that belongs in a design note, not here.
+      Background line 20 -- prose that belongs in a design note, not here.
+      Background line 21 -- prose that belongs in a design note, not here.
+      Background line 22 -- prose that belongs in a design note, not here.
+      Background line 23 -- prose that belongs in a design note, not here.
+      Background line 24 -- prose that belongs in a design note, not here.
+      Background line 25 -- prose that belongs in a design note, not here.
+      Background line 26 -- prose that belongs in a design note, not here.
+      Background line 27 -- prose that belongs in a design note, not here.
+      Background line 28 -- prose that belongs in a design note, not here.
+      Background line 29 -- prose that belongs in a design note, not here.
+      Background line 30 -- prose that belongs in a design note, not here.
+      Background line 31 -- prose that belongs in a design note, not here.
+      Background line 32 -- prose that belongs in a design note, not here.
+      Background line 33 -- prose that belongs in a design note, not here.
+      Background line 34 -- prose that belongs in a design note, not here.
+      Background line 35 -- prose that belongs in a design note, not here.
+      Background line 36 -- prose that belongs in a design note, not here.
+      Background line 37 -- prose that belongs in a design note, not here.
+      Background line 38 -- prose that belongs in a design note, not here.
+      Background line 39 -- prose that belongs in a design note, not here.
+      Background line 40 -- prose that belongs in a design note, not here.
+
+      ---
+
+  - expect: C-LAYER-EMPTY
+    file: layers.yaml
+    why: >-
+      a layer declared but never populated -- you said you would write it and
+      did not. Planted by pointing the layer at a document that exists but
+      holds no requirements: a requirement UID is four digits, a test id two,
+      so the test spec parses as zero requirements for this layer.
+    find: |-
+      doc: SBR_Software_Requirements.md
+    replace: |-
+      doc: SBR_Test_Spec.md
+
+  - expect: C-UNDECOMP
+    file: SBR_System_Requirements.md
+    why: a stakeholder requirement nothing in the layer below decomposes
+    find: |-
+      **Verify.** T · `SYT-SBR-03`   **Trace.** `STK-0003`
+    replace: |-
+      **Verify.** T · `SYT-SBR-03`   **Trace.** `STK-0001`
+
+  # -- R-REQ-17 supporting documents -----------------------------------------
+  - expect: C-CONTEXT-MISSING
+    file: layers.yaml
+    why: a declared supporting document that is not there
+    find: |-
+          doc: SBR_Concept.md
+    replace: |-
+          doc: SBR_Concept_gone.md
+
+  - expect: C-CONTEXT-KIND
+    file: layers.yaml
+    why: a kind outside the closed vocabulary — an open list becomes a junk drawer
+    find: |-
+        - kind: architecture
+    replace: |-
+      - kind: notes
+
+  - expect: C-CONTEXT-UNREF
+    file: SBR_Stakeholder_Requirements.md
+    why: >-
+      a supporting document nothing in the set cites. It goes on looking true
+      long after the set stopped agreeing with it — the stale-contract failure.
+    find: |-
+      is `SBR_Concept.md` (`R-REQ-17`). It carries the reasoning and no obligation;
+    replace: |-
+      is the concept note. It carries the reasoning and no obligation;
+
+  - expect: C-CONTEXT-UID
+    file: SBR_Concept.md
+    why: >-
+      a supporting document allocating a requirement row. Citing a UID is how
+      this document connects to the set; defining one puts an obligation in two
+      places (R-REQ-1).
+    find: |-
+      ## 1. The problem
+    replace: |-
+      **`STK-0009`** · `P0` · `R1` — a row that has no business being here
+      **Shall.** The system shall do something this document has no right to require.
+
+      ## 1. The problem
+
+  # ---- the DECLARATION's own shape (C-SPEC-*) ----------------------------
+  # layers.yaml is the one file an author writes from scratch, so it is where
+  # the mistakes will be. These four prove a malformed declaration reports a
+  # finding rather than a Python traceback.
+
+  - expect: C-SPEC-TYPE
+    file: layers.yaml
+    why: >-
+      `items:` written as a list of id/name pairs instead of the id-to-
+      description mapping the checker reads. Both shapes look reasonable and
+      only one is read, which is why the finding names the fix.
+    find: |-
+      items:
+        belt:  Belt-buckle state debounce
+        occ:   Seat-occupancy debounce
+        gate:  Speed and availability gating
+        esc:   Escalation timer
+        state: Reminder latch and clear
+        calib: Calibration read from the config bundle
+    replace: |-
+      items:
+        - id: belt
+        - id: occ
+        - id: gate
+        - id: esc
+        - id: state
+        - id: calib
+
+  - expect: C-SPEC-MISSING
+    file: layers.yaml
+    why: >-
+      a required key absent. The tests a set declares have nowhere to live, so
+      every downstream check would index into a spec that cannot answer.
+    find: |-
+      test_spec: SBR_Test_Spec.md
+    replace: |-
+      # test_spec removed
+
+  - expect: C-SPEC-DUP
+    file: layers.yaml
+    why: >-
+      two layers sharing an id. A layer id is its UID prefix, so a duplicate
+      silently merges two layers' requirements into one namespace (R-REQ-2).
+    find: |-
+      layers:
+        - id: STK
+    replace: |-
+      layers:
+        - id: SYS
+
+  - expect: C-SPEC-PARSE
+    file: layers.yaml
+    why: >-
+      a declaration that does not parse — the mistake that used to surface as a
+      raw PyYAML traceback before any check ran. The reported finding keeps
+      PyYAML's own line and column, because that is the part an author needs.
+    find: |-
+      module: SBR
+    replace: |-
+      - module: SBR
+
+  - expect: C-SKIPWHY
+    file: SBR_Software_Requirements.md
+    why: a declared layer skip that does not say why, in the row itself
+    find: |-
+      `STK-0005` (skips SYS: the whole obligation sits inside one software item and states no vehicle-level boundary behaviour of its own)
+    replace: |-
+      `STK-0005`
+
+  - expect: C-PARENT
+    file: layers.yaml
+    why: a skip taken without the layer declaring it may
+    find: |-
+      may_skip_from: [STK]
+    replace: |-
+      may_skip_from: []
+
+  - expect: C-SKIPDECL
+    file: layers.yaml
+    why: a skip declared to the layer directly above, which is the ordinary parent
+    find: |-
+      may_skip_from: [STK]
+    replace: |-
+      may_skip_from: [SYS]

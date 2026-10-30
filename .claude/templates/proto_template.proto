@@ -1,0 +1,21 @@
+// Copyright (c) <ORG>. All Rights Reserved.
+// Proprietary and Confidential.
+// COMPONENT: INTERFACES
+// @author <Name> <email>
+//
+// Lives in modules/interfaces/proto/<Producer>__Outputs/ (or common/, perception/…).
+// Folder = producer/organization; package = data domain — independent axes (R-IFACE-2).
+// Register the file in modules/interfaces/CMakeLists.txt (adas_generate_protos).
+// If this type is NOT yet checked for field-set completeness against real-world domain requirements, add a
+// PROVENANCE: comment marking it unverified (R-IFACE-3).
+
+syntax = "proto3";
+
+// package = logical data domain, regardless of which folder the file sits in.
+package adas.<domain>;   // e.g. adas.perception | adas.common | adas.df
+
+// Message PascalCase; fields always snake_case, no exceptions (R-NAME-4).
+message <Name> {
+  // uint32 local_id  = 1;
+  // float  dist_x_m  = 2;
+}

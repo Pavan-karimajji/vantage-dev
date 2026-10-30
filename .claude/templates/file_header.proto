@@ -1,0 +1,7 @@
+// Copyright (c) <ORG>. All Rights Reserved.
+// Proprietary and Confidential.
+// COMPONENT: INTERFACES
+// @author <Name> <email>
+
+// Canonical source: docs/file_header_template.md (R-STYLE-1 / R-NAME-6).
+// Protos live only in modules/interfaces, so COMPONENT: is always INTERFACES.

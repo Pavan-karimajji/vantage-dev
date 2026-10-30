@@ -1,0 +1,56 @@
+# Planted violations for `trace_check.py --selftest` (R-REQ-9).
+#
+# TEMPLATE. Declared here, beside layers.yaml, and deliberately NOT inside
+# trace_check.py — the checker must contain no module's document names, or
+# "copy it to any module" is not true.
+#
+# Each entry makes one edit to a throwaway copy of the directory and asserts
+# the named check catches it. `find:` must match EXACTLY ONE place in the file.
+# A check nobody has seen fail is a check nobody should believe.
+#
+# Reference implementation: modules/df/docs/ldw/selftest_mutations.yaml
+
+mutations:
+  - expect: C-DANGLING
+    file: <MODULE>_System_Requirements.md
+    why: a trace to a UID that does not exist
+    find: |-
+      **Trace.** `CN-0001`
+    replace: |-
+      **Trace.** `CN-9999`
+
+  - expect: C-TWOWAY
+    file: <MODULE>_Test_Spec.md
+    why: the two halves of a link disagreeing
+    find: |-
+      **Serves.** `SYS-0002`
+    replace: |-
+      **Serves.** `SYS-0003`
+
+  - expect: C-COMMENTARY
+    file: <MODULE>_System_Requirements.md
+    why: >-
+      commentary swamping the requirements -- the one size R-REQ-14 caps.
+      Replace `find` with a heading your document really has, and `replace`
+      with that heading preceded by more prose lines than
+      commentary_lines_per_requirement x (requirements in this document).
+    find: |-
+      ## Anatomy
+    replace: |-
+      Background line 1 -- prose that belongs in a design note, not here.
+      Background line 2 -- repeat until over the cap for this document.
+
+      ## Anatomy
+
+  # R-REQ-17. Plant one per context check you turn on. Four exist:
+  # C-CONTEXT-MISSING (declared, not there) · C-CONTEXT-KIND (outside the
+  # closed list) · C-CONTEXT-UNREF (nothing cites it) · C-CONTEXT-UID (it
+  # allocates a requirement row instead of citing one). Worked example, all
+  # four planted and caught: templates/requirements/example.
+  - expect: C-CONTEXT-UNREF
+    file: <MODULE>_Stakeholder_Requirements.md
+    why: a supporting document nothing in the set cites goes stale unnoticed
+    find: |-
+      `<MODULE>_Concept.md`
+    replace: |-
+      the concept note

@@ -1,0 +1,32 @@
+# Component CMakeLists.txt template. Rules: R-BUILD-*, R-VAR-*, skills/cmake_patterns.md.
+# The build machinery (conanfile.py, scripts/build.py, build.bat/.sh, build_gui.py)
+# is byte-identical across components and NOT edited — only this file + src/ + conf/
+# are component-specific.
+
+cmake_minimum_required(VERSION 3.24)
+project(<name> LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Contracts — depend on interfaces, never on another component (R-ARCH-1).
+if(NOT TARGET AdasInterfaces::AdasInterfaces)
+  find_package(AdasInterfaces CONFIG REQUIRED)
+endif()
+
+# Optional shared math layer — only if this component does geometry/TTC math (R-MATH-3).
+# if(NOT TARGET AdasMathlib::AdasMathlib)
+#   find_package(AdasMathlib CONFIG REQUIRED)
+# endif()
+
+add_subdirectory(src/component)              # middleware-free algorithm code
+add_subdirectory(src/platform/<name>_sil)    # C-API DLL composition root (R-ARCH-5)
+
+# Export under the Conan namespaced target name via ALIAS so consumers link the
+# same name whether in-tree or a Conan package (skills/cmake_patterns.md).
+add_library(Adas<Name>::Adas<Name> ALIAS <name>_sil)
+
+if(BUILD_TESTING)
+  enable_testing()
+  add_subdirectory(tests/unit)               # mirrors src/component/ 1:1
+endif()

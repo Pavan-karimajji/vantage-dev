@@ -1,0 +1,218 @@
+# vantage-dev — consolidated plan
+
+The single entry point for the Vantage rebuild. Every other document in this
+workspace is placed, named and ordered here. Status is never typed in this file:
+it is computed from the checkboxes in the plan and design documents it points to.
+
+Concept (plain English, with examples and evidence):
+`C:\ws\lt_learning\sim\vantage_concept.html`.
+
+---
+
+## 1. What we are building, in five lines
+
+1. **Vantage** is the simulation tool: a **launcher** (front end), an
+   **orchestrator** (global scheduler), a **runner** (calls components) and a
+   **board writer**. Its output boundary is the **board**: shared memory that
+   carries everything a viewer needs. Viewers (viz) are not part of this design
+   (D13).
+2. The orchestrator is **event-driven**: a component runs when its trigger input
+   gets a new `measurement_counter`; every input is picked **by number** (the
+   receipt the car wrote, else "newest not after my trigger time", badged).
+3. The data contract (signal header + receipt + state snapshot + manifest fields)
+   is fixed **first**, because everything else is built against it.
+4. The concept is proven on **generated dummy components** (the lab) with a known
+   right answer, before any production component depends on it.
+5. When Vantage is stable, its content replaces `sim` in 1v-superproject.
+
+## 2. Decisions on the record
+
+| # | Decision | Date |
+|---|---|---|
+| D1 | `vantage-dev` is a new superproject, sibling of 1v-superproject. Its submodules are the **same** repos as 1v, on a `vantage` branch where they change. Nothing is copied. | 2026-10-30 |
+| D2 | The `vantage` component repo is a **fork of `sim` with its history**, restructured to the standard component layout as **one package**. `sim/vantage/` (the viz-dependent app, a second package that only existed to dodge a viz ↔ sim dependency loop) is not carried over (D13). | 2026-10-30 |
+| D3 | `sim` in 1v-superproject is **not touched** during development. At migration its content is replaced by `vantage`. | 2026-10-30 |
+| D4 | The lab is its own repo, `vantage-lab`. Lab components are **generated build outputs**, not repos. | 2026-10-30 |
+| D5 | Vantage gets a **lean new requirement set**, layers **SYS + IMP** only. The sim v2 set is retired with one disposition per row in a migration register. | 2026-10-30 |
+| D6 | The contracts (resim contract **and** board layout) are one requirement set (**SYS + IMP**) inside `interfaces`. Prefixes: `RCT` (contracts), `VNT` (Vantage). | 2026-10-30 |
+| D7 | No corporate mirror until migration. Personal remotes only. | 2026-10-30 |
+| D8 | Working style: one orchestrator (Opus, medium) writes prompts for workers (Sonnet, medium/high) and reviews every result. Promoted to a `.claude` workflow only after first use. | 2026-10-30 |
+| D9 | Proven on the lab first (the test-bench decision). Testing the scheduler on one real function component was the mistake this corrects. | 2026-10-29 |
+| D10 | The scheduler is event-driven (§1). In this workspace it supersedes R-SIM-18's base-grid parts (override note in `.claude/rules/sim.md`); the 1v rule is amended at migration. | 2026-10-30 |
+| D11 | `.claude/` is a pinned import of selected 1v files (`.claude/IMPORTED.md`); local changes are listed there and back-ported at migration. | 2026-10-30 |
+| D12 | Requirement sets live in the module they describe (`interfaces`, `vantage`) so they travel with it at migration; only program documents live in this repo. `selftest_mutations.yaml` is added to a set only when it gets a check worth planting. | 2026-10-30 |
+| D13 | **viz is out of this design.** Vantage does not depend on viz, which removes the viz ↔ sim loop and lets vantage be one package. The board is Vantage's boundary and must carry **everything viz shows today**, so any viewer can be built on it later; how viz uses it is decided later. `viz` is not a submodule of this workspace. | 2026-10-30 |
+
+## 3. Where everything lives
+
+```
+C:\ws\repo\vantage-dev\                         superproject (root holds no source code)
+│
+├─ VANTAGE_DEV_PLAN.md                          THIS FILE — consolidated plan
+├─ README.md                                    what this workspace is, how to clone/build
+├─ CLAUDE.md                                    bootstrap context for every AI session here
+├─ .claude/                                     pinned import from 1v (IMPORTED.md lists it)
+├─ program/                                     how the work is run (orchestration)
+│    VANTAGE_PROGRAM.md                         orchestrator entry: roles, gates, prompt template,
+│                                               review checklist, escalation, decision log
+│    WORKSPACE_Plan.md                          Plan B work packages (checkboxes) + exit gates
+│    ORCHESTRATION_LEDGER.md                    dated: prompt sent → worker result → review verdict
+├─ scripts/ · setup.bat · toolchains/           root machinery, brought over from 1v and pointed
+│                                               at this module list (Plan B, register in
+│                                               WORKSPACE_Plan.md §4)
+├─ .gitmodules
+└─ modules/
+     interfaces/      → interfaces repo, branch `vantage`
+     │    docs/resim_contract/                  Plan A set (RCT): resim contract + board layout
+     │       layers.yaml
+     │       RCT_Architecture.md                context: why, message shapes, board layout, rejected
+     │                                          options, ECU vs SIL duties, versioning, adoption order
+     │       RCT_System_Requirements.md         SYS rows
+     │       RCT_Implementation_Design.md       IMP rows (boxed) → work packages
+     │       RCT_Test_Spec.md
+     toolchain/       → toolchain repo, `main` (branch `vantage` only if a build change is needed)
+     shared_config/   → shared_config repo, `main` (ego parameters for config bundles)
+     vantage/         → NEW repo, fork of sim
+     │    docs/                                 Plan C set (VNT)
+     │       layers.yaml
+     │       VANTAGE_Architecture.md            context: parts, six rules, naming, threads
+     │       VANTAGE_Migration_Register.md      context (register): from sim — reused / replaced /
+     │                                          corrected / new; disposition of every sim v2 row
+     │       VANTAGE_Lab_Design.md              context, rollup: generator, fake car, catalogue
+     │       VANTAGE_System_Requirements.md     SYS rows
+     │       VANTAGE_Implementation_Design.md   IMP rows (boxed) → work packages
+     │       VANTAGE_Test_Spec.md
+     vantage-lab/     → NEW repo: generator, fake car, topology catalogue (code)
+```
+
+Requirement sets are checked by the existing module-agnostic checker
+(`.claude/templates/requirements/trace_check.py --set <dir>`), driven only by each
+set's `layers.yaml` (R-REQ-12). Progress: `--status` on each set.
+
+## 4. The three plans and the lab
+
+### Plan A — resim contract (`interfaces`, RCT)
+What every component, in the car and on the PC, must publish so a resim can
+reproduce it.
+- **Signal header** meaning: `measurement_counter` = identity, passed through
+  unchanged (output takes the trigger input's value); `cycle_counter` = own run
+  count; wrap-around rules; `sig_status` as today (R-IFACE-4).
+- **Receipt**: per run, the headers of the inputs actually read. Written by the
+  component from what it read, never copied through.
+- **State snapshot**: an output and an input for stateful components, so a resim
+  can start warm (start and seek).
+- **Manifest fields**: trigger input, previous-cycle edges, declared period.
+- **ECU duties**: what must be logged so "exact" is reachable on car recordings
+  (tied to the open camera-ECU logging decision).
+- **Adoption order** for components already in 1v (df, vdy, perception-core), so
+  merging the `vantage` branch never breaks 1v.
+- **Board layout** (D13): the shared-memory contract between Vantage and any
+  viewer, one layout header in `interfaces`. It carries everything viz shows
+  today:
+  - **cover page, once per run:** layout version; run number; every stage with
+    mode (simulate / measured / off), implementation and build hash; every port
+    with its proto type and the **FileDescriptorSet**, so a viewer decodes
+    without generated code (R-SIM-11); plug-in identities and hashes; config
+    bundles (path + hash); declared periods; declared overrides;
+  - **one sheet per engine step:** step number and simulation time; every port's
+    bytes with its signal header, origin tag (measured / truth / mocked /
+    simulated / overridden), valid, held/fresh and age; the receipt each run used;
+  - **badges and counts:** fallback counts per port, not matched to car inputs,
+    warming up, readiness timeouts, computed-not-consumed, identity broken;
+  - **status box:** running / paused / finished, heartbeat, dropped sheets, run
+    outcome (pass / fail / crash / timeout);
+  - **images** (camera frames): by reference into a second segment, never inline
+    in a sheet.
+
+### Plan B — workspace (`program/WORKSPACE_Plan.md`, no requirement layers)
+Create `vantage-dev`, the `vantage` fork and `vantage-lab`; bring over root
+machinery; restructure `vantage` to the standard component layout as one package
+(without `sim/vantage/`); branch on `interfaces`; everything builds with the
+shared toolchain.
+
+### Plan C — Vantage (`vantage`, VNT)
+Launcher, orchestrator (six rules), runner, per-port sample buffers, board writer
+(three C calls, common to every engine), a **board inspector** (a command-line
+tool that attaches, dumps and checks the board, used instead of a viewer to
+verify it), other engines. Starts from the reuse analysis (seed: 1v
+`docs/vantage_event_resim_plan.md`).
+
+### The lab (`vantage-lab`, designed in `VANTAGE_Lab_Design.md`)
+Your A, B, C, D components, **generated** from a short description file instead
+of hand-written, plus a fake car that produces the known right answer.
+
+**Kept deliberately small:**
+- **One** C++ component template and **one** Python script that fills it from a
+  YAML file. No code-generation framework, no plug-in system.
+- The "algorithm" is plain arithmetic over inputs (and a running sum for
+  components with memory), so a wrong input sample always changes the output.
+- The fake car reuses the executable model already written
+  (`modules/sim/misc/mts_bench/experiments/scheduler_model/` in 1v, study notes)
+  as its timing logic.
+- First milestone: the running example only (X, Y, Z, A–E). More topologies are
+  added as files, one corner case at a time.
+
+## 5. Order and gates
+
+```
+B0  create repos (local)            ─┐
+B1  workspace builds, unchanged sim ─┤
+A   contract set frozen             ─┼─► gate G1: contract frozen + workspace builds
+                                     │
+C0  architecture + register frozen  ─┤
+L1  lab: generator + running example ┼─► gate G2: lab components pass contract tests
+L2  lab: fake car recordings        ─┘
+C1  orchestrator (six rules)        ───► gate G3: every lab topology exact vs fake car,
+                                          single- and multi-threaded identical
+C2  board writer + board inspector  ───► gate G4: for every lab topology the inspector finds
+                                          every board-contract item on the board, and every
+                                          failure drill passes (with test readers, no viewer)
+C3  other engines (CARLA bridge, CarMaker) via the common board writer
+V   viewer on the board (viz)       ───  later, separate decision (D13)
+M   migration into 1v               ───► gate G5: 1v builds and its tests pass with sim
+                                          replaced by vantage and branches merged
+```
+
+No phase starts before the gate in front of it is green. Each document is frozen
+before the next one that depends on it is written.
+
+**How the branches reach 1v at migration (G5).** During development 1v keeps
+pointing at `main` of `interfaces`, so df, vdy, perception-core and the demo
+build exactly as today. At migration: merge the `vantage` branch of `interfaces`
+into its `main` (submodule first), bump 1v's submodule pointers, replace `sim`'s content
+with `vantage`, then back-port the `.claude` changes listed in
+`.claude/IMPORTED.md`. Plan A keeps every contract change **additive** (new
+messages and fields, nothing removed or renamed) and carries an **adoption
+order**, so 1v's existing components keep building on the day of the merge and
+start writing receipts one at a time.
+
+## 6. Writing order for this workspace's documents
+
+| # | Document | Depends on |
+|---|---|---|
+| 1 | `VANTAGE_DEV_PLAN.md` (this file) | — |
+| 2 | `CLAUDE.md` + `.claude/` import (`IMPORTED.md`, `routing.md`) | 1 |
+| 2b | `README.md` | 1 |
+| 3 | `program/VANTAGE_PROGRAM.md` + `program/ORCHESTRATION_LEDGER.md` | 1, 2 |
+| 4 | `program/WORKSPACE_Plan.md` | 3 |
+| 5 | Plan A set (`interfaces/docs/resim_contract/`) | 4 (branch exists) |
+| 6 | Plan C context: `VANTAGE_Architecture.md`, `VANTAGE_Migration_Register.md` | 5 |
+| 7 | `VANTAGE_Lab_Design.md` | 5, 6 |
+| 8 | Plan C requirements + design + test spec | 6, 7 |
+
+## 7. Rules that apply everywhere
+
+All `.claude/rules` of 1v-superproject apply unchanged. The ones most often hit
+here: R-GIT-1/2 (submodule first; commit and push only when asked),
+R-BUILD-1..6 (standard build, no private build structure), R-REQ (layers,
+falsifiable Accept, generated status), R-IFACE-4 (signal header), R-TEST
+(run only what the change can break; full gate once before the final commit),
+R-STYLE (file headers, minimal diffs). No company names anywhere except
+L&T EPS where code requires it. No reference-tool names in tracked files.
+
+## 8. Sources
+
+- Concept: `C:\ws\lt_learning\sim\vantage_concept.html`
+- Reuse analysis: 1v-superproject `docs/vantage_event_resim_plan.md`
+- Evidence (study notes, git-ignored in 1v): `modules/sim/misc/mts_bench/05_sync_and_scheduling.md`,
+  `experiments/` and `experiments/scheduler_model/`

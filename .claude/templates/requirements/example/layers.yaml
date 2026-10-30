@@ -1,0 +1,108 @@
+# SBR requirement set — the ONE declaration the checker is driven by.
+#
+# A worked instantiation of ../layers.yaml. Deliberately tiny: a seat-belt
+# reminder, chosen because everyone already knows what it does, so the reader
+# can look past the subject at the shape.
+
+module: SBR
+component: EXAMPLE            # R-NAME-6 token
+function: sbr
+
+layers:
+  - id: STK
+    name: Stakeholder
+    doc: SBR_Stakeholder_Requirements.md
+    tests: [STT, E2E]
+    budget: 6
+    categories: [feature, kpi]
+  - id: SYS
+    name: System
+    doc: SBR_System_Requirements.md
+    tests: [SYT, INSP]
+    budget: 6
+    requires_binds: true
+  - id: SW
+    name: Software
+    doc: SBR_Software_Requirements.md
+    tests: [UT, IT, ANL]
+    budget: 12
+    requires_item: true
+    # R-REQ-12. This layer may trace PAST SYS, straight to STK, for the
+    # stakeholder obligation that genuinely has no system-level content: it
+    # lands inside one software item and states no vehicle-level boundary
+    # behaviour of its own. Declared here, and each such row must still say
+    # `(skips SYS: <reason>)` in its own Trace or C-SKIPWHY fires. Every skip
+    # is printed on every run, because a set quietly full of them is a SYS
+    # layer nobody wrote.
+    may_skip_from: [STK]
+
+test_spec: SBR_Test_Spec.md
+
+# R-REQ-13. An expectation, reported every run -- never a failure.
+# Three work items (detect, escalate, debounce) x 8 = 24 = 6 + 6 + 12.
+budget_basis:
+  unit: work_item
+  count: 3
+  per_unit: 8
+  total: 24
+
+# R-REQ-13. Printed on every run: a reason kept only in a comment is a reason
+# nobody reads.
+budget_history:
+  - date: 2026-09-07
+    change: "count 2 -> 3 work items (16 -> 24)"
+    why: >-
+      Debounce became a work item of its own when STK-0005 was written, and it
+      is the set's worked example of a declared layer skip (R-REQ-12).
+
+# R-REQ-14. Cap the commentary. Count and length are uncapped.
+limits:
+  requirement_words: 60
+  headline_chars: 90
+  commentary_lines_per_requirement: 6
+
+# R-REQ-15. No real conf/ports.yaml exists for a fictional module, so every
+# port is PROPOSED and the checker says so on every run.
+# ------------------------------------------------------- supporting docs ---
+# R-REQ-17. Where the THINKING lives, so the specification carries only the
+# result. Declared here rather than scattered, so a reader knows what to read
+# first and the checker can tell when one goes stale.
+#
+# Four kinds, closed: concept | architecture | register | reference.
+# These documents allocate NO UIDs and state NO obligations, and they are
+# exempt from commentary_lines_per_requirement -- commentary is the point of
+# them. A set that needs none simply omits the block.
+context:
+  - kind: concept
+    doc: SBR_Concept.md
+  - kind: architecture
+    doc: SBR_Architecture.md
+
+ports:
+  source: ../../conf/ports.yaml
+  proposed:
+    inputs:
+      - name: beltState
+        proto_type: adas.common.BeltState
+        functions: [sbr]
+      - name: occupancy
+        proto_type: adas.common.SeatOccupancy
+        functions: [sbr]
+      - name: egoDyn
+        proto_type: adas.common.VehDyn
+        functions: [sbr]
+    outputs:
+      - name: sbr.outputs
+        proto_type: adas.example.SbrOutputs
+        owner_function: sbr
+      - name: sbr.compState
+        proto_type: adas.example.CompState
+        owner_function: sbr
+
+items:
+  belt:  Belt-buckle state debounce
+  occ:   Seat-occupancy debounce
+  gate:  Speed and availability gating
+  esc:   Escalation timer
+  state: Reminder latch and clear
+  calib: Calibration read from the config bundle

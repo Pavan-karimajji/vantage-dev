@@ -1,0 +1,84 @@
+﻿# Local CMake / MSVC build outputs
+build/
+build-*/
+build-integration/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+install_manifest.txt
+CTestTestfile.cmake
+Testing/
+
+# Visual Studio / MSBuild
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.opensdf
+*.sdf
+.vs/
+x64/
+Win32/
+Release/
+Debug/
+RelWithDebInfo/
+MinSizeRel/
+*.dir/
+*.tlog
+*.obj
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.idb
+*.recipe
+*.lastbuildstate
+*.iobj
+*.ipdb
+
+# JetBrains IDEs (CLion / PyCharm)
+.idea/
+
+# Python (scripts/conan_publish.py + tests)
+__pycache__/
+*.pyc
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Superproject build workspaces (build.py --build-dir / aggregator output)
+# conan_workarea/ - the superproject's own aggregate build output
+# (WP-20/SS2.8.13a renamed ws/ -> conan_workarea/; ws/ no longer exists).
+# Generated on every root-invoked build, never committed - same treatment
+# each component's own conan_workarea/ already gets.
+conan_workarea/
+
+# RD-13 (remove_develop_mode_plan.md): scripts/make_offline_bundle.py's
+# default --out and scripts/setup.py --offline's default lookup with no
+# argument - a bundle is data, never committed (D3), same as conan_workarea/.
+/misc/offline_bundle/
+
+# Local-only cleanup/audit working doc - never pushed (quotes sensitive findings verbatim by design)
+/cleanup_plan.md
+
+# Threat-assessment audit trail + the agents that produce it - never pushed
+# (the reports quote leaked terms verbatim by design, same reasoning as cleanup_plan.md above)
+/docs/threat_assessment/
+/.claude/agents/threat-screening.md
+/.claude/agents/threat-removal.md
+
+# IP-provenance investigation trail + the agent that produces it - never pushed
+# (quotes leaked/admission text verbatim by design, same reasoning as above)
+/ip_provenance_evidence.md
+/.claude/agents/ip-provenance-scan.md
+
+# docs/*.md not tracked (kept locally); docs/KT/ is the exception and stays tracked
+/docs/*.md
+!/docs/KT/

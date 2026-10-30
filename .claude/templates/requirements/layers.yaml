@@ -1,0 +1,191 @@
+# <MODULE> requirement set — the ONE declaration the checker is driven by.
+#
+# TEMPLATE. Copy beside your documents and edit. R-REQ-12..15.
+# Reference implementation: modules/df/docs/ldw/layers.yaml
+
+module: <MODULE>              # UID namespace (R-REQ-2)
+component: <COMPONENT>        # R-NAME-6 token, e.g. DF
+function: <fn>                # ENABLED_FUNCTIONS token, or omit if not a df function
+
+# ---------------------------------------------------------------- layers ----
+# Declare ONLY the layers you are going to populate (R-REQ-12). The top
+# declared layer is unparented by definition. A layer declared and left empty
+# is a finding. Starting mid-stack (e.g. SW alone) is legal — see
+# skills/requirements_management.md §0a.
+layers:
+  - id: STK
+    name: Stakeholder
+    doc: <MODULE>_Stakeholder_Requirements.md
+    tests: [STT, E2E]
+    budget: 8
+    # R-REQ-16. Declare ONLY the categories this module has. An algorithm
+    # feature carries both; a cyber-security or embedded item with no
+    # performance target of its own declares [feature] alone and is never
+    # asked for a KPI. A declared category left empty is a finding, so the
+    # escape is a decision on the record rather than a silence.
+    categories: [feature, kpi]
+  - id: SYS
+    name: System
+    doc: <MODULE>_System_Requirements.md
+    tests: [SYT, INSP]
+    budget: 16
+    requires_binds: true      # the external boundary, so it binds declared ports
+  - id: SW
+    name: Software
+    doc: <MODULE>_Software_Requirements.md
+    tests: [UT, IT, ANL]
+    budget: 24
+    requires_item: true       # internal, so it names a declared software item
+    # OPTIONAL (R-REQ-12). Layers this one may trace PAST the layer directly
+    # above, to. For the stakeholder obligation with no system-level content of
+    # its own: it lands inside one software item and states no vehicle-level
+    # boundary behaviour, so a SYS row written for it would only restate it one
+    # font-size larger -- one obligation in two places (R-REQ-1), free to drift.
+    #
+    # Three things keep the escape honest, and none of them is optional:
+    #   * the layer DECLARES it here (an undeclared skip is C-PARENT, unchanged)
+    #   * the row SAYS WHY, in its own Trace:
+    #         **Trace.** `STK-0007` (skips SYS: one software item, no
+    #         vehicle-level boundary behaviour of its own)
+    #     -- missing, or shorter than four words, is C-SKIPWHY
+    #   * every skip taken is PRINTED on every run, like the budget ratio: one
+    #     skip is a judgement, a set full of them is a SYS layer nobody wrote.
+    #
+    # Skipping is never the default. Ask whether the boundary genuinely has
+    # nothing to say -- multi-component behaviour, a port contract, a timing
+    # budget the vehicle owns -- and only then skip. Naming the layer directly
+    # above here is C-SKIPDECL: that is the ordinary parent, not a skip.
+    # may_skip_from: [STK]
+
+test_spec: <MODULE>_Test_Spec.md   # one file; a test's layer comes from its id prefix
+
+# ---------------------------------------------------------------- plan ------
+# OPTIONAL (R-REQ-6a). Declare it once you have a build order, and the checker
+# turns on four checks plus `--status`:
+#
+#   C-UNLANDED   a requirement in the LOWEST declared layer that no package
+#                lands. Nothing else can see this -- the requirement itself is
+#                perfectly well formed; it is simply that nothing will build it.
+#   C-DUPLAND    a UID landed by two packages: two places to build one thing.
+#   C-PLANUID    a package landing a UID that does not exist.
+#   C-PLANMARK   a `[~]` row with no "closed by <command or condition>".
+#
+# The checkboxes are then the ONE hand-maintained progress state in the set,
+# and `--status` is derived from them. Keep progress marks OUT of requirement
+# documents unless you also have a check that recomputes them (R-REQ-6a's two
+# conditions) -- otherwise there is nothing to drift, which is simpler and
+# safer. Progress is never verification (R-REQ-6).
+#
+# Row format the parser expects:
+#   - [ ] **WP-01** — Headline · lands `SYS-0001`, `SYS-0002` · one line of what it means
+#
+# plan: <MODULE>_Implementation_Plan.md
+
+# ---------------------------------------------------------------- budget ----
+# R-REQ-13. A declared EXPECTATION, reported every run -- never a failure.
+# Over it is a scope signal for a human to judge, not something a checker
+# resolves by making the writing smaller. Derived, never negotiated. Pick the unit of buildable work you
+# already have, count it, multiply. total must equal the sum of the per-layer
+# budgets above.
+# The per-layer budgets above must sum to `total`, and `total` must equal
+# count x per_unit — both are checked (C-BUDGET-BASIS), so this stays a
+# derivation rather than a comment.
+budget_basis:
+  unit: work_item
+  count: <N>
+  per_unit: 8
+  total: <N*8>
+
+# ------------------------------------------------------------ unit limits ---
+# R-REQ-14. Cap the COMMENTARY, never the count and never the length.
+#
+# There is no cap on how many requirements a set holds, and none on how long a
+# document is. A document is as long as the problem needs. Capping either one
+# punishes thoroughness, and it makes a writer merge two obligations into one
+# row to fit -- a compression the reader cannot see in the finished document.
+#
+#   requirement_words  ONE-OBLIGATION DETECTORS, not length limits. A row over
+#   headline_chars     these is carrying more than one obligation (R-REQ-1) and
+#                      is fixed by SPLITTING it, which makes the set better.
+#                      Never raised.
+#
+#   commentary_lines_  THE cap. Commentary is every line of a requirement
+#     per_requirement  document that is not a requirement field, a headline, a
+#                      heading, or blank: preamble, rationale, notes, crosswalk
+#                      tables. Measured 2026-09-05 across every set in this
+#                      repo -- readable documents run 1.6 to 4.3; the two that
+#                      became unreadable run 81 and 990. Length separated none
+#                      of them. 6 rather than 4, because 4 fails the reference
+#                      set's own stakeholder document, whose preamble earns its
+#                      place.
+limits:
+  requirement_words: 60                   # Shall + Accept -- HARD, never raised
+  headline_chars: 90                      # HARD, never raised
+  commentary_lines_per_requirement: 6     # the one that actually bounds a document
+
+# ------------------------------------------------------- supporting docs ---
+# OPTIONAL (R-REQ-17). Where the THINKING lives, so the specification carries
+# only the result. Declare the documents a reader needs *before* the rows make
+# sense; omit the block entirely if there are none.
+#
+#   concept       the problem, the domain, the mathematics -- why the numbers
+#                 are what they are
+#   architecture  ports, interfaces, structure, decomposition -- how it is built
+#   register      a change register: the thinking in plain English, before any
+#                 UID exists (worked example: modules/sim/docs/v2/parity)
+#   reference     retrieved external material -- standards, regulations,
+#                 datasheets. Point at the directory.
+#
+# The kinds are a CLOSED list, for the same reason every other list here is
+# closed: an open one becomes a junk drawer and "what do I read first" stops
+# having an answer.
+#
+# These documents allocate NO UIDs and state NO obligations -- citing `SYS-0004`
+# is how they connect to the set, defining it puts one obligation in two places
+# (C-CONTEXT-UID). They are EXEMPT from commentary_lines_per_requirement,
+# because commentary is the whole point of them; what is capped instead is
+# execution narration, and the test is tense (R-REQ-14).
+#
+# Each declared document must be cited by some requirement document, the test
+# spec or the plan (C-CONTEXT-UNREF) -- one nothing refers to goes on looking
+# true long after the set stopped agreeing with it.
+#
+# `rollup: true` (optional, R-REQ-6a) says this document carries its OWN build
+# order -- a package list plus a boxed design-row table, with ids scoped to
+# itself and no UID allocated. A DELIVERY design is the case: the viz layers,
+# the sim fixtures, the CarMaker roads are real work with real packages, and
+# without this they are the half of the job nobody counts. It turns on the same
+# three checks the plan gets (C-ROWBOX / C-ROWMARK / C-WPROLL) over
+#
+#     - [ ] **WP-<X>nn** — headline · note
+#     | Box | ID | WP | Change | Artifact - design |
+#
+# and adds the document to `--status`. Declaring it on a document with no boxed
+# row is C-ROLLUP-EMPTY: a declared rollup that rolls nothing up is a silent
+# no-op that reads as coverage.
+#
+# context:
+#   - kind: concept
+#     doc: <MODULE>_Concept.md
+#   - kind: architecture
+#     doc: <MODULE>_Architecture.md
+#   - kind: architecture
+#     doc: <MODULE>_Viz_Imp_Design.md
+#     rollup: true
+#   - kind: reference
+#     doc: reg/
+
+# ------------------------------------------------------------------ ports ---
+# R-REQ-15. Resolved against the component's real conf/ports.yaml first. A port
+# not yet landed there is declared under `proposed:` and reported as PROPOSED —
+# never silently accepted. Delete `proposed:` entries as they land for real.
+ports:
+  source: ../../conf/ports.yaml
+  proposed:
+    inputs: []
+    outputs: []
+
+# --------------------------------------------------------- software items ---
+# Declared once. Never invented at the point of use.
+items:
+  <item>: <one-line description>
