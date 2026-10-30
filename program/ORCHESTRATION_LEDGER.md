@@ -437,3 +437,193 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   pointer bump with D16, this ledger and the prompts. `vantage/.gitignore` (VG-1)
   stays uncommitted until the owner approves it.
 - Next: 6a running; review it when it reports.
+
+### 2026-10-30 · 6a · verdict
+- Result: done. `modules/vantage/docs/VANTAGE_Architecture.md` (759 lines, all 14
+  sections); no Shall/Accept; every cited `RCT:` UID exists; every `(E)` path
+  exists; no grid assumption (R-SIM-18 listed as superseded); uses *equal outputs*
+  (D16); crash outcome decided: the batch supervisor seals crash and run timeout,
+  the worker writes pass/fail/call timeout, the developer face writes none and a
+  reader reports "writer gone". `IMP-0032`..`IMP-0039` mapped to files and symbols.
+  Orchestrator checks: fault 4 confirmed as a conflict inside the frozen contract —
+  `RCT_Architecture.md` row "recorded control: handed over unchanged, except
+  RESTART on the first run" vs `SYS-0010` (scheduler's own count in every control)
+  and `SYS-0011` (RESTART also after a jump); 6a follows the architecture row.
+  Fault 1 confirmed: `RCT:Q3` says the live measurement reports the readiness
+  limit; `MeasDescription` has no field for it.
+- Verdict: escalate (contract questions under D14; otherwise ready to freeze)
+- Why: two contract faults need the owner; 6a's §3.2 and the `IMP-0032` mapping
+  change with the answer to fault 4.
+- Next: owner answers faults 1, 2, 4 and the five design confirmations; then a
+  contract fix (RCT-A2) and a 6a rework, then the freeze.
+
+### 2026-10-30 · HANDOFF · decision
+- Result: owner decisions on the 6a escalation (D14), recorded here in full. The
+  next orchestrator session starts from this entry. **Add D17 to
+  `VANTAGE_DEV_PLAN.md` §2 in the next accepted change** (VANTAGE_PROGRAM §8),
+  covering decisions 1-3 and 5.
+  1. **Recorded controls (fault 4): the SYS rows win, plus one case.** When
+     replaying a recorded control, Vantage copies `measurement_counter` and
+     `source_timestamp_us` from it, writes its own `cycle_counter` and sticker OK,
+     forces RESTART on the first run and after a jump, and otherwise passes the
+     **recorded** `op_mode`, so a restart the car sent mid-recording is reproduced.
+  2. **Readiness limit (fault 1):** add `uint32 readiness_limit_steps = 7` to
+     `MeasDescription`; the field table and `ANL-01` follow.
+  3. **Missing-sample signs (fault 2):** counter gap, counter reset and stalled
+     trigger are counted in the engine's event log now; badge kinds come only when
+     a reader needs them. The concept page must not promise "N samples missing" yet.
+  4. **refSync comparison (fault 3): accepted as 6a wrote it.** A re-run's refSync
+     is compared only on each entry's counter and time.
+  5. **The 6a choices.** Confirmed:
+     - a step at every instant where any event happens;
+     - no pause for now;
+     - the live measurement writer ships as a static library first.
+
+     **Warming up: changed.** It means a stage started mid-recording, badged until
+     its outputs first equal the recorded outputs, and only when the recording
+     holds them. "Every input matched by refSync" is what `KIND_FALLBACK` reports.
+
+     **Seek:** must not give `MeasStatus.runId` a second meaning (one `runId` per
+     writer start). Orchestrator check: 6a gives it none. `simEngineSeek` keeps
+     the writer open and step numbers continue, but 6a does not yet say this in
+     words.
+  6. `vantage/.gitignore`: committed, `vantage` `bf227d9` (main, the declared
+     branch), pointer `93648c2`. Nothing pushed.
+- **RCT-A2 must do** (contract fix, `modules/interfaces`, sonnet high):
+  - **`SYS-0011`:** amend to "RESTART for exactly the first run of a component and
+    the first run after a jump; otherwise RUN, or the recorded `op_mode` when
+    recorded controls are replayed". Keep Shall+Accept ≤ 60 words.
+  - **`SYT-CTL-06`:** add a case `.c2`, a RESTART the recording carries mid-run is
+    passed through. It needs a fixture that has one; name it, or add one to the
+    catalogue.
+  - **`RCT_Architecture.md` line 166:** correct "handed over unchanged, except
+    `op_mode = RESTART` on the first run" to decision 1.
+  - **Design row `IMP-0032`:** its Artifact says "a recorded control unchanged
+    except RESTART on the first run and after a jump". Correct it to decision 1;
+    this is a design-row edit.
+  - **`MeasDescription` field 7 `readiness_limit_steps`:** add it in
+    `proto/livemeas/meas_description.proto` and in the design's *Message fields*
+    table. Mention it in the `IMP-0006` Artifact if needed.
+  - **`RCT_Architecture.md` `Q3`:** state where the limit is reported (field 7);
+    its value stays ⊘.
+  - **Exit check, the R-TEST-2 gate:**
+    - vs2026 build and ctest;
+    - `C:\ws\venvs\rct-pytest` pytest on `tests/python`, plus
+      `test_gen_sil_ports.py` run directly;
+    - `check_rct_schema.py --fields`, `--compat 83b7fe9` and `--reserved`. The
+      new field is additive, so `--compat` still passes;
+    - `check_invariants`;
+    - `trace_check`.
+  - Commit only with the owner's yes: interfaces first, then the pointer.
+- **6a fixes must do** (`modules/vantage/docs/VANTAGE_Architecture.md`, still
+  untracked, rework 1 of 6a, sonnet high):
+  - **§3.2 and the `IMP-0032` row of §11:** control writing per decision 1.
+  - **§4:** the readiness limit maps to `MeasDescription.readiness_limit_steps`.
+  - **§9 and §3.2:** gap, reset and stalled trigger are event-log counts (decision 3).
+  - **Warming up:** redefine per decision 5 everywhere it appears (§2.2, §6/§7,
+    the badge mapping).
+  - **Seek:** say in words that `simEngineSeek` keeps the writer open,
+    `runId` does not change and step numbers continue.
+  - **§14:** close faults 1-4 and the confirmed choices, each citing D17; keep
+    the remaining open questions.
+  - Exit check as in `program/prompts/6a.md`.
+- **Concept-page divergences:** `program/CONCEPT_PAGE_DIVERGENCES.md`, 11 rows plus
+  two "also check" items from decisions 1 and 5. The orchestrator updates the page
+  (`C:\ws\lt_learning\sim\vantage_concept.html`) after 6a is frozen.
+- **Working copy at handoff:**
+  - **Committed:** interfaces `d212700`, `e374f4d`; vantage `bf227d9`;
+    vantage-dev `c80a7e9`, `93648c2`.
+  - **Not committed:**
+    - this ledger's entries from the 6a verdict on;
+    - `program/CONCEPT_PAGE_DIVERGENCES.md`;
+    - `modules/vantage/docs/VANTAGE_Architecture.md` (6a, awaiting fixes and
+      freeze; this is why `modules/vantage` shows `?`).
+  - Commit them with the RCT-A2 pointer bump, on the owner's yes.
+- **Next, in order:**
+  1. RCT-A2, then review it and commit with the owner's yes.
+  2. The 6a fixes, then review them; the owner freezes 6a; commit it with the
+     owner's yes, `vantage` first, then the pointer.
+  3. Update the concept page from `program/CONCEPT_PAGE_DIVERGENCES.md`.
+  4. 6b, `VANTAGE_Migration_Register.md` part 1 and its check script (D15).
+  5. Step 7, `VANTAGE_Lab_Design.md`. Owner input: the template's `max_age_us`
+     and `recovery_runs` (`IMP-0024`/`IMP-0025`) are calibration keys, so ALL_CAPS
+     with prefix and unit suffix (R-NAME-3).
+  6. Then the build packages unblocked by them: WP-06/07 (lab), WP-08..10
+     (Vantage), per plan §6.
+- Open follow-up: none besides the above. RCT-A1, GSP-1, VG-1 and WP-01..05 are
+  closed.
+- Why: the owner moves to a fresh orchestrator session that sees only the repo; no
+  more workers launched in this one.
+- Next: RCT-A2.
+
+### 2026-10-30 · RCT-A2 · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/RCT-A2.md` — HANDOFF decisions 1 and 2 into the
+  contract: `SYS-0011`, `SYT-CTL-06.c2` with new fixture `F-LAB-RESTART`,
+  `RCT_Architecture.md` (`op_mode` row, line 166, `MeasDescription` row, `Q3`),
+  `IMP-0032`, `MeasDescription.readiness_limit_steps = 7` (proto + field table);
+  D17 added to the plan (decisions 1-3 and 5). Exit check: the interfaces R-TEST-2
+  gate. Two places beyond the HANDOFF list, found by grep: the `op_mode` row
+  (line 56) and the `MeasDescription` contents row (line 293). `IMP-0030` (the fake
+  car, "RESTART only on the first run") is left alone; what it needs for
+  `F-LAB-RESTART` is an input to step 7.
+- Next: review RCT-A2; then propose the commit (interfaces, then the pointer with
+  D17, the ledger and the untracked program files).
+
+### 2026-10-30 · RCT-A2 · verdict
+- Result: done. `SYS-0011` (headline, Shall, Accept per decision 1; within the
+  word caps), fixture `F-LAB-RESTART`, `SYT-CTL-06.c2` (cites the Accept, FAIL
+  stated), `RCT_Architecture.md` lines 56, 166, 293 and `Q3`, `IMP-0032` Artifact,
+  `MeasDescription.readiness_limit_steps = 7` (proto + field table), D17 in the
+  plan. Orchestrator read the whole diff: only the allowed lines changed; line
+  endings kept. R-TEST-2 gate: vs2026 ctest 32/32 (23 s); pytest 17 passed (4 s);
+  `test_gen_sil_ports.py` 9/9; `check_rct_schema.py --fields`, `--compat 83b7fe9`,
+  `--reserved` PASS; `check_invariants` clean (9 s); `trace_check` PASS, 78 reqs,
+  36 tests (rerun by the orchestrator). Grep found no other "unchanged control" or
+  "RESTART only on the first run" sentence except `IMP-0030`.
+- Verdict: accept
+- Why: every exit-check item holds; diff re-read by the orchestrator.
+- Input to step 7 (lab design): `IMP-0030` (fake car scheduler) says "RESTART only
+  on the first run"; to build `F-LAB-RESTART` it must also send RESTART for one
+  named component at one scripted run. WP-07 and WP-08 must build that fixture.
+- Next: propose the commit (interfaces, then the vantage-dev pointer with D17, the
+  ledger, `CONCEPT_PAGE_DIVERGENCES.md` and `prompts/RCT-A2.md`); then the 6a fixes.
+
+### 2026-10-30 · OWNER · decision
+- Result: owner accepts RCT-A2 with two text fixes before the commit, no field
+  numbers change: (1) `KIND_WARMING_UP` means D17 (4) — "stage: started
+  mid-recording; badged until its outputs first equal the recorded outputs, only
+  when the recording holds them"; (2) `readiness_limit_steps` 0 = "never waits"
+  (0 is a real limit; the run setup always has one and the writer always writes
+  it), "not set" dropped in the proto comment, the field table and `Q3`. Then
+  trace_check and `check_rct_schema --fields`, then both commits as proposed, then
+  the 6a fixes.
+- Orchestrator addition: the same old warming-up text is the `KIND_WARMING_UP`
+  comment in `meas_cycle.proto`; fixed with it (one fact in one place). For 6a:
+  its §6 "`readiness_limit_steps` is a positive integer" must become "0 = never waits".
+- Next: RCT-A2-R1.
+
+### 2026-10-30 · RCT-A2-R1 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/RCT-A2-R1.md` — the two owner text fixes in the field
+  table, both proto comments and `Q3`.
+- Next: review; then the two commits.
+
+### 2026-10-30 · RCT-A2-R1 · verdict
+- Result: done. `KIND_WARMING_UP` reads D17 (4) in the field table and in
+  `meas_cycle.proto` (comment moved above the value); `readiness_limit_steps`
+  "0 = never waits" in the proto comment, the field table and `Q3`; "not set" and
+  "started cold" gone (grep). Comments and table text only, no field changed.
+  `trace_check` PASS, 78 reqs, 36 tests (rerun by the orchestrator);
+  `check_rct_schema.py --fields` PASS. The two extra files in the worker's diff
+  stat are RCT-A2's own (SYS and test spec), as the prompt expected.
+- Verdict: accept
+- Why: every exit-check item holds; diff re-read by the orchestrator.
+- Next: the two approved commits; then 6a-R1.
+
+### 2026-10-30 · COMMIT · decision
+- Result: committed (owner-approved), nothing pushed: interfaces `c42782d`
+  (RCT-A2 + R1), then the vantage-dev pointer bump with D17, this ledger,
+  `CONCEPT_PAGE_DIVERGENCES.md` and the RCT-A2 / RCT-A2-R1 prompts.
+  `VANTAGE_Architecture.md` stays untracked until the owner freezes 6a.
+- Next: 6a-R1.
