@@ -43,8 +43,8 @@ are created by the owner (B0.1).
 | [x] | **B0.3** | `vantage-lab` repo with a one-paragraph `README.md` (its content is designed in Plan C, `VANTAGE_Lab_Design.md`) | worker (medium) prepares, owner pushes | remote has the README commit |
 | [x] | **B0.4** | branch `vantage` on `interfaces`, created from `83b7fe9`, its package version bumped to `1.1.0` in `project(adas-interfaces VERSION …)` of its `CMakeLists.txt` (the recipe reads name and version from there); nothing else changed | worker (medium) prepares, owner pushes | branch on the remote; the diff from `83b7fe9` is the version line only |
 | [x] | **B1.1** | submodules in vantage-dev: `modules/interfaces` (branch `vantage`), `modules/toolchain` (`main` @ `f061dfd`), `modules/shared_config` (`main` @ `5634d3c`), `modules/vantage`, `modules/vantage-lab`; `.gitmodules` carries each `branch =` | worker (medium) | `git submodule status` shows the five pointers listed in §1 / B0 |
-| [ ] | **B1.2** | root machinery copied from 1v `d191172`: `scripts/` (build dispatcher, setup, submodule init, Conan helpers, invariant checks and their tests), `setup.bat`, `toolchains/`; recorded in §4 | worker (medium) | files present; §4 lists every copied path |
-| [ ] | **B1.3** | root machinery adapted to this module list, minimal changes only: a check or step that names a module absent here (df CarMaker checks, df DLL lookups) **skips with a printed reason** instead of failing; every change listed in §4 for back-port | worker (high) | `python scripts/check_invariants.py` exits clean, each skip printed with its reason |
+| [x] | **B1.2** | root machinery copied from 1v `d191172`: `scripts/` (build dispatcher, setup, submodule init, Conan helpers, invariant checks and their tests), `setup.bat`, `toolchains/`; recorded in §4 | worker (medium) | files present; §4 lists every copied path |
+| [~] | **B1.3** | root machinery adapted to this module list, minimal changes only: a check or step that names a module absent here (df CarMaker checks, df DLL lookups) **skips with a printed reason** instead of failing; every change listed in §4 for back-port | worker (high) | `python scripts/check_invariants.py` exits clean, each skip printed with its reason — **[~] closed by B2.2**: the only remaining finding is PKG-1 (package still named `adas-sim`) |
 | [ ] | **B1.4** | isolated build: vantage-dev's own `CONAN_HOME` (outside 1v's), set by `setup.bat` and stated in `README.md` | worker (high) | after `setup.bat`, the resolved Conan home printed by the build is the vantage-dev one; 1v's cache is untouched (no new package revisions in it) |
 | [ ] | **B1.5** | `README.md` "Clone and build" section filled in | worker (medium) | a fresh clone + the written steps reaches B2.4's build |
 | [ ] | **B2.1** | in `vantage`: `vantage/` sub-package, `subcomponents:` key, `vantage.bat` and the scripts that only launch that app removed (D13); listed in Plan C's migration register as "not carried" | worker (high) | `grep -rn "subcomponents\|adas-vantage-app\|vantage_app" conf src scripts` empty; sim's own unit tests still pass |
@@ -62,7 +62,14 @@ back-port to 1v at migration.
 
 | Path | Source (1v `d191172`) | Local change | Back-port |
 |---|---|---|---|
-| — | — | — | — |
+| `scripts/` (20 files), `scripts/tests/` (42 files) | `git archive d191172 scripts` | see rows below | — |
+| `setup.bat`, `gui.bat`, `toolchains/`, `.clang-format` | `git archive d191172` | none | — |
+| `.gitattributes`, `.gitignore` | 1v root | none | — |
+| `scripts/cold_run_record.json` | — | **not imported**: it records cold runs of 1v commits; with no record COLD-1 passes by design | none |
+| `scripts/check_invariants.py` | 1v | `_PYF1_TEST_PAIRS`: five keys `modules/sim/…` → `modules/vantage/…` (same test files, new home) | yes, with the sim → vantage rename |
+| `scripts/check_invariants.py` | 1v | `main()`: a `SKIPPED: modules/<x>` finding is a printed note, not a violation, when `<x>` is not a submodule of this superproject (df here); a declared-but-missing module still fails | yes (harmless in 1v, where every named module is declared) |
+| `scripts/tests/test_build_dispatcher.py` | 1v | `StaleCacheRefsTests`: example module `sim` → `vantage` (logic tests that need an existing module folder) | yes, with the rename |
+| `scripts/tests/test_cold_machine_check.py` (7 tests), `test_bundle_tool_envs.py` (1), `test_bundle_guide.py` (2), `test_check_conan_resolution_cache_first.py` (1), `test_make_offline_bundle.py` (1) | 1v | skip with a printed reason unless `modules/df` is declared: they assert 1v's own module set (df's DLL, CARLA, viz pins) | yes (no-op in 1v, where df is declared) |
 
 ## 5. Not in this plan
 

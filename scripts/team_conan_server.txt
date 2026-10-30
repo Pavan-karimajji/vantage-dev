@@ -1,0 +1,20 @@
+# Team Conan server URL — read by scripts/setup.py at setup time, and
+# (docs/imp_design.md §11 addendum) by the per-component build.py/build_gui.py
+# bootstrap stub's own adas-local auto-registration, and by
+# adas_build_tools.conan_ops::ensure_conan_environment() as a fallback when
+# ADAS_LOCAL_URL isn't set as an environment variable.
+#
+# Current model (corrected 2026-09-23, cache_first_no_server_plan.md D1a):
+# a machine builds from its own Conan CACHE and its checkout — no remote is
+# contacted unless this file names one. A loopback/localhost/::1 address is
+# NOT a team server and reads as remotes OFF (conan_home_resolution.py's
+# remotes_enabled(), NS-24): the URL below is left in place only so a
+# machine that genuinely runs its own local adas-local server (setup.bat
+# --role server, or by hand per setup.md §5.4) can still opt in with
+# `--remotes on`.
+#
+# If/when a real shared server exists (a fixed, reachable, NON-loopback
+# network address everyone can hit), replace the line below with that
+# address — only a non-loopback URL here turns remotes on by default.
+# See setup.md §5.2/§5.4 for the tradeoffs.
+http://127.0.0.1:9300
