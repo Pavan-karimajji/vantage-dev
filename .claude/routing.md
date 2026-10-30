@@ -13,8 +13,8 @@ documents come first: `VANTAGE_DEV_PLAN.md`, then `program/VANTAGE_PROGRAM.md`.
 | **New component (vantage, lab)** | `workflows/new_component.md`, `workflows/add_component.md`, `rules/build.md`, `rules/variant.md` |
 | **Build / Conan / CMake** | `rules/build.md`, `skills/build_grammar`, `skills/conanfile_commonality`, `skills/cmake_patterns`; shared machinery: `workflows/change_build_machinery.md` |
 | **Resim contract (Plan A) / protos** | `modules/interfaces/docs/resim_contract/`, `rules/interfaces.md`, `rules/naming.md` (R-NAME-4), `skills/protobuf_patterns`, `workflows/add_proto.md`, `workflows/add_interface.md` |
-| **Vantage engine, orchestrator, board writer, board inspector (Plan C)** | `modules/vantage/docs/`, `rules/sim.md` (read its override note first), `rules/sil.md`, `skills/c_api_dll_pattern`, `skills/realtime_constraints` |
-| **Board layout: what a viewer needs from the board** | `modules/interfaces/docs/resim_contract/`, `skills/sim_scene_layers`, `skills/sim_visualization_patterns` (what viz draws today; viz itself is out of this workspace, D13) |
+| **Vantage engine, orchestrator, live measurement writer and inspector (Plan C)** | `modules/vantage/docs/`, `rules/sim.md` (read its override note first), `rules/sil.md`, `skills/c_api_dll_pattern`, `skills/realtime_constraints` |
+| **Live measurement layout: what a reader needs from it** | `modules/interfaces/docs/resim_contract/`, `skills/sim_scene_layers`, `skills/sim_visualization_patterns` (what viz draws today; viz itself is out of this workspace, D13) |
 | **Lab (generator, fake car, catalogue)** | `modules/vantage/docs/VANTAGE_Lab_Design.md`, `rules/sim.md`, `skills/c_api_dll_pattern` |
 | **Requirements, test specs, traceability** | `rules/requirements.md`, `skills/requirements_management.md`, `workflows/write_requirements.md`, `templates/requirements/` (checker: `python .claude/templates/requirements/trace_check.py --set <dir>`) |
 | **Tests and when to run them** | `rules/testing.md` (R-TEST-1..7), `skills/gtest_patterns`, `templates/gtest_template.cpp`, `workflows/add_gtest.md` |

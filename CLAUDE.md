@@ -12,8 +12,8 @@ Read first: `VANTAGE_DEV_PLAN.md` (decisions, file placement, gates). Then
 - components depend ONLY on interfaces
 - no middleware logic in algorithm code
 - protobuf contracts across boundaries only
-- the scheduler is **event-driven**: run on a new `measurement_counter` of the
-  trigger input, pick inputs by receipt (`.claude/rules/sim.md` override note)
+- the scheduler is **event-driven**: one recorded control message = one run, pick
+  inputs by refSync (`.claude/rules/sim.md` override note)
 - SIL delivery is a host-agnostic C-API DLL; no ROS2 work here
 - one standard component build (shared toolchain), no private build structures
 

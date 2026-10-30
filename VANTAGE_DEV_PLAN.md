@@ -13,14 +13,16 @@ Concept (plain English, with examples and evidence):
 
 1. **Vantage** is the simulation tool: a **launcher** (front end), an
    **orchestrator** (global scheduler), a **runner** (calls components) and a
-   **board writer**. Its output boundary is the **board**: shared memory that
+   **live measurement writer**. Its output boundary is the **live measurement**: shared memory that
    carries everything a viewer needs. Viewers (viz) are not part of this design
    (D13).
-2. The orchestrator is **event-driven**: a component runs when its trigger input
-   gets a new `measurement_counter`; every input is picked **by number** (the
-   receipt the car wrote, else "newest not after my trigger time", badged).
-3. The data contract (signal header + receipt + state snapshot + manifest fields)
-   is fixed **first**, because everything else is built against it.
+2. The orchestrator is **event-driven**: one recorded control message = one run
+   (else a new `measurement_counter` on the trigger input named in the run setup);
+   every input is picked **by number** (the refSync the car wrote, else "newest
+   not after my trigger time", badged).
+3. The data contract (signal header rule + control input + refSync + component
+   state + live measurement) is fixed **first**, because everything else is built against it.
+   Detail: `modules/interfaces/docs/resim_contract/RCT_Architecture.md`.
 4. The concept is proven on **generated dummy components** (the lab) with a known
    right answer, before any production component depends on it.
 5. When Vantage is stable, its content replaces `sim` in 1v-superproject.
@@ -34,14 +36,14 @@ Concept (plain English, with examples and evidence):
 | D3 | `sim` in 1v-superproject is **not touched** during development. At migration its content is replaced by `vantage`. | 2026-10-30 |
 | D4 | The lab is its own repo, `vantage-lab`. Lab components are **generated build outputs**, not repos. | 2026-10-30 |
 | D5 | Vantage gets a **lean new requirement set**, layers **SYS + IMP** only. The sim v2 set is retired with one disposition per row in a migration register. | 2026-10-30 |
-| D6 | The contracts (resim contract **and** board layout) are one requirement set (**SYS + IMP**) inside `interfaces`. Prefixes: `RCT` (contracts), `VNT` (Vantage). | 2026-10-30 |
+| D6 | The contracts (resim contract **and** live measurement layout) are one requirement set (**SYS + IMP**) inside `interfaces`. Prefixes: `RCT` (contracts), `VNT` (Vantage). | 2026-10-30 |
 | D7 | No corporate mirror until migration. Personal remotes only. | 2026-10-30 |
 | D8 | Working style: one orchestrator (Opus, medium) writes prompts for workers (Sonnet, medium/high) and reviews every result. Promoted to a `.claude` workflow only after first use. | 2026-10-30 |
 | D9 | Proven on the lab first (the test-bench decision). Testing the scheduler on one real function component was the mistake this corrects. | 2026-10-29 |
 | D10 | The scheduler is event-driven (§1). In this workspace it supersedes R-SIM-18's base-grid parts (override note in `.claude/rules/sim.md`); the 1v rule is amended at migration. | 2026-10-30 |
 | D11 | `.claude/` is a pinned import of selected 1v files (`.claude/IMPORTED.md`); local changes are listed there and back-ported at migration. | 2026-10-30 |
 | D12 | Requirement sets live in the module they describe (`interfaces`, `vantage`) so they travel with it at migration; only program documents live in this repo. `selftest_mutations.yaml` is added to a set only when it gets a check worth planting. | 2026-10-30 |
-| D13 | **viz is out of this design.** Vantage does not depend on viz, which removes the viz ↔ sim loop and lets vantage be one package. The board is Vantage's boundary and must carry **everything viz shows today**, so any viewer can be built on it later; how viz uses it is decided later. `viz` is not a submodule of this workspace. | 2026-10-30 |
+| D13 | **viz is out of this design.** Vantage does not depend on viz, which removes the viz ↔ sim loop and lets vantage be one package. The live measurement (named "board" until 2026-10-30) is Vantage's boundary and must carry **everything viz shows today**, so any viewer can be built on it later; how viz uses it is decided later. `viz` is not a submodule of this workspace. | 2026-10-30 |
 
 ## 3. Where everything lives
 
@@ -63,9 +65,9 @@ C:\ws\repo\vantage-dev\                         superproject (root holds no sour
 ├─ .gitmodules
 └─ modules/
      interfaces/      → interfaces repo, branch `vantage`
-     │    docs/resim_contract/                  Plan A set (RCT): resim contract + board layout
+     │    docs/resim_contract/                  Plan A set (RCT): resim contract + live measurement layout
      │       layers.yaml
-     │       RCT_Architecture.md                context: why, message shapes, board layout, rejected
+     │       RCT_Architecture.md                context: why, message shapes, live measurement layout, rejected
      │                                          options, ECU vs SIL duties, versioning, adoption order
      │       RCT_System_Requirements.md         SYS rows
      │       RCT_Implementation_Design.md       IMP rows (boxed) → work packages
@@ -94,35 +96,37 @@ set's `layers.yaml` (R-REQ-12). Progress: `--status` on each set.
 ### Plan A — resim contract (`interfaces`, RCT)
 What every component, in the car and on the PC, must publish so a resim can
 reproduce it.
-- **Signal header** meaning: `measurement_counter` = identity, passed through
-  unchanged (output takes the trigger input's value); `cycle_counter` = own run
-  count; wrap-around rules; `sig_status` as today (R-IFACE-4).
-- **Receipt**: per run, the headers of the inputs actually read. Written by the
+- **Signal header** rule: `measurement_counter` and `source_timestamp_us` copied
+  from the run's control input; `cycle_counter` and `sig_status` each sender's
+  own; one timestamp (`capture_timestamp_us` retired); wrap-around rules.
+- **Control input** (`CycleControl`): per run, written by the scheduler; header +
+  op mode (RESTART / RUN).
+- **RefSync**: per run, the headers of the inputs actually read. Written by the
   component from what it read, never copied through.
-- **State snapshot**: an output and an input for stateful components, so a resim
-  can start warm (start and seek).
-- **Manifest fields**: trigger input, previous-cycle edges, declared period.
+- **Component state**: values and readers fixed (`SUCCESS` retired).
+- Parked: state snapshot, error bits. Triggers and previous-cycle edges are
+  Vantage's run setup (Plan C), not manifest fields.
 - **ECU duties**: what must be logged so "exact" is reachable on car recordings
   (tied to the open camera-ECU logging decision).
 - **Adoption order** for components already in 1v (df, vdy, perception-core), so
   merging the `vantage` branch never breaks 1v.
-- **Board layout** (D13): the shared-memory contract between Vantage and any
-  viewer, one layout header in `interfaces`. It carries everything viz shows
+- **Live measurement layout** (D13): the shared-memory contract between Vantage and
+  any reader, one layout header in `interfaces` (`cpp/livemeas/`, package `adas.livemeas`). It carries everything viz shows
   today:
-  - **cover page, once per run:** layout version; run number; every stage with
+  - **`MeasDescription`, once per run:** layout version; run number; every stage with
     mode (simulate / measured / off), implementation and build hash; every port
     with its proto type and the **FileDescriptorSet**, so a viewer decodes
     without generated code (R-SIM-11); plug-in identities and hashes; config
     bundles (path + hash); declared periods; declared overrides;
-  - **one sheet per engine step:** step number and simulation time; every port's
+  - **one `MeasCycle` per engine step:** step number and simulation time; every port's
     bytes with its signal header, origin tag (measured / truth / mocked /
-    simulated / overridden), valid, held/fresh and age; the receipt each run used;
+    simulated / overridden), valid, held/fresh and age; the refSync each run used;
   - **badges and counts:** fallback counts per port, not matched to car inputs,
     warming up, readiness timeouts, computed-not-consumed, identity broken;
-  - **status box:** running / paused / finished, heartbeat, dropped sheets, run
+  - **`MeasStatus`:** running / paused / finished, heartbeat, dropped cycles, run
     outcome (pass / fail / crash / timeout);
-  - **images** (camera frames): by reference into a second segment, never inline
-    in a sheet.
+  - **images** (camera frames), `MeasBulk`: by reference into a second segment,
+    never inline in a `MeasCycle`.
 
 ### Plan B — workspace (`program/WORKSPACE_Plan.md`, no requirement layers)
 Create `vantage-dev`, the `vantage` fork and `vantage-lab`; bring over root
@@ -131,10 +135,10 @@ machinery; restructure `vantage` to the standard component layout as one package
 shared toolchain.
 
 ### Plan C — Vantage (`vantage`, VNT)
-Launcher, orchestrator (six rules), runner, per-port sample buffers, board writer
-(three C calls, common to every engine), a **board inspector** (a command-line
-tool that attaches, dumps and checks the board, used instead of a viewer to
-verify it), other engines. Starts from the reuse analysis (seed: 1v
+Launcher, orchestrator (six rules), runner, per-port sample buffers, live measurement writer
+(three C calls, common to every engine), a **live measurement inspector** (a
+command-line tool that attaches, dumps and checks the live measurement, used
+instead of a viewer to verify it), other engines. Starts from the reuse analysis (seed: 1v
 `docs/vantage_event_resim_plan.md`).
 
 ### The lab (`vantage-lab`, designed in `VANTAGE_Lab_Design.md`)
@@ -164,11 +168,11 @@ L1  lab: generator + running example ┼─► gate G2: lab components pass cont
 L2  lab: fake car recordings        ─┘
 C1  orchestrator (six rules)        ───► gate G3: every lab topology exact vs fake car,
                                           single- and multi-threaded identical
-C2  board writer + board inspector  ───► gate G4: for every lab topology the inspector finds
-                                          every board-contract item on the board, and every
+C2  livemeas writer + inspector     ───► gate G4: for every lab topology the inspector finds
+                                          every live-measurement item in it, and every
                                           failure drill passes (with test readers, no viewer)
-C3  other engines (CARLA bridge, CarMaker) via the common board writer
-V   viewer on the board (viz)       ───  later, separate decision (D13)
+C3  other engines (CARLA bridge, CarMaker) via the common live measurement writer
+V   viewer on the live measurement ───  later, separate decision (D13)
 M   migration into 1v               ───► gate G5: 1v builds and its tests pass with sim
                                           replaced by vantage and branches merged
 ```
@@ -184,7 +188,7 @@ with `vantage`, then back-port the `.claude` changes listed in
 `.claude/IMPORTED.md`. Plan A keeps every contract change **additive** (new
 messages and fields, nothing removed or renamed) and carries an **adoption
 order**, so 1v's existing components keep building on the day of the merge and
-start writing receipts one at a time.
+start writing refSyncs one at a time.
 
 ## 6. Writing order for this workspace's documents
 

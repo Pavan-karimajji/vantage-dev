@@ -2,8 +2,8 @@
 
 > **vantage-dev override (imported copy, see `.claude/IMPORTED.md`).** In this
 > workspace the scheduler is **event-driven** (`VANTAGE_DEV_PLAN.md` §1, D10):
-> a component runs on a new `measurement_counter` of its trigger input and picks
-> inputs by receipt. Every part of **R-SIM-18** that assumes a base grid (GCD of
+> one recorded control message (else a new `measurement_counter` on the trigger
+> input of the run setup) starts one run, and inputs are picked by refSync. Every part of **R-SIM-18** that assumes a base grid (GCD of
 > periods, "a stage executes only on its due ticks", grid load errors) is
 > **superseded here**; a declared period remains, as the clock of sources with no
 > recording behind them. Paths below point into **1v-superproject** unless they
