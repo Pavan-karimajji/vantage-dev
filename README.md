@@ -43,6 +43,17 @@ python scripts/build.py -t gtest -p vs2026
 python scripts/build.py -t sil -p vs2026    # also builds simengine, which some Python tests need
 ```
 
+**Offline bundle.** The Python environments and, on Linux, pip itself come
+from `misc/offline_bundle/` (gitignored, ~330 MB). Copy it from a
+1v-superproject checkout (`misc/offline_bundle/`) — same toolchain and Python
+locks. Without it, Windows needs `--remotes on` for `--prepare`, and Linux
+cannot create the build tools' environment at all (Ubuntu's Python ships no pip
+wheel).
+
+**Linux / WSL.** Build from a clone on the Linux filesystem (`~/ws/vantage-dev`),
+not from the Windows checkout under `/mnt/c`: a venv there cannot bootstrap pip.
+Same commands with `python3` and `-p ubuntu_gcc`.
+
 **Keeping 1v-superproject safe.** Both workspaces share one Conan cache.
 vantage-dev never publishes a first-party package under a name and version
 1v uses: `interfaces` here is `1.1.0` (1v uses `1.0.0`), and the tool is

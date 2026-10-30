@@ -51,7 +51,7 @@ are created by the owner (B0.1).
 | [x] | **B2.2** | in `vantage`: package renamed `adas-vantage/0.1.0` via `project(adas-vantage VERSION 0.1.0 …)` in `CMakeLists.txt` (the recipe's identity source) and its `requires` moved to `adas-interfaces/1.1.0` in `conf/build.yml`; the `AdasSim::` targets and code names kept as they are (renaming code is Plan C) | worker (high) | `conan graph info` names `adas-vantage/0.1.0`; requires `adas-interfaces/1.1.0` |
 | [x] | **B2.3** | in `vantage`: standard component layout checked against `.claude/workflows/new_component.md` — 6-line conanfile stub, `conf/build.yml`, `conf/build_tools.version`, byte-identical copied files (`build.bat`, `build.sh`, `scripts/build.py`, `.clang-format`) | worker (medium) | `CPY-1` clean for `vantage` |
 | [x] | **B2.4** | the workspace builds: `interfaces` (`package`), then `vantage` (`sil` and `gtest`, vs2026) | worker (medium) | both builds pass; `vantage` gtest suite passes with the same count as sim in 1v at `a3fa0b9`, minus only tests removed by B2.1 (each named) |
-| [ ] | **B2.5** | Linux build of `vantage` (`ubuntu_gcc`, WSL) | worker (medium) | build + gtest pass (R-TEST-6: platform build is in scope here) |
+| [x] | **B2.5** | Linux build of `vantage` (`ubuntu_gcc`, WSL) | worker (medium) | build + gtest pass (R-TEST-6: platform build is in scope here) |
 
 **Gate G1 (workspace half):** every box above is `[x]`.
 

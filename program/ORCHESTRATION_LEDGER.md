@@ -68,3 +68,14 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Verdict: accept
 - Why: every exit check of B1.2–B2.4 met; findings recorded, none hidden.
 - Next: B2.5 (ubuntu_gcc in WSL).
+
+### 2026-10-30 · B2.5 · verdict
+- Result: ubuntu_gcc gtest 223/223 passed (5 Linux-only tests more than vs2026),
+  built in a Linux-native clone `~/ws/vantage-dev`. Two machine facts found:
+  a venv under `/mnt/c` cannot bootstrap pip, and Ubuntu's Python ships no pip
+  wheel, so Linux needs `misc/offline_bundle/` (copied from 1v; gitignored).
+  Both recorded in `README.md`.
+- Verdict: accept
+- Why: exit check met; Plan B complete (B0.1–B2.5 all `[x]`).
+- Next: owner pushes `vantage-dev` (`d8d45de` + this commit; the push was
+  refused by the session's permission check); then Plan A writing.
