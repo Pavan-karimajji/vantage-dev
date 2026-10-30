@@ -627,3 +627,218 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `CONCEPT_PAGE_DIVERGENCES.md` and the RCT-A2 / RCT-A2-R1 prompts.
   `VANTAGE_Architecture.md` stays untracked until the owner freezes 6a.
 - Next: 6a-R1.
+
+### 2026-10-30 · 6a-R1 · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/6a-R1.md` — rework 1 of 6a: control writing (D17 (1)),
+  readiness limit field 7 and 0 = never waits (D17 (2), owner review), gap / reset /
+  stalled trigger as event-log counts stated once in §6 (D17 (3)), refSync
+  comparison stated in §7 (owner decision 4), warming up (D17 (4)), seek keeps the
+  writer and `runId`, §14 split into open and closed-by-the-owner with numbers kept.
+- Next: review 6a-R1; owner freezes 6a; commit `vantage`, then the pointer.
+
+### 2026-10-30 · 6a-R1 · verdict
+- Result: done. Orchestrator read every reworked passage: §3.2 states D17 (1) in
+  full; §2.3, §4 map the limit to field 7; §5 "0 = never waits", refused at load
+  when missing; §6 states gap / reset / stalled trigger once; §7 states the refSync
+  comparison and the seek (writer open, same `runId`, steps continue); warming up
+  per D17 (4) in §6, §7, §14, Parked; §14 split, numbers kept (open 5, 6, 8, 11;
+  closed 1-4, 7, 9, 10, 12). Exit checks pass; LF kept; only the one file.
+  Accepted deviations: §11 control row now points to §3.2 (it described the old
+  behaviour); preamble D1..D17.
+- Findings: (a) wording: §2.4 "a recorded control is its model" is unclear; §3.2
+  repeats "never handed over unchanged" after the full statement, and its *Writes*
+  names the event log twice. (b) a real gap the worker raised: D17 (3) counts a
+  "counter reset" in the event log, but the contract's `KIND_IDENTITY_BROKEN`
+  means "measurement counter went back", and nothing defines how a reset differs
+  from going back. Deciding it may touch the contract's text (D14).
+- Verdict: escalate (b) to the owner; (a) goes into the same rework 2.
+- Next: owner answers (b); then 6a-R2 (wording + the answer); then the freeze.
+
+### 2026-10-30 · OWNER · decision
+- Result: owner chooses option A, approved under D14, with an exact rule. Both
+  counters compared with `counterDistance` (wrap-aware), never "smaller than" or
+  "restarted from 1". **Counter reset:** `measurement_counter` and `cycle_counter`
+  both go back (`counterDistance(prev, cur) < 0` for each); the sender restarted;
+  event log, no badge. **Identity broken:** `measurement_counter` goes back or
+  repeats with new content while `cycle_counter` keeps counting up;
+  `KIND_IDENTITY_BROKEN`. RCT-A3: that kind's "Means" cell and proto comment gain
+  "while its sender's cycle_counter keeps counting" (text only). D17 (3) states the
+  rule once; 6a cites it. The three wording faults go into 6a rework 2; then 6a
+  comes to the owner for the freeze.
+- Next: RCT-A3 and 6a-R2 in parallel (disjoint files).
+
+### 2026-10-30 · RCT-A3 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/RCT-A3.md` — `KIND_IDENTITY_BROKEN` text in the field
+  table and `meas_cycle.proto`; D17 (3) rewritten with the rule.
+- Next: review; commit with the 6a freeze, on the owner's yes.
+
+### 2026-10-30 · 6a-R2 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/6a-R2.md` — rework 2 of 6a: §2.4 control cell, §3.2
+  duplicate sentence and *Writes*, §3.4 and §6 cite D17 (3) for reset vs. identity
+  broken.
+- Next: review; owner freezes 6a.
+
+### 2026-10-30 · 6a-R2 · verdict
+- Result: done. Orchestrator read each edit: §2.4 control cell; §3.2 duplicate
+  sentence gone, *Writes* names the event log once; §3.4 and the §6 table row and
+  paragraph cite `D17 (3)` and define nothing themselves; no "goes back", "went
+  back", "smaller", "restarted from" left; LF; only the one file. Cosmetic, left
+  as is: §3.2 line 179 is one long source line after the deletion, and it cites
+  `D17` where the §14 rows cite `D17 (1)`.
+- Verdict: accept
+- Why: every exit-check item holds.
+- Next: RCT-A3 review; then 6a to the owner for the freeze.
+
+### 2026-10-30 · RCT-A3 · verdict
+- Result: done. `KIND_IDENTITY_BROKEN` "Means" cell and its `meas_cycle.proto`
+  comment (moved above the value, as `KIND_WARMING_UP`) end "while its sender's
+  cycle_counter keeps counting"; D17 (3) states the owner's rule word for word; D17's
+  last sentence names the (3) text change under D14. Text only. Orchestrator read
+  the diff; `trace_check` PASS, 78 reqs, 36 tests (rerun); `check_rct_schema.py
+  --fields` PASS; line endings kept.
+- Verdict: accept
+- Why: every exit-check item holds.
+- Next: owner freezes 6a; then the commits (interfaces RCT-A3, vantage 6a, the
+  vantage-dev pointers with D17 (3), ledger and prompts).
+
+### 2026-10-30 · OWNER · decision
+- Result: 6a not frozen; rework 3 with five items (D18): (1) a named sample not
+  found falls back by counter (newest not after the wanted `measurement_counter`,
+  `counterDistance`), `KIND_FALLBACK`; the time rule only for a stage with no
+  recorded refSync; the orchestrator brings a recommendation on a maximum gap.
+  (2, D14) `KIND_IDENTITY_BROKEN` keeps D17 (3); an output not copying its
+  control's counter (`SYS-0001` break) goes to the event log (stage, port, step),
+  the engine run goes on. (3, D14) the live measurement is written only by the
+  writer library; its seal call (supervisor, worker confirmed dead) writes
+  `outcome` and `status` only — RCT-A4, text only. (4) `sampling`, `on_missing`
+  refused at load. (5) "run" = one component run; "engine run" = the whole
+  execution, in 6a and the RCT live measurement rows.
+- Owner rule: the orchestrator checks the reference material before deciding or
+  escalating, says "reference does X" in one line, and never passes reference
+  paths or names to workers or tracked files.
+- Reference check (gap limit): established practice takes the newest sample not
+  newer than the wanted id within a fixed maximum gap, wrap-aware; beyond it, an
+  error naming the port. Recommendation to the owner with the freeze.
+- Orchestrator design input to 6a-R3: the counter fallback may use read-ahead
+  samples (the counter keeps it causal); the time rule never does.
+- Next: RCT-A4 and 6a-R3 in parallel (disjoint files).
+
+### 2026-10-30 · RCT-A4 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/RCT-A4.md` — seal and writer-only wording (§6, §7),
+  "engine run" in the §0/§6 live measurement rows and two design cells, §4 fallback
+  bullet, plan §1 item 2, D18. SYS/test hits on "run" are reported, not changed.
+- Next: review; then 6a and RCT-A4 to the owner.
+
+### 2026-10-30 · 6a-R3 · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/6a-R3.md` — rework 3 of 6a: counter fallback and time
+  rule, open question 13 (maximum gap), SYS-0001 breaks to the event log, seal per
+  RCT §7, `sampling`/`on_missing` refused, "engine run" sweep.
+- Next: review; then the freeze.
+
+### 2026-10-30 · RCT-A4 · verdict
+- Result: done. Orchestrator read the diff: §0 C5 row and names rows, §6 parts rows
+  and "without touching the engine run" use "engine run"; §6 and §7 say the live
+  measurement is written only through the writer library and its seal call writes
+  `outcome` and `status` only (one sentence each, the duplicate from a spurious
+  edit error removed); §4 refSync bullet describes the counter fallback; design
+  cells `MeasDescription.stages`, `MeasBadge.count` say "engine run"; plan §1 item 2
+  and D18 added. No SYS row, field or box changed. `trace_check` PASS, 78 reqs
+  (rerun); `check_rct_schema.py --fields` PASS; line endings kept.
+- Open for the owner: `SYS-0028` headline ("a new run") and Shall ("each writer
+  start a new run id") mean the engine run; a SYS edit needs the owner (D14).
+- Verdict: accept
+- Why: every exit-check item holds.
+- Next: 6a-R3 review; then 6a + RCT-A4 to the owner.
+
+### 2026-10-30 · 6a-R3 · verdict
+- Result: done. Orchestrator read §2.2 (new *engine run*, *counter fallback*,
+  *time rule*, *seal* rows), §5 rules 3-4, all of §6, all of §9 and the §14
+  changes: the counter fallback searches the buffer including read-ahead, the time
+  rule never does; a `SYS-0001` break goes to the event log and the engine run goes
+  on; `KIND_IDENTITY_BROKEN` is D17 (3) only; "a contract break" is gone from *fail*;
+  the seal cites `RCT_Architecture.md` §7 once and stays `sealAbandoned`;
+  `sampling`/`on_missing` gone and refused at load; "engine run" for the whole
+  execution (40 lines); open question 13 added, not decided. Exit checks pass; LF;
+  only the one file. Accepted deviations: `SampleBuffer::NewestCounterNotAfter` in
+  §11 and §3.4 (the counter fallback needs it); §6 steps renumbered; one "finds no
+  sample" row per rule.
+- Verdict: accept
+- Why: every exit-check item holds.
+- Next: 6a and RCT-A4 to the owner for the freeze; open: question 13 (maximum
+  gap), `SYS-0028` wording.
+
+### 2026-10-30 · OWNER · decision
+- Result: (1) question 13: option (a) — run-setup key `fallback_max_gap` (counter
+  steps, `counterDistance`), value ⊘, provisional value from the lab design; beyond
+  it the time rule picks the sample, `KIND_FALLBACK`, event log records stage,
+  port, wanted counter, found counter and gap; D18 (1) states the exception once,
+  6a cites it. (2) `SYS-0028`: "a new engine run", "each engine run a new run id"
+  (D14, text only). (3) 6a frozen once this rework is accepted. (4) pushed commit
+  `1337aaa` stays; its history is for the screening before sharing; no force-push.
+  Then, if all checks are green: grep every file to commit for reference names and
+  paths (stop if found); record the freeze and gate state here; commit interfaces
+  (`vantage`), vantage (`main`), vantage-dev; push in the same order with normal
+  pushes only, stop on any auth or network failure, prove each push with
+  `git ls-remote`. Do not touch 1v-superproject. Then the concept page and 6b, plus
+  more if possible.
+- Next: RCT-A5 and 6a-R4 in parallel.
+
+### 2026-10-30 · RCT-A5 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/RCT-A5.md` — D18 (1) maximum-gap exception, `SYS-0028`
+  headline and Shall, the §4 refSync bullet.
+- Next: review.
+
+### 2026-10-30 · 6a-R4 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/6a-R4.md` — `fallback_max_gap` in §2.3, §4, §6; question
+  13 moved to *Closed by the owner*.
+- Next: review; 6a frozen on accept.
+
+### 2026-10-30 · 6a-R4 · verdict
+- Result: done. Orchestrator read each edited line: `fallback_max_gap` in §2.3 and
+  the §4 `⊘` table; §2.2 time rule row and §6 steps 3-4 state the beyond-gap case
+  and cite `D18 (1)`; one new badge row; question 13 closed (kept number), open
+  question 6 lists the key. Exit checks pass; LF; only the one file.
+- Verdict: accept
+- Why: every exit-check item holds.
+- Next: RCT-A5 review; then the 6a freeze record, the reference scan, commits, push.
+
+### 2026-10-30 · RCT-A5 · verdict
+- Result: done. Orchestrator read the diff: `SYS-0028` headline "a new engine run",
+  Shall "each engine run a new run id" (Accept unchanged); `RCT_Architecture.md` §4
+  bullet: the time serves only the time rule, for a stage with no recorded refSync
+  or beyond the counter fallback's maximum gap; D18 (1) states the `fallback_max_gap`
+  exception once; D18's last sentence names the `SYS-0028` wording. `trace_check`
+  PASS, 78 reqs, 36 tests (rerun by the orchestrator); CRLF kept.
+- Verdict: accept
+- Why: every exit-check item holds.
+
+### 2026-10-30 · 6a · decision
+- Result: **6a frozen** (owner, 2026-10-30, on acceptance of 6a-R4):
+  `modules/vantage/docs/VANTAGE_Architecture.md` after reworks R1-R4 (D17, D18).
+  Gate state: **G1** green (contract frozen; amended since only by owner-approved
+  RCT-A1..A5 under D14). **C0** (architecture + register frozen) not yet: the
+  register (6b-6e) is next. **G2-G5** not green. Plan A status: WP-01, WP-05 done;
+  WP-02..04 started (closed by lab and live-measurement tests); WP-06..10 open,
+  WP-08..10 now unblocked by 6a, WP-06/07 still wait for the lab design (step 7).
+- Next: reference scan of every file to commit and every unpushed commit; commits
+  (interfaces, vantage, vantage-dev); push in the same order; then the concept
+  page, 6b and step 7.
+
+### 2026-10-30 · COMMIT · decision
+- Result: reference scan (orchestrator, every file in this commit set and in every
+  unpushed commit of the three branches): files committed now are clean; the
+  `@author` lines are the L&T EPS file-header exception. **One hit in an unpushed
+  superproject commit:** `toolchains/aarch64_qcc_qnx.cmake` line 1 names the
+  reference platform; it came in with `bc787c9` (root machinery copied from 1v) and
+  is not on the remote yet. Committed (owner-approved), nothing force-pushed:
+  interfaces `132727e` (RCT-A3..A5), vantage `548e7fe` (6a frozen), then this
+  vantage-dev commit (both pointers, D17 (3), D18, ledger, prompts).
+- Next: push interfaces `vantage` and vantage `main` (clean); hold the vantage-dev
+  push and ask the owner about the toolchain-file hit.
