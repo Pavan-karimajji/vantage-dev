@@ -1276,3 +1276,29 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   contract tests (`SYT-HDR-03`, `SYT-CTL-01/02`, `SYT-RSY-02/03`, `SYT-CST-06`); RCT rows
   ticked only when every listed test passes.
 - Next: review.
+- Note (orchestrator, process): the reference grep for the vantage-dev commit `05d1b1b`
+  was run right after the push instead of before it; result clean.
+
+### 2026-10-31 · LAB-WP-03 · verdict
+- Result: done. `abi.py` (`AdasPort`/`AdasPortSet` mirror `adas_sil_abi.h`, offsets asserted;
+  `LabLibrary`, `load_index`), `messages.py` (`MessageFactory` on a private
+  `DescriptorPool`), `LabHarness` (incl. a fresh process per run), and one test per case of
+  `SYT-HDR-03`, `SYT-CTL-01/02`, `SYT-RSY-02/03`, `SYT-CST-06`, plus two planted
+  violations. Orchestrator rerun: `tests` 45 passed (3.5 s); trace_check PASS.
+  RCT: `IMP-0024` `[x]`; `WP-06` `[~]` (rollup, `C-WPROLL`).
+- Known weakness, accepted for now: `SYT-HDR-03.c2` needs the own count to start at
+  `0xFFFFFFFF` and the design gives no hook, so the harness finds the `CycleStamp` triple in
+  instance memory and overwrites it (refuses unless exactly one match). Cleaner option for
+  later: a lab-only calibration key for the count start (a design-row edit), offered to the
+  owner. `SYT-CST-06` shows the sticker decides; it cannot show a `compState` input is
+  ignored because the template has none (by design, `IMP-0024`).
+- Verdict: accept
+- Next: pushed vantage-lab `344835c..79289e8`, interfaces `vantage` `835cb07..a0d5141`,
+  vantage `8603785..dd67cd7`; LAB-WP-04.
+
+### 2026-10-31 · LAB-WP-04 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-04.md` — fake car on the running example (`Task`,
+  `SourceTask`, `Bus`, `Car.run`, `ControlWriter`, `startComponent`, `McapRecorder`), the
+  `car` verb, `SYT-HDR-01/02/04`, `SYT-CTL-05`, `SYT-RSY-01` and a byte-identical double run.
+- Next: review.
