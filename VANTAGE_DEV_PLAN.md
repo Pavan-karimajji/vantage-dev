@@ -46,6 +46,7 @@ Concept (plain English, with examples and evidence):
 | D13 | **viz is out of this design.** Vantage does not depend on viz, which removes the viz ↔ sim loop and lets vantage be one package. The live measurement (named "board" until 2026-10-30) is Vantage's boundary and must carry **everything viz shows today**, so any viewer can be built on it later; how viz uses it is decided later. `viz` is not a submodule of this workspace. | 2026-10-30 |
 | D14 | **What the contract is, after gate G1:** the messages, their fields, the live measurement layout and the RCT SYS rows. A change to any of these goes to the owner first. Filling in the file path of a lab or Vantage design row is a design-row edit, not a contract change. | 2026-10-30 |
 | D15 | **The migration register disposes every sim v2 row exactly once.** An implementation (IMP) row inherits the disposition of the SW rows it serves; only exceptions are listed. A check script computes the inheritance and fails on any sim v2 UID that is missing or listed twice. | 2026-10-30 |
+| D16 | **`cycle_counter` keeps counting through RESTART; *equal outputs* leave it out.** *Equal outputs* (defined once in the RCT SYS preamble) means the same message count and byte-identical messages once each header's `cycle_counter` is 0. Amends `SYS-0007`, `SYS-0016`, `SYT-CTL-02`, `SYT-RSY-04`. An owner-approved contract change under D14. | 2026-10-30 |
 
 ## 3. Where everything lives
 
