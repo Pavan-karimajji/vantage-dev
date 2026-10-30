@@ -1246,3 +1246,33 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   duplicate-registration risk); unit tests under `tests/unit/` (the design names no file
   for them — recorded here as an accepted gap).
 - Next: review.
+
+### 2026-10-31 · LAB-WP-02 · verdict
+- Result: done. `topology.py` (every §3 check, plus type checks, unknown keys, file stem),
+  `generate.py` (files of §4.2; refuses a component without its two keys; writes only on
+  change), `catalogue/provisional.yaml` (calibration part, `status: provisional`),
+  template (`exec` matches §4.1 line for line; orchestrator read it), `lab_add_topology`,
+  `catalogue/running_example.yaml` (`base`). Five libraries A..E with bundles and
+  `index.json`; all five load in one process, no protobuf duplicate registration;
+  manifests carry `control`, inputs, `out`, `refSync`, `compState`, build id, bundle hash.
+  Evidence: build 25 s; `tests/unit` 35 passed (orchestrator rerun 1.8 s); WSL 30 passed,
+  5 skipped (Windows DLLs); `check_invariants` clean (8.5 s). Scratch run (not committed)
+  showed RESTART, arithmetic, memory, ERROR and recovery, refSync, missing key, crash, hang.
+- Accepted deviations: `setup.py --prepare vantage-lab` re-created the stale cached
+  `adas-interfaces/1.1.0` (R-BUILD-7 refresh, no tracked lock changed); an empty-mapping
+  `ego_params.yaml` per component because `adas_pack_config_bundle` requires one;
+  `provisional.yaml` skipped by `lab_add_topology`; the ports header holds small helpers.
+- Carried forward: `generate.py` has its own reader of `provisional.yaml`'s calibration part
+  — `LAB-WP-06` must reuse it for `load_provisional`, not write a second one; making
+  `EGO_PARAMS_YAML` optional in `interfaces` is a later small package (not contract).
+- Verdict: accept
+- Next: committed and pushed vantage-lab `b3f7f28..344835c`, vantage `85a4587..8603785`;
+  LAB-WP-03.
+
+### 2026-10-31 · LAB-WP-03 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-03.md` — `LabLibrary`/`AdasPortSet` over `ctypes`,
+  `MessageFactory` from the manifest's descriptor set, `LabHarness`, and the six `F-HARN`
+  contract tests (`SYT-HDR-03`, `SYT-CTL-01/02`, `SYT-RSY-02/03`, `SYT-CST-06`); RCT rows
+  ticked only when every listed test passes.
+- Next: review.
