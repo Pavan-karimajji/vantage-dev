@@ -51,3 +51,20 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Verdict: accept
 - Why: every pointer equals WORKSPACE_Plan.md §1 / B0; `git submodule status` clean.
 - Next: B1.2 (root machinery), or start Plan A writing now that its home exists.
+
+### 2026-10-30 · B1.2–B2.4 · verdict
+- Result: root machinery from 1v `d191172` imported and adapted (register:
+  WORKSPACE_Plan.md §4); `check_invariants.py` clean; root test suite 830 passed,
+  24 named skips. Owner decision: isolation by aggregate builds, no separate
+  `CONAN_HOME`. `vantage`: viz-dependent sub-package and launchers removed,
+  package `adas-vantage`, standard layout (`3f34a11`); two df-owned Python tests
+  skip when df is absent (`1112191`).
+  Evidence (vs2026): aggregate `--with-all` build ok and the cache got no
+  `adas-vantage`; standalone gtest 218/218 (1v sim: 218; the one skip is skipped
+  in 1v too); component `sil` builds `simengine`; Python suite 1036 passed,
+  0 failed, 78 named skips. Test builds need `setup.py --prepare vantage`, which
+  put `adas-interfaces/1.1.0` into the cache (1v only requests 1.0.0); the
+  Python environment needed `--remotes on` (no offline bundle here).
+- Verdict: accept
+- Why: every exit check of B1.2–B2.4 met; findings recorded, none hidden.
+- Next: B2.5 (ubuntu_gcc in WSL).

@@ -25,4 +25,31 @@ this repo holds only the plan and the program documents.
 
 ## Clone and build
 
-Filled in by Plan B, once the submodules and root build scripts exist.
+```bash
+git clone --recursive https://github.com/Pavan-karimajji/vantage-dev
+cd vantage-dev
+setup.bat                                   # prepares the machine; on Linux/WSL: python3 scripts/setup.py
+
+# once per machine (and after interfaces changes): builds adas-interfaces/1.1.0
+# into the Conan cache and creates vantage's Python environment
+python scripts/setup.py --prepare vantage -t gtest -p vs2026 -P base --remotes on
+
+# normal build: aggregate, every first-party module compiled in one tree
+python scripts/build.py vantage -t sil -p vs2026 -P base --with-all
+
+# tests: built and run by the component's own entry point (ctest runs at the end)
+cd modules/vantage
+python scripts/build.py -t gtest -p vs2026
+python scripts/build.py -t sil -p vs2026    # also builds simengine, which some Python tests need
+```
+
+**Keeping 1v-superproject safe.** Both workspaces share one Conan cache.
+vantage-dev never publishes a first-party package under a name and version
+1v uses: `interfaces` here is `1.1.0` (1v uses `1.0.0`), and the tool is
+`adas-vantage` (1v has `adas-sim`). Any change here to `toolchain` or
+`shared_config` must bump that module's version first. Never use `--local`.
+
+**Python tests** need the `dev` extra (pytest, pandas), which the locked
+environment does not include: run them from any Python 3.12 environment with
+`pip install -e "modules/vantage[dev]"` or the dependencies from its
+`pyproject.toml`, with `PYTHONPATH=modules/vantage/src`.
