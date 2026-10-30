@@ -1,4 +1,4 @@
-# ADC5 cross-compile toolchain — ARM64 QNX
+# ARM64 QNX cross-compile toolchain
 # TODO: Set paths to QCC compiler and QNX SDP
 set(CMAKE_SYSTEM_NAME QNX)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)

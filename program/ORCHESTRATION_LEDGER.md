@@ -842,3 +842,298 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   vantage-dev commit (both pointers, D17 (3), D18, ledger, prompts).
 - Next: push interfaces `vantage` and vantage `main` (clean); hold the vantage-dev
   push and ask the owner about the toolchain-file hit.
+
+### 2026-10-30 · PUSH · decision
+- Result: pushed (normal pushes, nothing forced), each proven with `git ls-remote`:
+  interfaces `vantage` `d3b76bb..132727e` (remote head `132727e`); vantage `main`
+  `1112191..548e7fe` (remote head `548e7fe`). **vantage-dev `main` held** (local
+  `943f78c`, remote `1337aaa`): the reference scan hit in `bc787c9`
+  (`toolchains/aarch64_qcc_qnx.cmake` line 1) goes to the owner first.
+- Next: owner decides the toolchain-file hit; meanwhile CP-1, 6b and 7 in parallel.
+
+### 2026-10-30 · CP-1 · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/CP-1.md` — the concept page follows 6a and D16-D18; done
+  rows deleted from `CONCEPT_PAGE_DIVERGENCES.md`. A backup of the page is in the
+  orchestrator's scratchpad.
+- Next: review.
+
+### 2026-10-30 · 6b · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/6b.md` — register part 1 (words, sim code table, empty row
+  sections for 6c-6e) and `check_migration_register.py` (D15) with planted
+  violations. Orchestrator fixed the qualified UIDs (`SIM:`, `PARITY:`), the row words
+  (carried, moved, superseded, retired), the code words (reused, corrected, replaced,
+  retired) and the table formats so the document and the script agree.
+- Next: review; owner freezes 6b before 6c-6e.
+
+### 2026-10-30 · 7 · prompt
+- Worker: sonnet, high
+- Prompt: `program/prompts/7.md` — `VANTAGE_Lab_Design.md`: description file,
+  template and generator in the standard build, fake car (timing per the executable
+  model, described in our words), catalogue and every RCT fixture, provisional `⊘`
+  values, `IMP-0022..0031` mapping, `LAB-WP`/`LAB-nn` build order, proposed
+  `IMP-0030` text for `F-LAB-RESTART`.
+- Next: review; owner freezes it before WP-06/07.
+
+### 2026-10-30 · 6b · verdict
+- Result: done. Register part 1 (words, 88-row sim code table grounded in ARCH §3/§11,
+  four empty row sections with `Scope:` lines, how to check);
+  `check_migration_register.py` (9 checks) and 23 tests. Orchestrator reran:
+  `--selftest` 9 of 9 caught; plain run: universe 1572 (SIM CN 389, SYS 270, SW 375,
+  IMP 375; PARITY STK 16, SYS 39, SW 54, IMP 54), only `C-MISSING`, as expected.
+  Read §1-§3 and sampled the code table. Accepted deviations: files as well as
+  directories in the code table; `Scope:` lines per section; comma lists for
+  `superseded`.
+- Findings: (a) a hard-coded `NEW_FILES` skip list would grow with every new script —
+  rework: take the sim code universe from the `seed-from-sim` tag. (b) new files carry
+  `COMPONENT: VANTAGE` (R-NAME-6) but the inherited `scripts/check_headers.py` demands
+  `SIM`: 2 violations in the vantage gate — owner decision. (c) sim code 6a does not
+  decide (worker's list) — owner confirms at the freeze. (d) 6c holds 659 rows (389
+  `CN` + 270 `SYS`): propose splitting it into two packages.
+- Verdict: rework (1) for (a); (b)-(d) to the owner.
+- Next: 6b-R1.
+
+### 2026-10-30 · 6b-R1 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/6b-R1.md` — code universe from `git ls-tree seed-from-sim`;
+  `NEW_FILES` removed; `C-SEED` when the tag is missing.
+- Next: review; owner freezes 6b.
+
+### 2026-10-30 · 6b-R1 · verdict
+- Result: done. `NEW_FILES` gone; the code universe is `git ls-tree seed-from-sim`
+  (`read_seed_entries`), injectable for tests; `C-SEED` when the tag is missing; a
+  retired seed path is accepted. pytest 25 passed; `--selftest` 9 of 9. It found a
+  real gap: `scripts/freeze.py`, `gui.py`, `vantage_native.py` existed at the seed and
+  were removed in Plan B (`3f34a11`), so no row covers them. The worker patched the
+  script once with a heredoc (house rule broken; result checked by the tests and the
+  orchestrator's read of `read_seed_entries`).
+- Verdict: accept; the three rows go to 6b-R2.
+- Next: 6b-R2.
+
+### 2026-10-30 · 6b-R2 · prompt
+- Worker: sonnet, medium
+- Prompt: `program/prompts/6b-R2.md` — three `retired` rows in §3.
+- Next: review; owner freezes 6b.
+
+### 2026-10-30 · 7 · verdict
+- Result: done. `VANTAGE_Lab_Design.md` (718 lines, all 10 sections). Orchestrator read
+  §4 (template: `exec` with every path reaching `publish`, RESTART, `inputTrusted`,
+  fault and recovery, calibration load, odd-multiplier arithmetic so one wrong sample
+  always changes the output), §4.3 (generator at configure time inside the one standard
+  build, one library and bundle folder per component, `index.json`), §5 (Python fake car
+  via `ctypes`, independent of `adas_sim`; task clock per the model; control logged at
+  the nominal time, run at the start time, so the late-consumer case is recordable;
+  closed list of 7 scenario verbs, each tied to a fixture or drill; deterministic mcap,
+  no wall clock) and §7 (five provisional values, marked). Every RCT fixture covered;
+  calibration keys ALL_CAPS with unit suffix. Accepted additions: `camera` topology
+  (`F-CAM`), a reference re-run so `SYT-RSY-04` can pass in the lab, hang/crash keys for
+  the failure drills.
+- Owner decisions before the freeze: `Q-L1` (lab messages `adas.lab.LabSample`,
+  `LabImage` in `interfaces/proto/lab/` — a contract addition, D14), `Q-L2` (new
+  `IMP-0030` text), `Q-L3`..`Q-L9` (worker recommendations).
+- Verdict: accept (pending the owner's answers and freeze)
+- Why: every exit-check item holds.
+- Next: CP-1, 6b-R2; then the owner's decisions.
+
+### 2026-10-30 · 6b-R2 · verdict
+- Result: done. Three `retired` rows (`scripts/freeze.py`, `gui.py`,
+  `vantage_native.py`), each once (orchestrator grep; a duplicate pair from a false
+  ENOENT was removed by the worker); checker: no finding but the expected `C-MISSING`.
+- Verdict: accept
+- Next: CP-1; then the owner freezes 6b and 7.
+
+### 2026-10-30 · CP-1 · verdict
+- Result: done. Concept page (outside every repo; backup in the orchestrator's
+  scratchpad) follows 6a and D16-D18 in chapters 2-20 and the quiz: orchestrator +
+  runner, recorded control rule, equal outputs, counter fallback, time rule and
+  maximum gap, counter reset vs identity broken, SYS-0001 breaks logged, seal, engine
+  run, no pause, no plug-in bundle. HTML parses; script passes `node --check`;
+  orchestrator spot-checked the new glossary and ch. 8 text. Divergence file: "None open."
+- Open for the owner: `MeasStatus.status` still lists `paused` in the contract while
+  6a has no pause (6a keeps it unused); the page's "31 of 31" model result predates
+  D16/D18 (not re-run).
+- Verdict: accept
+- Next: owner — toolchain-file hit (`TCF-1`) and the vantage-dev push; freeze of 6b and 7 with their
+  open questions; commit of the new files.
+
+### 2026-10-30 · STATE · decision
+- Result: state at the end of this session's run.
+  - Pushed: interfaces `vantage` `132727e`, vantage `main` `548e7fe`.
+  - Committed, not pushed: vantage-dev `main` `943f78c` (held: `TCF-1` in `bc787c9`).
+  - Not committed: `modules/vantage/docs/VANTAGE_Migration_Register.md`,
+    `scripts/check_migration_register.py`, `tests/unit/test_check_migration_register.py`
+    (6b, awaiting freeze); `modules/vantage/docs/VANTAGE_Lab_Design.md` (7, awaiting
+    freeze); this ledger's entries since `943f78c`; prompts `CP-1`, `6b`, `6b-R1`,
+    `6b-R2`, `7`; `program/CONCEPT_PAGE_DIVERGENCES.md` ("None open").
+  - Next, in order: owner answers (`TCF-1`; `check_headers` token; 6b code dispositions;
+    6c split; lab `Q-L1`..`Q-L9`); freeze 6b and 7; land the `IMP-0022`..`0031` design-row
+    edits incl. `IMP-0030` (D14 design-row edits) and `Q-L1` if approved; then 6c (split
+    in two), 6d (two packages), 6e; WP-06/07 (lab) and WP-08..10 (Vantage) per plan §6.
+
+### 2026-10-30 · OWNER · decision
+- Result: owner decisions, **all not done yet**; a fresh orchestrator session carries
+  them out. Add the plan-level ones to `VANTAGE_DEV_PLAN.md` §2 (D15 change, D19 if
+  needed) in the next accepted change.
+  1. **`TCF-1` — option (a)** (not done yet). Fix line 1 of
+     `toolchains/aarch64_qcc_qnx.cmake` to a neutral wording (for example "ARM64 QNX
+     cross-compile toolchain"), rescan every unpushed file, then push vantage-dev.
+     History stays for the screening. 1v carries the same line; the owner handles 1v;
+     never touch 1v.
+  2. **`check_headers.py`** (not done yet): a small package so it expects
+     `COMPONENT: VANTAGE` (R-NAME-6); clears the 2 violations from 6b's new files.
+  3. **6b** (not done yet): 6c split into CN and SYS, and 6d split at
+     `SW-0188`/`SW-0189`, both approved. The ~15 sim-code dispositions 6a does not
+     decide go to the owner as a table, one row each with a recommendation, approved
+     per row.
+  4. **D15 changed** (approved; not done yet): the register may give ONE disposition to
+     a whole sim v2 section whose rows all share one fate, written as a UID range with
+     the section name and the reason. `check_migration_register.py` expands each range
+     to its rows, so every row is still disposed exactly once (none missing, none
+     twice). `IMP` rows still inherit from the `SW` rows they serve. Lands in
+     `VANTAGE_DEV_PLAN.md` D15 and in the script with tests (a planted overlap and a
+     planted gap must both fail) **before 6c starts**.
+  5. **Step 7 frozen once these land** (not done yet): `Q-L1` approved under D14 —
+     `adas.lab.*` in `interfaces/proto/lab/`, each file headed "lab-only, never a
+     production port"; `Q-L2`..`Q-L9` as recommended, except: max-age and recovery are
+     **not engine defaults** — they are provisional lab values for ALL_CAPS calibration
+     keys (R-NAME-3), marked provisional, and the engine refuses a setup without them.
+     Also land `IMP-0030`'s new text (`Q-L2`) and the `IMP-0022`..`0031` file/symbol
+     re-pointing (design-row edits).
+  6. **Small points** (not done yet): `MeasStatus.status` `paused` kept, with a comment
+     that nothing writes it until the developer face gets pause. Concept page "31 of
+     31" kept, with a note that it was measured before D16-D18 and will be re-run on
+     the lab. `program/CONCEPT_PAGE_DIVERGENCES.md`: delete.
+  7. **Order of work after these:** commit and push vantage, then vantage-dev; start the
+     lab build packages (`LAB-WP-01` onward); run 6c-6e and step 8 alongside them. The
+     Vantage engine code (WP-08..10) waits for step 8's freeze and gate G2.
+
+### 2026-10-30 · HANDOFF · decision
+- Result: closing entry of this orchestrator session. No worker is running.
+- **Decisions to carry out:** the OWNER entry just above, items 1-7, all not done yet.
+- **Committed and pushed** (proven with `git ls-remote`):
+  - interfaces `vantage` at `132727e` (RCT-A1..A5, WP-01..05, GSP-1, WP-03-R1;
+    pushed range `d3b76bb..132727e`).
+  - vantage `main` at `548e7fe` (6a frozen, VG-1; pushed range `1112191..548e7fe`).
+- **Committed, not pushed:** vantage-dev `main` at `943f78c` (remote still `1337aaa`;
+  8 commits, `bc787c9` holds the `TCF-1` line — decision 1).
+- **Not committed:**
+  - `modules/vantage`: `docs/VANTAGE_Migration_Register.md`,
+    `scripts/check_migration_register.py`, `tests/unit/test_check_migration_register.py`
+    (6b + R1 + R2, accepted, awaiting decisions 3-4 and the freeze);
+    `docs/VANTAGE_Lab_Design.md` (7, accepted, awaiting decision 5).
+  - vantage-dev: this ledger since `943f78c`; prompts `CP-1`, `6b`, `6b-R1`, `6b-R2`,
+    `7`; `program/CONCEPT_PAGE_DIVERGENCES.md` (to be deleted, decision 6).
+  - Outside every repo: the concept page `C:\ws\lt_learning\sim\vantage_concept.html`,
+    updated by CP-1; the previous version is kept at
+    `C:\ws\lt_learning\sim\backup\vantage_concept_before_CP-1.html`.
+- **Gates:** G1 green. 6a frozen. C0 waits for the register (6b freeze, 6c-6e). G2-G5
+  not green. Plan A status: WP-01, WP-05 done; WP-02..04 started; WP-06..10 open.
+- **Open questions:** the ~15 undecided sim-code dispositions (decision 3, a table for
+  the owner); the protobuf duplicate-registration risk when the fake car loads several
+  lab libraries in one process (checked at `LAB-WP-02`); the lab's recording conventions
+  (`Q-L4`) to confirm in step 8; the `MeasCycle` size is an estimate, not a measurement.
+- **Next steps, in order:**
+  1. `TCF-1` fix, rescan, push vantage-dev (decision 1).
+  2. `check_headers` package (decision 2).
+  3. D15 change in the plan + range support in `check_migration_register.py` with
+     planted overlap and gap tests (decision 4); the sim-code disposition table to the
+     owner (decision 3); then freeze 6b.
+  4. Step 7 landings: `adas.lab.*` protos in `interfaces/proto/lab/` (lab-only header),
+     max-age/recovery as provisional calibration keys the engine requires, `IMP-0030`
+     text and `IMP-0022`..`0031` re-pointing; then freeze 7 (decision 5).
+  5. Small points (decision 6): `paused` comment, "31 of 31" note, delete the
+     divergence file.
+  6. Commit and push vantage, then vantage-dev; interfaces too if step 4 changed it
+     (submodule first).
+  7. Lab build packages from `LAB-WP-01`; alongside them 6c (CN, SYS as two packages),
+     6d (two packages at `SW-0188`/`0189`), 6e, then step 8. Vantage engine code
+     (WP-08..10) waits for step 8's freeze and gate G2.
+- Reminder for the next session: reference paths are in the orchestrator's memory
+  only; check the reference before deciding or escalating and say "reference does X";
+  never pass reference paths to workers or tracked files. Edit/Write calls on this
+  filesystem may return a false ENOENT: verify, never retry blindly, never send
+  parallel edits to one file.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers at the start of this session.
+  1. Decision 1 includes committing the `TCF-1` fix and pushing vantage-dev once the
+     rescan is clean.
+  2. **Worker models** (new): planning documents (requirement sets, design rows, test
+     specs, architecture or contract changes, step 8 included) → `opus`, effort high
+     (`vantage-planner`). Register rows (6c-6e) → `sonnet`, effort high
+     (`vantage-builder`); the orchestrator reviews every disposition and range against
+     6a before accepting. Code, build and mechanical edits → `sonnet`, medium or high
+     (`vantage-builder` high, `vantage-mechanic` medium). Lands in
+     `program/VANTAGE_PROGRAM.md` §1 and as D19 in the plan.
+  3. For this round: commit and push each repo once its package is accepted (vantage,
+     then vantage-dev; interfaces for `Q-L1`), grep before every commit, normal pushes
+     only, `git ls-remote` after each push. The 6b disposition table and anything else
+     needing a D14 decision goes to the owner before acting. Never touch 1v-superproject.
+- Next: the HANDOFF steps in order: `TCF-1`, `HDR-1`, D15 ranges, step 7 landings.
+
+### 2026-10-31 · TCF-1 · prompt
+- Worker: vantage-mechanic (sonnet, medium)
+- Prompt: `program/prompts/TCF-1.md` — line 1 of `toolchains/aarch64_qcc_qnx.cmake`
+  becomes `# ARM64 QNX cross-compile toolchain` (decision 1).
+- Next: review; rescan; commit; push vantage-dev.
+
+### 2026-10-31 · HDR-1 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/HDR-1.md` — `check_headers.py` expects `COMPONENT: VANTAGE`;
+  `SIM` stays accepted only on files present at `seed-from-sim` (inherited files are
+  not re-headed); clears 6b's two violations (decision 2).
+- Next: review.
+
+### 2026-10-31 · TCF-1 · verdict
+- Result: done. Line 1 of `toolchains/aarch64_qcc_qnx.cmake` reads `# ARM64 QNX
+  cross-compile toolchain`; one line changed. The label for this package was renamed
+  from the platform word to `TCF-1` everywhere in this ledger and in its prompt file,
+  because the old label was itself the word being removed.
+- Verdict: accept
+- Next: rescan, then push vantage-dev.
+
+### 2026-10-31 · HDR-1 · verdict
+- Result: done. `check_headers.py` accepts `VANTAGE` everywhere, `SIM` only on paths in
+  the `seed-from-sim` tree (read once, injectable); missing tag prints one line and
+  accepts `SIM` nowhere. pytest `test_a1_check_headers.py` 14 passed; `check_headers`
+  clean (300 Python, 63 C++). Accepted deviation: one existing test now writes
+  `VANTAGE` into its non-seed temp file. Not done (not asked): a test of the missing-tag
+  line.
+- Verdict: accept
+- Next: commit vantage.
+
+### 2026-10-31 · PLN-1 · prompt
+- Worker: vantage-mechanic (sonnet, medium)
+- Prompt: `program/prompts/PLN-1.md` — D8 amended, D15 section ranges, new D19 (worker
+  models), §6 rows 6c/6d split, program §1 table per the owner's worker-model decision;
+  delete `program/CONCEPT_PAGE_DIVERGENCES.md` (decision 6).
+- Next: review.
+
+### 2026-10-31 · PLN-1 · verdict
+- Result: done. Plan rows D8, D15, D19, 6c, 6d and program §1 (four rows plus the
+  "one place they are set" sentence) word for word; CRLF kept; divergence file deleted,
+  no other reference to it outside the ledger and prompts.
+- Verdict: accept
+- Next: commit vantage-dev.
+
+### 2026-10-31 · COMMIT · decision
+- Result: R-TEST-2 gate (Windows Python 3.14, which carries every test dependency;
+  the rct-pytest venv lacks `jsonschema`, the vantage build venv lacks `pytest`):
+  vantage `tests/unit` 1037 passed, 16 skipped (44 s); `check_invariants.py` clean
+  (7.6 s). Reference scan of the committed files: clean. Committed and pushed vantage
+  `main` `548e7fe..9c9ec00` (HDR-1), remote head `9c9ec00`.
+  Reference scan of every vantage-dev file in the unpushed range and in this commit:
+  clean except the old toolchain label (fixed by TCF-1) and benign "derived from"
+  wording. **Found, not caused by this push:** the imported
+  `.claude/agents/threat-screening.md` and `ip-provenance-scan.md` list the screened
+  terms and the local reference path by design; both are on the remote since the
+  first commit `05dc171`. Goes to the owner.
+- Next: commit and push vantage-dev (TCF-1, PLN-1, pointer, ledger, prompts, agents).
+
+### 2026-10-31 · REG-R1 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/REG-R1.md` — section rows in the register (D15): one
+  disposition for a whole sim v2 section, expanded by the script; `C-RANGE`; planted
+  overlap (`C-DUPLICATE`) and gap (`C-RANGE` + `C-MISSING`) tests (decision 4).
+- Next: review; then 6b freeze with the sim-code table.

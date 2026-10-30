@@ -8,6 +8,7 @@ documents come first: `VANTAGE_DEV_PLAN.md`, then `program/VANTAGE_PROGRAM.md`.
 |---|---|
 | **Anything in this workspace** | `VANTAGE_DEV_PLAN.md` (decisions, placement, gates) |
 | **Orchestrating: writing a worker prompt or reviewing a result** | `program/VANTAGE_PROGRAM.md` (protocols + checklist), `program/ORCHESTRATION_LEDGER.md` |
+| **Launching a worker** | `program/VANTAGE_PROGRAM.md` §1 (which agent type), `agents/vantage-planner.md`, `agents/vantage-builder.md`, `agents/vantage-mechanic.md`; launch by `subagent_type` only, never with `model` or `effort` |
 | **Any code change** | `rules/style.md`, `rules/naming.md` + `skills/naming_conventions`, `rules/architecture.md` |
 | **Workspace / repo / submodules** | `program/WORKSPACE_Plan.md`, `rules/git.md`, `workflows/repo_bootstrap.md`, `workflows/submodule_commit_order.md` |
 | **New component (vantage, lab)** | `workflows/new_component.md`, `workflows/add_component.md`, `rules/build.md`, `rules/variant.md` |

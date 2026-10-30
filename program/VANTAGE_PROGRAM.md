@@ -11,12 +11,26 @@ read from the plan documents' checkboxes (§3), the history from
 | Role | Who | Does | Never does |
 |---|---|---|---|
 | **Owner** | the user | decides; approves commits, pushes, scope and contract changes | — |
-| **Orchestrator** | Opus, medium effort | picks the next work package, writes one prompt for it, reviews the result, records the verdict | edits code or documents itself, except to fix a ledger entry |
-| **Worker** | Sonnet, medium or high effort | carries out exactly one work package from one prompt and reports back | widens scope, commits, pushes, or decides an open question |
+| **Orchestrator** | Opus, high effort | picks the next work package, writes one prompt for it, reviews the result, records the verdict | edits code or documents itself, except to fix a ledger entry |
+| **Worker** | one of the three worker agents below | carries out exactly one work package from one prompt and reports back | widens scope, commits, pushes, or decides an open question |
 
-**Worker effort:** *high* for design, contract, requirement writing and
-scheduler code; *medium* for mechanical work (copying, renaming, wiring a build,
-running a fixed test list).
+**Which worker.** The orchestrator picks the agent type by the kind of work and
+launches it by `subagent_type` alone. It never passes `model` or `effort`: each
+agent's model and effort are set once, in its file under `.claude/agents/`, and
+a value passed at launch would override that one place.
+
+| Kind of work package | Agent type |
+|---|---|
+| planning: requirement sets, design rows, test specs, architecture documents, contract changes (step 8 included) | `vantage-planner` (Opus, high) |
+| migration-register rows (6c-6e); the orchestrator checks every disposition and range against the frozen architecture (6a) before accepting | `vantage-builder` (Sonnet, high) |
+| building with judgment: code, debugging a failing build or test | `vantage-builder` (Sonnet, high) |
+| mechanical: an exact edit, a rename, wiring a build list, running a fixed command list | `vantage-mechanic` (Sonnet, medium) |
+
+The model and effort in brackets are for reading; each agent's file under `.claude/agents/` is the one place they are set (D19).
+
+A package that mixes kinds is split before it is prompted (§4). The imported agents
+(`low-effort-worker`, `threat-screening`, `ip-provenance-scan`) are not program
+workers.
 
 ## 2. Start of every orchestrator session
 

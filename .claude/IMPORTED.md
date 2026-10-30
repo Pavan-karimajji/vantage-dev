@@ -36,3 +36,4 @@ every session started in vantage-dev follows the same house rules.
 |---|---|---|---|
 | 2026-10-30 | `rules/sim.md` | Override note at the top: R-SIM-18's base-grid parts superseded by the event-driven scheduler (D10) | amend R-SIM-18 in 1v at migration |
 | 2026-10-30 | `routing.md` | Written new for this workspace (only rows for imported files) | none (workspace-specific) |
+| 2026-10-30 | `agents/vantage-planner.md`, `agents/vantage-builder.md`, `agents/vantage-mechanic.md` | New: the program's three worker types, each with its model and effort (`program/VANTAGE_PROGRAM.md` §1) | none (workspace-specific) |
