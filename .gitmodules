@@ -1,0 +1,20 @@
+[submodule "modules/interfaces"]
+	path = modules/interfaces
+	url = https://github.com/Pavan-karimajji/interfaces
+	branch = vantage
+[submodule "modules/toolchain"]
+	path = modules/toolchain
+	url = https://github.com/Pavan-karimajji/toolchain
+	branch = main
+[submodule "modules/shared_config"]
+	path = modules/shared_config
+	url = https://github.com/Pavan-karimajji/shared_config
+	branch = main
+[submodule "modules/vantage"]
+	path = modules/vantage
+	url = https://github.com/Pavan-karimajji/vantage
+	branch = main
+[submodule "modules/vantage-lab"]
+	path = modules/vantage-lab
+	url = https://github.com/Pavan-karimajji/vantage-lab
+	branch = main

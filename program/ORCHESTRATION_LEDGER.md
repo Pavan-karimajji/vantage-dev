@@ -41,3 +41,13 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Verdict: accept
 - Why: owner step done and verified with `git ls-remote`.
 - Next: B0.2–B1.1, run directly by this session (owner's instruction 2026-10-30).
+
+### 2026-10-30 · B0.2–B1.1 · verdict
+- Result: `vantage` = sim history to `a3fa0b9` (439 commits), tag `seed-from-sim`;
+  `vantage-lab` README commit `af584ec`; `interfaces` branch `vantage` = `83b7fe9`
+  + one-line version bump to 1.1.0 (`d3b76bb`); submodules added in vantage-dev:
+  interfaces `d3b76bb` (vantage), toolchain `f061dfd`, shared_config `5634d3c`,
+  vantage `a3fa0b9`, vantage-lab `af584ec`. All seeds pushed.
+- Verdict: accept
+- Why: every pointer equals WORKSPACE_Plan.md §1 / B0; `git submodule status` clean.
+- Next: B1.2 (root machinery), or start Plan A writing now that its home exists.
