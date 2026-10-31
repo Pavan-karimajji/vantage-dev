@@ -112,6 +112,7 @@ The orchestrator checks every result against this list before accepting it.
 **Scope and process**
 - [ ] Only files under "Allowed changes" were touched.
 - [ ] Every exit-check command was run and passed, with output shown.
+- [ ] A package that changes what a component ships (its installed files, its package layout, its recipe inputs) ran that component's real package build (`-t package`) in its exit check; an editable build or the tests alone do not prove it.
 - [ ] Boxes were ticked only for rows whose exit check passed; every `[~]` says what closes it.
 - [ ] Nothing was committed or pushed.
 

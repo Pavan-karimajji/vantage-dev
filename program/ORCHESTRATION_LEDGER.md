@@ -2112,3 +2112,91 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   holds no order of its own).
 - Verdict: accept
 - Next: commit and push interfaces, then vantage-dev; `WP-12`.
+
+### 2026-10-31 · WP-12 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/WP-12.md` — `index.json` names the `interfaces` package's `python/`
+  folder; the lab's recorder keeps its edits and writes through `adas_recording.McapRecorder`
+  (lab values, drill holes `excluded`, `library="vantage-lab"`); byte-identical proof on the
+  running example; `tests/test_recording.py` (`SYT-REC-01`..`03`, `ANL-06` with planted cases;
+  equal-time order against the car's write order); `LAB-55`, `LAB-56`, `IMP-0047`.
+- Next: review.
+
+### 2026-10-31 · WP-12 · verdict
+- Result: not done (696 s). Code and tests green on stand-in indexes (lab suite 236 passed, 14
+  skipped; `tests/test_recording.py` 12 passed; recordings identical to today's in every message,
+  channel, schema and provenance — only `record_policies` added to `manifest`). The standard lab
+  build fails: the `adas-interfaces` package has no `python/`.
+- **Root cause, and an orchestrator review miss in `WP-11`:** the shared recipe
+  (`modules/toolchain/base_recipe.py`, `exports_sources`) exports `scripts/*` but not `python/*`,
+  so `IMP-0046`'s install block fails every real package build. **`interfaces` `616408b` (pushed)
+  breaks `-t package`** (editable builds, which the tests use, are unaffected). `WP-11` was
+  accepted without a package build; `IMP-0046` should not have been `[x]`.
+- Worker cleanup: removed the binary-less revision its failed package build left
+  (`conan remove adas-interfaces/1.1.0#1082fa3c… -c`); original revisions intact; one leftover
+  build folder in the Conan cache.
+- Accepted deviations: `tests/test_car_drills.py` states provenance (the writer refuses without
+  it); a configure-time guard when the package lacks the writer; `CarError` on an old index.
+- Verdict: escalate (a build-machinery choice). Nothing of `WP-12` committed.
+- **Lesson for prompts:** a package that changes what a component ships runs that component's
+  `-t package` build in its exit check.
+- Next: owner chooses (a) a toolchain release exporting `python/*` + pin bump, or (b) the writer
+  moves under `scripts/`, already exported and installed (design-row edits of `IMP-0043`/`0046`,
+  `LAB-55`).
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers; none done yet.
+  1. **Package fix: neither (a) nor (b).** The shared recipe exports `src/*` as well as
+     `scripts/*`: the writer moves to `src/adas_recording/` in `interfaces`, and the CMake
+     install block points there instead of `python/`. No toolchain change, no release, no
+     importable module under `scripts/`. `IMP-0043`, `IMP-0046` and `LAB-55` are re-pointed. One
+     builder package does the move, the design-row edits and the `WP-12` finish; its exit check
+     includes the real package build of `interfaces` and the real lab build. **Commit
+     `interfaces` first**: the pushed `vantage` branch cannot build a package until it lands.
+  2. The orchestrator's new rule is accepted: **a package that changes what a component ships
+     runs that component's package build in its exit check** — recorded in `VANTAGE_PROGRAM.md` §5.
+  3. Step 8 split: yes; launch `8a` as drafted.
+  4. Coverage proof: yes — carried rows re-pointed to the `VNT:SYS` rows that state them.
+  5. `IMP-0013`: yes — `CycleStamp` takes a start count; the lab sets `LAB_<C>_START_COUNT`.
+- Next: `PKG-1` (builder), `PRG-1` (mechanic), `8a` (planner), `CHK-1` (builder, register check)
+  in parallel on separate files; decision 3 (`DEC-3`) after `PKG-1` (same repos).
+
+### 2026-10-31 · PKG-1 / PRG-1 / 8a / CHK-1 · prompt
+- `PKG-1` (vantage-builder): writer source to `interfaces/src/adas_recording/`, installed to the
+  package's `python/adas_recording/`; real `interfaces` package build and real lab build
+  (`--update-lock`); re-point `IMP-0043`/`0046`, RCT §6a's two lines, `LAB-55` if needed; close
+  `WP-11`/`WP-12`/`LAB-WP-09` on real builds.
+- `PRG-1` (vantage-mechanic): the package-build rule in `VANTAGE_PROGRAM.md` §5.
+- `8a` (vantage-planner): as drafted, narrowed — it does not edit the lab design (a needed lab case
+  is reported), and runs the register check with `C-PLACE` if `CHK-1` has landed.
+- `CHK-1` (vantage-builder): `C-PLACE` (a `VNT:SYS` Target must exist in the Vantage set), a
+  placement line every run, `--require-placed` for after 8c; planted cases.
+- Files do not overlap. `DEC-3` waits for `PKG-1` (same repos).
+
+### 2026-10-31 · PRG-1 · verdict
+- Result: done (seconds). `VANTAGE_PROGRAM.md` §5 *Scope and process* gains the package-build
+  line; diff read: one line added.
+- Verdict: accept. Committed with the next vantage-dev commit.
+
+### 2026-10-31 · CHK-1 · verdict
+- Result: done (135 s). `load_vnt` (reads the SYS document `docs/layers.yaml` names), `C-PLACE`
+  (a `VNT:` Target that is not an existing `VNT:SYS` row), a placement line every run, and
+  `--require-placed`; 10 tests, 3 self-test cases. Orchestrator rerun: 48 passed, self-test 14/14,
+  register 0 findings; placement line: carried 826, placed 0. Accepted deviations: inherited IMP
+  rows are not counted (their SW rows carry the placement); a section row gives one finding; a
+  row mixing `VNT` and `VNT:SYS` counts as bare.
+- Verdict: accept. Commit held until `PKG-1` lands (interfaces first).
+- Check when `8a` lands: its SYS rows use the `**`SYS-nnnn`**` form `load_vnt` reads.
+
+### 2026-10-31 · PKG-1 / WP-12 · verdict
+- Result: done (337 s). Writer source moved (`git mv`) to `interfaces/src/adas_recording/`; the
+  install block copies it to the package's `python/adas_recording/`. **Real `interfaces` package
+  build** passed (24 s), revision `67fded6f…` ships `python/adas_recording/{__init__,writer}.py`;
+  **real lab build** with `--update-lock` passed (100 s), lock pins the new revision, `index.json`
+  names the package's `python` folder. `interfaces` `tests/python` 56 passed (3 s); lab 236
+  passed, 14 skipped (14 s); RCT trace_check PASS; `check_invariants.py` clean (9 s).
+  `IMP-0043`/`0046` and RCT §6a re-pointed; `IMP-0047`, `WP-12`, `LAB-55`, `LAB-WP-09` `[x]`.
+  Orchestrator read the install block and the lab's recorder (a thin wrapper: edits, `excluded`
+  for dropped ports, `library="vantage-lab"`). `WP-12`'s earlier deviations accepted.
+- Verdict: accept. **WP-11 and WP-12 done on real builds.**
+- Next: commit interfaces, vantage-lab, vantage (lab design, `CHK-1`), vantage-dev; then `DEC-3`.
