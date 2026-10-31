@@ -28,9 +28,8 @@ a value passed at launch would override that one place.
 
 The model and effort in brackets are for reading; each agent's file under `.claude/agents/` is the one place they are set (D19).
 
-A package that mixes kinds is split before it is prompted (§4). The imported agents
-(`low-effort-worker`, `threat-screening`, `ip-provenance-scan`) are not program
-workers.
+A package that mixes kinds is split before it is prompted (§4). The imported agent
+`low-effort-worker` is not a program worker.
 
 ## 2. Start of every orchestrator session
 

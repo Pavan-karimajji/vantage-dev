@@ -19,7 +19,7 @@ every session started in vantage-dev follows the same house rules.
 | `templates/` | `requirements/` (checker, templates, worked example), file_header.cpp/.proto/.py, gtest_template.cpp, component_cmakelists.txt, proto_template.proto, interface_template.hpp |
 | `workflows/` | add_component, add_gtest, add_interface, add_proto, change_build_machinery, native_windows_verification, new_component, repo_bootstrap, submodule_commit_order, write_requirements |
 | `prompts/` | architecture_review, dependency_review, realtime_review, system_audit_and_replan |
-| `agents/` | low-effort-worker, threat-screening, ip-provenance-scan |
+| `agents/` | low-effort-worker |
 
 ## Deliberately not imported
 
@@ -37,3 +37,4 @@ every session started in vantage-dev follows the same house rules.
 | 2026-10-30 | `rules/sim.md` | Override note at the top: R-SIM-18's base-grid parts superseded by the event-driven scheduler (D10) | amend R-SIM-18 in 1v at migration |
 | 2026-10-30 | `routing.md` | Written new for this workspace (only rows for imported files) | none (workspace-specific) |
 | 2026-10-30 | `agents/vantage-planner.md`, `agents/vantage-builder.md`, `agents/vantage-mechanic.md` | New: the program's three worker types, each with its model and effort (`program/VANTAGE_PROGRAM.md` §1) | none (workspace-specific) |
+| 2026-10-31 | `agents/threat-screening.md`, `agents/ip-provenance-scan.md` | Removed: screening runs from 1v-superproject, not from this workspace (owner decision) | none (1v keeps them) |

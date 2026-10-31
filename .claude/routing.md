@@ -21,4 +21,3 @@ documents come first: `VANTAGE_DEV_PLAN.md`, then `program/VANTAGE_PROGRAM.md`.
 | **Tests and when to run them** | `rules/testing.md` (R-TEST-1..7), `skills/gtest_patterns`, `templates/gtest_template.cpp`, `workflows/add_gtest.md` |
 | **Native Windows verification** | `workflows/native_windows_verification.md` |
 | **Reviews** | `prompts/architecture_review.md`, `prompts/dependency_review.md`, `prompts/realtime_review.md`, `prompts/system_audit_and_replan.md` |
-| **Before any push** | `agents/threat-screening.md`, `agents/ip-provenance-scan.md` |

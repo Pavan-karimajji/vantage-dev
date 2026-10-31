@@ -1579,3 +1579,99 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   reference before deciding or escalating and say "reference does X"; never pass reference paths
   to workers or tracked files. Windows Python (`cmd.exe /c python`) carries every test
   dependency. Edit/Write on this filesystem may report a false ENOENT: verify, never retry blindly.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers at the start of this (fourth) session.
+  1. **Order changed:** decision 7 → 6 → 2 → 1 (6b freeze) → 6c-CN, 6c-SYS, 6d-1, 6d-2, 6e →
+     decisions 3 and 4 (lab clean-up, nothing waits on them; after 6e or alongside step 8) →
+     C0 → step 8.
+  2. For this round: commit and push each package once it is accepted, under the owner rules,
+     **only after the pre-push hook is installed**.
+  3. Brought to the owner before acting: the hook design, the 6b freeze, the `IMP-0013` edit,
+     and anything that needs a D14 decision.
+- Next: decision 7 (where `LAB-WP-04`'s time went), read-only, by the orchestrator.
+
+### 2026-10-31 · OWNER-7 · decision
+- Result: where `LAB-WP-04`'s 4 h 44 min went, measured from the worker's transcript
+  (R-TEST-7). Real work about 9 min: 40 tool calls, 2.5 min of tool time, the rest model
+  turns. **275.5 min was one stalled reply**: a streamed answer stopped mid-stream at
+  21:00 UTC and the worker only resumed at 01:36, when it was told to repeat it. No build,
+  test or Conan step was slow. Across all 46 worker transcripts of this workspace this is the
+  only stall; every other worker's longest gap is under 10 min.
+- Cause: outside the program (the model stream), rare, and can repeat. What made it cost
+  hours was that nobody noticed.
+- Fix: the orchestrator now starts a watchdog next to every worker it launches. It watches the
+  worker's transcript and wakes the orchestrator when nothing has been written to it for
+  15 min; the orchestrator then reads the tail, and stops and relaunches a stalled worker.
+- Next: decision 6, the pre-push hook design, to the owner.
+
+### 2026-10-31 · OWNER-6 · decision
+- Result: pre-push hook designed and tested in the session scratchpad, not installed; brought
+  to the owner. One `sh` script, a copy in each of the four repos' hook folders; one term list
+  at `vantage-dev/.git/reference_terms.txt` (whole-word and anywhere entries). It scans only
+  the commits being pushed (message, added lines, file names) and refuses on a hit or when the
+  term list is missing. Tests: a planted commit refused with 3 hits (message, line, file
+  name); `continue`/`contiguous`/`container` pass; clean ranges pass in 1-5 s. Current heads:
+  only the two screening agent files hit (decision 2 removes them).
+- Next: owner yes → install in all four repos; then decision 2.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers on decisions 7 and 6, and two new points; none done yet.
+  1. **Decision 7 accepted**, refined: on a watchdog alert, first check whether a command of
+     the worker is still running (a long build writes nothing until it returns); stop and
+     relaunch only if nothing is.
+  2. **Decision 6: install the hook in all four repos**, after two checks: a push of a new
+     branch or a tag (no remote sha) scans every commit not already on the remote, never
+     zero and never only the tip; script and term list have LF line endings. Prove the
+     planted refusal in each repo without pushing, test once under Windows Git, report.
+     Then decision 2.
+  3. **A — hold the 6b freeze for two rows:** `src/adas_sim/cli/record.py` and
+     `src/adas_sim/sources/` change from `retired` to `replaced`. The in-process Python run
+     path stays retired; the job (make a recording from a scenario) moves to the
+     scenario-to-recording script of D22. Check that no other 6b row retires a
+     recording-producing job without naming a successor. (6b is not frozen: it lands in the
+     decision-1 package.)
+  4. **B — draft D21 (launcher window) and D22 (recording writer)** for plan §2, with where
+     each lands in §4 and §5, and bring them to the owner before writing them in. D21: a thin
+     window over the launcher model (ARCH §3.1), no logic in it (R-SIM-16), narrows D13 from
+     "no window" to "no viewer", built after C1. D22: no new writer library; vantage-lab's
+     `McapRecorder` is the one writer for every recording; its conventions (Lab Design §5.6)
+     become Vantage's input contract in step 8, closing `Q-L4`; two items for the owner: (1) a
+     scenario-to-recording script building real interface messages, (2) whether
+     `McapRecorder` moves into vantage once anything outside the lab uses it. Check the
+     reference first, one line each. No reference tool, product or package names in any file.
+- Next: hook checks and install; decision 2; then A and B drafts to the owner.
+
+### 2026-10-31 · OWNER-6 · verdict
+- Result: pre-push hook installed in all four repos (`.git/hooks/pre-push` and
+  `.git/modules/modules/<name>/hooks/pre-push`); term list `vantage-dev/.git/reference_terms.txt`;
+  nothing tracked. LF only (no CR in either file). Two fixes found by the checks: an annotated
+  tag's message is now scanned (a tag name with `/` broke the first version), and a git
+  command that fails refuses the push instead of passing silently. A new branch or tag is
+  compared with the remote being pushed to (`--remotes=<remote>`, all remotes for a URL).
+  Tests on a scratch remote (real `git push`): planted commit two below the tip of a new
+  branch, refused; planted in the middle of an update, refused; planted tag message
+  (also with `/` in the name), refused; clean tag on an unpushed planted commit, refused;
+  clean branch, clean tag and a tag on a pushed commit, accepted; missing term list, refused.
+  In each of the four repos (loose objects only, no ref touched): planted commit below a
+  clean tip, refused (0.8-1.4 s); current head as a new branch, nothing new, accepted.
+  Windows Git 2.54 from `modules/interfaces` to a temp bare repo: planted refused (2.0 s),
+  clean accepted (1.6 s); temp repo deleted.
+- Verdict: accept
+- Next: decision 2 (`SCR-1`, vantage-mechanic).
+
+### 2026-10-31 · SCR-1 · prompt
+- Worker: vantage-mechanic
+- Prompt: `program/prompts/SCR-1.md` — delete the two screening agents, the routing row,
+  the `IMPORTED.md` agents cell and a local-change row, the `VANTAGE_PROGRAM.md` §1
+  sentence. `.gitignore` keeps its lines (they stop a re-copied file being tracked again).
+- Next: review; meanwhile the owner's points A and B (reference check, drafts).
+
+### 2026-10-31 · SCR-1 · verdict
+- Result: done (63 s). Both agent files deleted; the routing row gone; `IMPORTED.md` agents cell
+  `low-effort-worker` and the 2026-10-31 local-change row; `VANTAGE_PROGRAM.md` §1 sentence
+  reworded. Diff read: exactly those lines. `.gitignore` untouched. The exit-check grep in the
+  prompt could not filter (`grep -rn .` prints no `./` prefix): a prompt error, the worker
+  applied the filter by hand; only the new `IMPORTED.md` row remains.
+- Verdict: accept
+- Next: commit and push vantage-dev (decision 2 done); then decision 1 with point A.
