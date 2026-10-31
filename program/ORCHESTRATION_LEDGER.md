@@ -2358,3 +2358,8 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `grid_step_ns` (the C++ field). The refusal still covers it ("any key its schema does not
   name"); to the owner as a wording fix for the next 8x pass.
 - Verdict: accept. Commit vantage on `c1`, then vantage-dev.
+
+### 2026-10-31 · PROMPTS · decision
+- Result: orchestrator error fixed: the C1 prompt was saved as `program/prompts/WP-01.md`,
+  overwriting the contract's `WP-01` prompt of 2026-10-30. Restored the original; the C1 prompt is
+  `program/prompts/VNT-WP-01.md`. From here, Vantage package prompts are named `VNT-WP-nn.md`.
