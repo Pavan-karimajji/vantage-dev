@@ -2096,3 +2096,19 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   Release only); the ubuntu_gcc lab lock needs one `--update-lock` at the next Linux build.
 - Verdict: accept. Decision 4 done.
 - Next: commit and push vantage-lab, then vantage-dev (pointer); `WP-11` still running.
+
+### 2026-10-31 · WP-11 · verdict
+- Result: done (293 s). `interfaces`: `python/adas_recording/writer.py` (`McapRecorder`,
+  `TopicSpec`, `RecordingError`: provenance, components and record policies refused before the
+  file opens; sorted topics; `publish_time` = `log_time`; `manifest_version` 1; no clock),
+  `scripts/check_recording.py`, `scripts/check_one_recording_writer.py` (AST, three import
+  forms), install block for `python/`, 39 new tests with planted cases; `IMP-0043`..`0046` and
+  `WP-11` `[x]`. Orchestrator read the writer; reran on Windows Python: `tests/python` 56 passed
+  (4.5 s); `check_invariants.py` clean incl. SIG-1 (8 s); RCT trace_check PASS.
+- Accepted deviations: a `library` argument (default `adas-recording`) so the lab keeps its bytes
+  at `WP-12`; the error type is `RecordingError` as the row says; the writer does not check topics
+  against `record_policies` (a planted file must be writable).
+- For `WP-12`: equal-`log_time` order is checked against the car's own write order (the file
+  holds no order of its own).
+- Verdict: accept
+- Next: commit and push interfaces, then vantage-dev; `WP-12`.
