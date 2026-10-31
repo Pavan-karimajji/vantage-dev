@@ -2438,3 +2438,63 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   replaced when the launcher has a source); `test_c1c_stubdll.py` updated, runs a 2.0 setup end to
   end; `test_it10` path escaping; `trigger: ""` for `measured`/`off` stages.
 - Verdict: accept. Commit on `c1`.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers; none done yet.
+  1. **(a):** one design row in C1 — the launcher reads the new run-setup values from the run
+     configuration, refuses a missing one, no defaults. The planner adds it to 8a; the builder
+     lands it after `WP-05`. The merge stays at G3.
+  2. **Test dependencies in vantage's environment:** `pyproject.toml` already has a `dev` extra
+     (pytest, pytest-cov, pandas) the lock leaves out. Limits: component data only
+     (`conf/build.yml`, `pyproject.toml`, the lock), no toolchain change; test tools never in the
+     runtime dependencies; the same for vantage-lab (no pytest either). If `adas_build_tools`
+     cannot express a test extra without a toolchain change, report it instead. The owner's system
+     Python keeps its 1v editable install.
+  3. Launch `WP-02` now; the environment package runs alongside.
+- Next: `8a-R3` (planner), `ENV-1` (builder), `VNT-WP-02` (builder, inventory first).
+
+### 2026-10-31 · 8a-R3 / ENV-1 / VNT-WP-02 · prompt
+- `8a-R3` (same planner): one design row — the launcher reads the run-setup values from the run
+  configuration, refuses a missing one, no defaults; placed after `WP-05`; closed by the
+  expected-red tests of `c327be2` green and the `test_c3_check` fixture removed.
+- `ENV-1` (vantage-builder): test extras in vantage's and vantage-lab's own environments
+  (component data only; stop and report if `adas_build_tools` cannot express it); each suite run
+  in its own environment.
+- `VNT-WP-02` (vantage-builder, `c1`, inventory first): `IMP-0006`..`0010`.
+
+### 2026-10-31 · ENV-1 · verdict
+- Result: blocked as instructed, nothing changed. `adas_build_tools` `python_envs` accepts no
+  extras key (keys: python, lock, intent, default, external, package, exception, first_party); the
+  env installs `--no-deps -r <lock>` then `-e <package>`; the lock script installs the intent folder
+  without `[dev]`; and `PYB-1` fails any lock line outside the shared baseline, which has no
+  pytest. Verified by the orchestrator in `modules/toolchain/adas_build_tools`.
+- Verdict: escalate. Options: (A) a toolchain change — an `extras:` key and the test tools in the
+  baseline — one released `adas-build-tools` version, pins bumped; (B) component data only:
+  `exception:` envs with a `requirements-dev.txt` repeating the runtime list (drift, drops the
+  baseline); (C) a separate test-tools environment. Recommendation (A).
+
+### 2026-10-31 · VNT-WP-02 · decision
+- Result: step 0 inventory received (bus.hpp loses the cycle reconstructor and its types; new
+  `sample_buffer.cpp`, `signal_header.cpp`, `identity.cpp`; `port_bus.cpp` slot becomes a
+  `SampleBuffer`; `test_ut_bus_cycle.cpp` (13) and `test_wp15a_row1_recording_read.cpp` removed
+  under `src/simcore/bus/cycle.cpp` replaced). Orchestrator answers: `PortBus::DeclarePort` from the
+  `RunSpec` (undeclared fallback only for default-constructed test buses, mandatory from `WP-05`);
+  an absent `sig_header` reads as unknown (R-IFACE-4); `scripts/prove_equal.py` untouched (the
+  register retires it — its removal is a separate clean-up package, with the other retired
+  scripts); tracker result struct and counts, no stub event log; `PortValue::rung`/`quality` dropped.
+- Next: the build; then review.
+- Follow-up recorded: a clean-up package removes the scripts and files the register retires
+  (`prove_equal.py`, `check_coverage_delta.py`, `coverage_baseline.json`, …), outside C1.
+
+### 2026-10-31 · 8a-R3 · verdict
+- Result: done. `IMP-0052` in new package `WP-10` (after `WP-05`): `graph/pipeline.py::Pipeline.load`
+  / `Pipeline.setup_values` read `RunSetupValues` from the run configuration (`run_setup:` block plus
+  per-stage/port/input keys), a missing one refused by name, no default; the three callers pass it;
+  closed by `c327be2`'s expected-red tests green and the `test_c3_check` fixture removed. New
+  `SYS-0048` (the launcher refuses a configuration missing a value) with `SYT-RUN-10` and fixture
+  `F-RUN-CONFIG` — justified: the launcher's refusal was stated nowhere (`SYS-0003` is the
+  engine's). *Blocked* note: the G3 merge needs `WP-10`. VNT PASS 100/48; register 0 findings.
+- Notes: `launcher/write.py::to_run_config` writing the new keys back belongs to the launcher
+  model and window (8c, D21), not `WP-10`; the expected-red tests take their values from their own
+  fixture configuration files, never a code default.
+- Verdict: accept. Commit the documents on `c1` (the `WP-02` worker's code is not staged).
