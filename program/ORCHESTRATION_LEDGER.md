@@ -1328,3 +1328,32 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Prompt: `program/prompts/LAB-WP-05.md` — `car.restart`, `silent`, `invalid`; scenarios
   `restart` and `fault`; `bundle_variant`; `SYT-CTL-07`, `SYT-CST-01`..`05`.
 - Next: review.
+
+### 2026-10-31 · LAB-WP-05 · verdict
+- Result: done with one red test outside the worker's files (the loader test still
+  expected only `base`); fixed by LAB-WP-05-R1. `ControlWriter` scripted restarts,
+  `SourceTask` silent/invalid windows (half-open, on nominal time; a silent sample does not
+  advance the counter), `parse_car_script` (other verbs refused), scenarios `restart` and
+  `fault` verbatim, `bundle_variant` (never writes the source; refuses overlaps, unknown or
+  conflicting keys). `SYT-CTL-07`, `SYT-CST-01`..`05` pass with planted violations. Fault
+  run, B, seed 1: first ERROR 500 ms (`input in_Z not trusted`), RUNNING again 2220 ms after
+  2 trusted runs (`LAB_B_RECOVERY_RUNS` = 2). RCT: `IMP-0014`, `0022`, `0025`, `0026`,
+  `0028`, `0042` `[x]` (orchestrator checked each row's listed tests pass); `WP-04` `[x]`.
+- Queued for the design-row package: §5.5 says windows cut on the sample's source time;
+  `SYT-CST-02.c2` Steps define the first INVALID-window run by the `refSync` sticker.
+- Verdict: accept
+
+### 2026-10-31 · LAB-WP-05-R1 · prompt and verdict
+- Worker: vantage-mechanic (sonnet, medium). Prompt: `program/prompts/LAB-WP-05-R1.md` — the
+  loader test lists `base`, `restart`, `fault`. Result: one line changed; lab `tests` 83
+  passed (orchestrator rerun 3.8 s). Verdict: accept.
+- Next: pushed vantage-lab `f4eb017..0225866`, interfaces `b0e028a..628ed2d`, vantage
+  `5b97fe7..e7e34d3`; LAB-WP-06.
+
+### 2026-10-31 · LAB-WP-06 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-06.md` — run setups (`ARCH §2.3` keys only), the run-setup
+  provisional values, one reader of `provisional.yaml`, `equal_outputs`, `ReferenceResim`
+  (any cut and order; `use_ref_sync=False` counts mismatches), `SYT-RSY-04` on every case;
+  closes `G2` without Vantage.
+- Next: review.
