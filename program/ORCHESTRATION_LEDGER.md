@@ -1302,3 +1302,29 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `SourceTask`, `Bus`, `Car.run`, `ControlWriter`, `startComponent`, `McapRecorder`), the
   `car` verb, `SYT-HDR-01/02/04`, `SYT-CTL-05`, `SYT-RSY-01` and a byte-identical double run.
 - Next: review.
+
+### 2026-10-31 · LAB-WP-04 · verdict
+- Result: done. `car.py` (`Task`, `SourceTask`, `Bus`, `ControlWriter`, `Car.run`,
+  `startComponent`), `recorder.py` (`McapRecorder`), the `car` verb, 20 tests. Running
+  example `base`, seed 1: 478 source, 621 each of control, data out, refSync, compState;
+  89470 bytes; a second run in a new process is byte-identical, seed 2 differs.
+  `SYT-HDR-01/02/04`, `SYT-CTL-05`, `SYT-RSY-01` pass, each with a planted violation.
+  Orchestrator rerun: `tests` 65 passed (4.7 s); trace_check PASS; no wall clock or unseeded
+  random in car or recorder. RCT: `IMP-0013`, `IMP-0015`, `IMP-0029` `[x]`; `IMP-0031` and
+  `WP-07` `[~]`. The prompt's `_pb2` grep was too broad: `descriptor_pb2` is the protobuf
+  runtime's own module, not generated bindings — accepted.
+- Accepted deviations: a scenario with unbuilt verbs is refused, not ignored; a tick starts
+  only if its start is within `duration_ms`; input-triggered starts exist but are untested
+  until `data_triggered` (`LAB-47`).
+- Queued for the design-row package: `RCT:IMP-0030` must be trimmed so a `closed by`
+  sentence fits its 60-word cap (it stays `[ ]` meanwhile). `Q-L4`: the recorder follows
+  Vantage's current mcap reader conventions (read, not imported) — confirm in step 8.
+- Verdict: accept
+- Next: pushed vantage-lab `79289e8..f4eb017`, interfaces `a0d5141..b0e028a`, vantage
+  `dd67cd7..5b97fe7`; LAB-WP-05.
+
+### 2026-10-31 · LAB-WP-05 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-05.md` — `car.restart`, `silent`, `invalid`; scenarios
+  `restart` and `fault`; `bundle_variant`; `SYT-CTL-07`, `SYT-CST-01`..`05`.
+- Next: review.
