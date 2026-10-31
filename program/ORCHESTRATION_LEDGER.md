@@ -1943,3 +1943,34 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   vantage `main` (lab design, ARCH §13, register 6c-CN); vantage-dev (plan `A2`/`5b`,
   `.claude/rules/sim.md` override 2 and `IMPORTED.md`, ledger, prompts, pointers).
 - Next: 6c-SYS.
+
+### 2026-10-31 · 6c-SYS · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6c-SYS.md` — dispose every live `SIM:SYS` row in register §4.1
+  (rules incl. D21/D22, the owner's window/model refinement, the in-section check); the
+  orchestrator checks every disposition and range against 6a (D19).
+- Next: review.
+
+### 2026-10-31 · 6c-SYS · verdict
+- Result: done (431 s). 270 live `SIM:SYS` rows in 204 rows (14 section, 190 single): carried
+  211, superseded 45, moved 4, retired 10; §4.1 listed 659 of 659, self-test 11/11. Orchestrator
+  read all 204 rows against 6a and the owner's 6c-CN answers (consistent: `SYS-0007`/`0008`/
+  `0014`/`0019`/`0218`/`0229` follow `CN-0083`/`0084`/`0304`/`0309`/`0222`/`0023`); checked at
+  source `SYS-0012` (readers of another tool's output — carried, right), `SYS-0120` (= RCT
+  `SYS-0037`, moved, right). Wrong: `SYS-0029` moved, but the contract states only the header
+  fields, not simulation time, producer, mode, repeat → `carried`; `SYS-0058` (hosting out of
+  process) superseded by ARCH §9, but the isolated stage meets it → `carried`.
+- Worker's open questions, all with a best word given; for the owner: `SYS-0289..0291` /
+  `CN-0400..0402` safety-evidence stance carried (plan and 6a silent); `SYS-0033`/`CN-0299`
+  `unknown` origin is Vantage's reader tag, not in the contract list. The rest (layout halves
+  carried with the viewer part named; `SYS-0252` three extension points) are step 8 wording.
+- Verdict: rework (1)
+- Next: `6c-SYS-R1` (same worker); then commit 6c; then 6d-1.
+
+### 2026-10-31 · 6c-SYS-R1 · verdict
+- Result: done (19 s). `SYS-0029` and `SYS-0058` carried; rows read; §4.1 listed 659 of 659,
+  no finding but the 6d/6e `C-MISSING`; self-test 11/11; checker tests 38 passed;
+  `check_invariants.py` clean (9.5 s). SYS words: carried 213, superseded 44, moved 3,
+  retired 10.
+- Verdict: accept. **6c done.**
+- Next: commit and push vantage, then vantage-dev; then 6d-1.
