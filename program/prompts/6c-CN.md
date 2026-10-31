@@ -9,7 +9,7 @@
 - `modules/vantage/docs/VANTAGE_Architecture.md` (6a, frozen): the parts (§3), the run
   setup (§2), the rules (§4-§9), code layout (§11), rules changed (§13), rejected and parked (§14)
 - `modules/interfaces/docs/resim_contract/RCT_System_Requirements.md` and
-  `RCT_Implementation_Design.md` (targets of `moved`)
+  `RCT_Implementation_Design.md` (targets of `moved`; C6, the recording, is §6a of each)
 - The rows to dispose: `modules/vantage/docs/v2/SIM_Concept_Document_v0.3.1.md`, every
   live `CN-nnnn` row (its own superseded list in §0.4 is not in the universe)
 - `modules/vantage/scripts/check_migration_register.py` (run it; read `Context.sections`
@@ -29,6 +29,16 @@ the checker reports no finding for any `SIM:CN` UID. `SIM:SYS` rows are left for
   (moved out of this design), not `retired`: the obligation lives on in the viewer's later
   design.
 - **D10 / ARCH §7:** base-grid, GCD, due-tick and tick-numbering rows are `superseded`.
+- **D21:** the launcher window owns only how a choice is shown and entered (stages,
+  implementations, wiring, overrides, cuts, start): such a row is `carried` (Target `VNT`,
+  the launcher window). The rule behind a choice (feasible cuts, closing a gap by default,
+  refusing a bad selection) is `carried` to the launcher model (ARCH §3.1), never to the
+  window. Neither is `superseded` by `D13`, which takes only what draws or views results.
+- **D22 / RCT C6:** a row on what a recording must hold (topics, schemas, order, metadata,
+  provenance) is `moved` to the `RCT:SYS` rows of C6 that state it; if no C6 row states it,
+  list its UID under open questions and never give it a new obligation; a row on making a
+  recording from a scenario is `carried` (the scenario-to-recording script); a row on the
+  Python run path's own recorder is `superseded` by `D22`.
 - **Section rows** (register §2.1): use one when every live row of a whole section shares
   one word, target and reason. Take the label from the script (`ctx.sections`), never
   retype a heading. Never stretch a section row over a row with a different fate: list

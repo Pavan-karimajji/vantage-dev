@@ -167,6 +167,7 @@ B1  workspace builds, unchanged sim ─┤
 A   contract set frozen             ─┼─► gate G1: contract frozen + workspace builds
                                      │
 C0  architecture + register frozen  ─┤
+A2  recording contract (C6, D22)    ─┤
 L1  lab: generator + running example ┼─► gate G2: lab components pass contract tests
 L2  lab: fake car recordings        ─┘
 C1  orchestrator (six rules)        ───► gate G3: every lab topology exact vs fake car,
@@ -205,6 +206,7 @@ start writing refSyncs one at a time.
 | 3 | `program/VANTAGE_PROGRAM.md` + `program/ORCHESTRATION_LEDGER.md` | 1, 2 |
 | 4 | `program/WORKSPACE_Plan.md` | 3 |
 | 5 | Plan A set (`interfaces/docs/resim_contract/`) | 4 (branch exists) |
+| 5b | RCT recording contract (C6, D22) | 5, 7 |
 | 6a | `VANTAGE_Architecture.md` (frozen before 6b) | 5 |
 | 6b | `VANTAGE_Migration_Register.md` part 1: sim code reused / replaced / corrected / new; the disposition words; the register check script (D15) | 6a |
 | 6c | Register: disposition of every sim v2 CN and SYS row (two worker packages: CN, SYS) | 6b |

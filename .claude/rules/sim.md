@@ -9,6 +9,12 @@
 > recording behind them. Paths below point into **1v-superproject** unless they
 > exist in this workspace. The 1v rule itself is amended at migration.
 
+> **vantage-dev override 2 (D22, RCT C6).** A recording carries **one clock** per
+> message, `log_time` (`publish_time` equal to it); the instant the data describes travels
+> in each payload's header (`source_timestamp_us`, R-IFACE-4, RCT C1). There is no
+> recording-level `capture_time_ns`: every part of **R-SIM-14** about two clocks, and
+> `Capabilities.capture_time`, is **superseded here**. The 1v rule is amended at migration.
+
 Normative index. Requirements these rules serve:
 `modules/sim/docs/v1/sim_requirements.md` — **retired 2026-08-31 to a
 compact per-ID disposition table** (`R-REQ-2`); the normative requirement

@@ -1795,3 +1795,151 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Result: **6b frozen** (owner yes). vantage `111402d` pushed (`5580e71..111402d`): register,
   its check and tests, ARCH §1/§11. vantage-dev: plan (D21, D22), ledger, prompts, pointer.
 - Next: `RCT-C6` (vantage-planner), then 6c-CN.
+
+### 2026-10-31 · RCT-C6 · prompt
+- Worker: vantage-planner
+- Prompt: `program/prompts/RCT-C6.md` — contract area C6 `REC` (additive, D14-approved): RCT
+  §6a in architecture, SYS (from `SYS-0037`) and test spec (`SYT-REC-01..04`, `ANL-06` run in
+  vantage and vantage-lab, planted in vantage-lab); `WP-11` (interfaces), `WP-12` (lab),
+  `WP-13` (vantage, after step 8), `IMP-0031` re-pointed; owner's three corrections built in
+  (writer reads no clock; five origin tags; where `ANL-06` runs). Lab design: §5.6 points to
+  C6, new `LAB-54`/`LAB-WP-09`, built rows keep their box, `Q-L4` decided. Plan §5 `A2`, §6 `5b`.
+- Next: review; then 6c-CN.
+
+### 2026-10-31 · 6c-6e · decision
+- Result: the five drafted register prompts (`6c-CN`, `6c-SYS`, `6d-1`, `6d-2`, `6e`) gain two
+  rules after the D10 rule: **D21** — a row on choosing stages, implementations, wiring,
+  overrides or cuts in a window, or starting a run from one, is `carried` (the launcher
+  window), not `superseded` by D13, which takes only what draws or views results; **D22 / RCT
+  C6** — a row on what a recording must hold is `moved` to the C6 `RCT:SYS` rows, making a
+  recording from a scenario is `carried` (the scenario script), the Python run path's own
+  recorder is `superseded` by D22. Their context line names RCT §6a. Why: both decisions came
+  after the prompts were drafted; without the rules a worker would send launcher-window rows
+  to D13.
+- Next: `RCT-C6` review, then 6c-CN.
+
+### 2026-10-31 · OWNER · decision
+- Result: refinement of the D21 and D22 rules in the 6c-6e prompts (applied next):
+  (1) the window owns only how a choice is shown and entered; the rule behind a choice
+  (feasible cuts, closing a gap by default, refusing a bad selection) is `carried` to the
+  launcher model (ARCH §3.1), not to the window; (2) a row on what a recording must hold that
+  no C6 row states is reported as an open question, never given a new obligation by the worker.
+- Next: patch the five prompts; `RCT-C6` still running.
+
+### 2026-10-31 · RCT-C6 · verdict
+- Result: done (786 s). RCT §6a in architecture, SYS (`SYS-0037`..`0043`) and test spec
+  (`SYT-REC-01`..`04`, `ANL-06`); `IMP-0043`..`0048` in `WP-11`..`13`, `IMP-0031` re-pointed
+  (box kept); `layers.yaml` area `REC`, total 91; lab design §5.6 points to C6, `LAB-WP-09`
+  (`LAB-55`, `LAB-56`), `Q-L4` decided; plan `A2` and step `5b`. Orchestrator rerun:
+  trace_check PASS, 91 requirements, 41 tests (0.2 s); diffs read; no reference term; no
+  narration. Accepted deviations: a seventh SYS row (`SYS-0043`, one Python writer, so
+  `ANL-06` serves a row); lab rows `LAB-55`/`56` (`LAB-54` existed; `LAB-56` places the lab's
+  REC tests); counts updated where they would be false.
+- **To the owner before commit (D14, content beyond the approved draft):** (1) one clock in
+  the recording — `publish_time` equals `log_time`, `manifest_version` 1 — consistent with F2,
+  but it retires R-SIM-14's recording-level capture clock here (the inherited reader treats
+  version >= 2 as "publish_time is capture time"); (2) `record_policies` in `manifest`
+  (R-SIM-6); (3) the optional logging time is `created_utc` (the key the reader already
+  reads). Worker questions with recommendations: drill recordings without `refSync` declare
+  those ports `excluded`; `SYS-0041`'s refusal binds the Python writer, presence is checked on
+  both writers' output. Lab design header "D1..D20" → next lab design edit.
+- Verdict: accept (content), commit held for the owner.
+- Next: 6c-CN in parallel (register §4.1 only; no file overlap).
+
+### 2026-10-31 · 6c-CN · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6c-CN.md` — dispose every live `SIM:CN` row in register §4.1
+  (rules incl. D21/D22 and the owner's refinement); the orchestrator checks every disposition
+  and range against 6a (D19).
+- Next: review.
+
+### 2026-10-31 · 6c-CN · verdict
+- Result: done (624 s). 389 live `SIM:CN` rows disposed in 209 rows (32 section, 177 single):
+  carried 265, superseded 87, retired 26, moved 11; checker: no `SIM:CN` finding, self-test
+  11/11. Orchestrator read all 209 rows against 6a and checked the doubtful ones at source:
+  `CN-0099` (out-of-process hosting later) superseded by ARCH §9's isolated stage — right;
+  `CN-0228`/`0251` (parallel only across recordings) superseded by ARCH §8 — right.
+  Wrong: `CN-0069` moved to `RCT:SYS-0033`, which states only the 1.0.0 → 1.1.0 instance, not
+  the versioning rule → `carried`; `CN-0359`'s Why names `scheduler/` as the replacement →
+  the orchestrator.
+- **Process:** the worker ran `git checkout -p` (no input, nothing changed) and a `pkill` that
+  killed its own shell; the orchestrator verified every working copy: RCT-C6's changes, the
+  plan, the prompts and the ledger intact. Rework prompts now name the forbidden commands.
+- **Found while reviewing:** 6a §13's `R-SIM-14` row is cut mid-sentence ("The envelope
+  field stays as the codec's |") and keeps the envelope's capture field — it contradicts
+  C6's one clock; added to the owner's question 1 on C6.
+- Owner questions from the worker (with the orchestrator's recommendation): `CN-0309` unit
+  conversion contradicts `R-SIM-23` (retire it, rule wins); `CN-0304` carried without
+  unit/scale; `CN-0021` trace catalogue only partly stated by `SYS-0037` (rate, group, size
+  not); `CN-0111`/`0240`/`0319` are Vantage's artifacts, carried, no C6 row.
+- Verdict: rework (1)
+- Next: `6c-CN-R1` (same worker, `program/prompts/6c-CN-R1.md`).
+
+### 2026-10-31 · 6c-CN-R1 · verdict
+- Result: done. `CN-0069` carried (the contract states only the rule's first instance);
+  `CN-0359` Why names the orchestrator (ARCH §11). Orchestrator read both rows; checker: no
+  `SIM:CN` finding; self-test 11/11. Words now carried 266, superseded 87, retired 26, moved 10.
+- Verdict: accept
+- Next: owner answers on C6 and the 6c-CN questions; then commit C6 + 6c-CN; then 6c-SYS.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers on C6 and 6c-CN; none done yet. One package applies them; then commit
+  C6 and 6c-CN (interfaces, vantage, vantage-dev) and start 6c-SYS.
+  1. **One clock per recording: yes (D14-approved).** The cut 6a §13 `R-SIM-14` row says one
+     clock. vantage-dev's `.claude/rules/sim.md` gets an R-SIM-14 override note, recorded in
+     `.claude/IMPORTED.md`, as for the grid.
+  2. `record_policies` in `manifest`: yes. 3. `created_utc` as the optional logging time: yes.
+  4. Drill recordings declare their missing `refSync` ports `excluded`: yes.
+  5. `SYS-0041` split as recommended: yes.
+  6. `CN-0309` retired (R-SIM-23 wins); `CN-0304` carried without unit and scale.
+  7. `CN-0021`: "every port with its record policy" → `RCT:SYS-0037`; rate is the manifest's
+     declared period (R-SIM-18); group and size are the open ECU-logging decision (RCT §13),
+     retired here with that reason.
+  8. `CN-0111`, `CN-0240`, `CN-0319`: carried to VNT; step 8 states them as Vantage's
+     metadata on top of C6.
+  9. Out of their section ranges: `CN-0083` retired (Vantage never corrects a recorded time;
+     it matches by counter, D18, and uses the sender's time, C1); `CN-0084` superseded by D18
+     and the per-port sample buffers (`buffer_depth`); `CN-0222` retired (state is not
+     exposed by the ABI, the snapshot is parked in RCT, R-SIM-17 allows only recompute from
+     the start; the checkpoint is progress, not state). **The 6c-SYS worker applies the same
+     check: a row inside a carried section range that contradicts a rule or decision gets its
+     own row.**
+- Next: package `C6CN-R1`; the same check added to the 6c-SYS, 6d-1, 6d-2 and 6e prompts.
+
+### 2026-10-31 · C6CN-R1 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/C6CN-R1.md` — R-SIM-14 override 2 in `.claude/rules/sim.md` and its
+  `IMPORTED.md` row; 6a §13 `R-SIM-14` row says one clock; lab design header `D1..D22`, the
+  `drop_ref_sync` drill lists its `refSync` ports `excluded`; register `CN-0021`, `0083`,
+  `0084`, `0111`, `0222`, `0240`, `0304`, `0309`, `0319` as the owner decided, §8.1 and §18.2
+  ranges skip the three taken out. `CN-0021` keeps one word (`moved`), its Why carrying the
+  owner's split, because a UID is disposed exactly once (D15).
+- The 6c-SYS, 6d-1, 6d-2 and 6e prompts gain the owner's in-section check.
+- Next: review; commit C6 + 6c-CN; 6c-SYS.
+
+### 2026-10-31 · C6CN-R1 · verdict
+- Result: every edit in (90 s); exit check red: two `C-RANGE` — the §8.1 and §18.2 section
+  rows skip `CN-0083`/`0084`/`0222`. The checker is right: D15 gives one disposition only to a
+  whole section of one fate, so a section row never skips a UID; the prompt's "the ranges skip
+  it" was the orchestrator's error (the worker's proposed checker change would have widened
+  D15 without the owner). The same wording in the four remaining register prompts corrected:
+  that section is listed row by row.
+- Verdict: rework (1)
+- Next: `C6CN-R2` (same worker): §8.1 and §18.2 row by row.
+
+### 2026-10-31 · C6CN-R2 · verdict
+- Result: done (39 s). §8.1 and §18.2 listed row by row (22 rows read by the orchestrator);
+  `C-RANGE` gone, no `SIM:CN` finding, self-test 11/11. `CN-0303` stays `carried`, its
+  capture-time capability dropped (D22) — right. Noted, not reworked: several §18.2 Whys
+  restate the row instead of saying why it is kept (a third pass would be a second rework).
+- R-TEST-2 gate: RCT trace_check PASS (0.2 s); root `scripts/tests` 831 passed, 24 skipped
+  (69 s); `modules/vantage` `tests/unit` 1050 passed, 16 skipped (44 s); `check_invariants.py`
+  clean (9.8 s); all on Windows Python.
+- Verdict: accept
+- Next: commit and push interfaces (C6), vantage (lab design, ARCH, register 6c-CN), vantage-dev.
+
+### 2026-10-31 · C6-6c-CN · decision
+- Result: committed and pushed: interfaces `vantage` `e5ab5ef` (`102519a..e5ab5ef`, C6);
+  vantage `main` (lab design, ARCH §13, register 6c-CN); vantage-dev (plan `A2`/`5b`,
+  `.claude/rules/sim.md` override 2 and `IMPORTED.md`, ledger, prompts, pointers).
+- Next: 6c-SYS.
