@@ -1444,3 +1444,51 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `hang`/`crash` cases; `LAB-53` (supervised run) waits for Vantage's `simengine --supervise`,
   so `LAB-WP-08` stays `[~]`.
 - Next: review.
+
+### 2026-10-31 · LAB-WP-08a · verdict
+- Result: built `LAB-49`..`LAB-52`: `camera` topology (64x48 ramp, one 65536-byte frame),
+  `renumber`, `counter_jump`, `drop_sample`, `drop_ref_sync`, drill scenarios and the
+  `hang`/`crash` cases; 17 drill tests pass. Gate red on one stale test outside the
+  worker's files (it asserted `renumber`/`drop_ref_sync` are refused). Drill results:
+  `missing_sample` gap 3 (within `fallback_max_gap` 6), `missing_run` gap 10 (beyond),
+  `counter_jump` X 49 → 1050 with equal outputs by refSync, `no_ref_sync` without the 621
+  refSync messages. `LAB-WP-08` `[~]`, closed by `LAB-53` and the supervised `hang`/`crash`.
+- Findings: (1) the §6.2 `renumber [A]` drill cannot break identity — `A` is clock-started,
+  so its trigger counter already equals its run count (0 of 149 runs differ); (2)
+  `no_ref_sync` mismatches cannot be counted because the reference re-run demands a
+  `refSync` topic even with `use_ref_sync=False`.
+- Orchestrator decisions: fix the stale test; allow the reference fix; **design-row edit
+  (fixture only, no new verb):** the `renumber` drill moves to `data_triggered` with a
+  `counter_jump` on `X` and `renumber: [T]` — reported to the owner.
+- Accepted: `counter_jump` lives in `SourceTask`; `drop_sample` on source ports only;
+  `big_frame` sets the pixel length; the car's hand-built `LabImage` descriptor, checked
+  against `lab_image.proto` by a test.
+- Verdict: rework (1)
+- Next: LAB-WP-08a-R1 (same worker, `program/prompts/LAB-WP-08a-R1.md`).
+
+### 2026-10-31 · LAB-WP-08a-R1 · verdict
+- Result: done. Stale test updated; `ReferenceResim._plan` allows a missing `refSync` only
+  with `use_ref_sync=False`; `renumber` drill in `data_triggered` (`expect: diverges`):
+  `T`'s outputs differ from its control's counter in 57 of 66 runs (every run from the jump
+  on), the refSync re-run reports it at run 10; `no_ref_sync` counts 82 differing runs.
+  Lab design §6.2 row replaced and the sentence added; no other row changed. Orchestrator
+  rerun: 224 passed, 14 skipped (14 s); trace_check PASS.
+- Verdict: accept
+- Next: pushed vantage-lab and vantage (see the commit lines below this session's summary).
+  **Lab state:** `LAB-WP-01`..`07` `[x]`; `LAB-WP-08` `[~]`, closed by `LAB-53`, which needs
+  Vantage's `simengine --supervise`. Nothing more in the lab is buildable now.
+
+### 2026-10-31 · STATE · decision
+- Result: end of this session's run. Everything pushed; no worker running.
+- **Waiting on the owner:** (1) the 6b sim-code disposition table (17 rows, in the session
+  summary) → 6b freeze → 6c-CN, 6c-SYS, 6d-1, 6d-2, 6e (prompts drafted, untracked, one at a
+  time); (2) the two screening agent files on the remote (`05dc171`); (3) optional: a
+  lab-only calibration key for the own-count start (`SYT-HDR-03.c2`); (4) the `renumber`
+  drill fixture move (done, reported).
+- **For step 8:** run setup `schema` version string; how Vantage finds a `config`-variant
+  bundle; `Q-L4` recording conventions; `rates_not_multiple` still shares a 10 ms divisor.
+- **Small packages for later:** `EGO_PARAMS_YAML` optional in `interfaces`; the car's
+  hand-built `LabImage` descriptor could come from a manifest.
+- Gates: G1 green; G2's lab part done, G2 waits for C0 (register). Plan A: WP-01, WP-04,
+  WP-05 done; WP-02, 03, 06, 07 started (closed by Vantage-side tests); WP-08..10 wait for
+  step 8 and G2.
