@@ -2556,3 +2556,37 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   pass; whether a `previous_cycle` input may be a stage's trigger is for `WP-04` to decide (the
   design is silent).
 - Verdict: accept. Commit on `c1`.
+
+### 2026-11-01 · VNT-WP-04 · prompt
+- Worker: vantage-builder, on `c1`, inventory first — including how `c1` stays green between
+  `WP-04` deleting the old `Scheduler` (`IMP-0024`/`0025`) and `WP-05` replacing the loop that uses
+  it (options to the orchestrator), the event log's format, and where the stalled trigger keeps
+  the last starting sample's bytes. Rows `IMP-0016`..`0025`, `IMP-0050`.
+
+### 2026-11-01 · VNT-WP-04 · decision
+- Result: step 0 inventory received: deleting `Scheduler` in `WP-04` breaks ~30 call sites; the
+  runner can only move to the orchestrator in `WP-05` (needs `RCT:WP-08`). Orchestrator answers:
+  (a') the orchestrator built and tested beside the old loop; `IMP-0025` (reconcile, no callers)
+  lands now with its 2 tests; **`IMP-0024` moves from `WP-04` to `WP-05`** (a design-row placement
+  edit, the orchestrator's call, reported to the owner) with the 5 scheduler tests; event log in
+  memory, `event=degrade step= entry=<closed kind>`, `run_start` kept out, file wired in `WP-05`; a
+  trigger sample at `counterDistance` 0 with new bytes starts no run, raises identity broken, enters
+  the buffer; `IdentityTracker::Observe(…, content_differs)`; eviction-miss fields `stage`, `port`,
+  `wanted`.
+
+### 2026-11-01 · HANDOFF · decision
+- Result: session ended by the usage limit. The `VNT-WP-04` worker was stopped right after its
+  go-ahead; **check `git -C modules/vantage status --short` on `c1` first**: any edits there are its
+  partial, uncommitted work — resume `VNT-WP-04` from them (prompt `program/prompts/VNT-WP-04.md`
+  plus the answers in the entry above), or ask the owner before discarding anything.
+- Pushed: vantage `c1` at `b666b09` (WP-01..WP-03), vantage-lab `main` `1bb375d`, interfaces
+  `vantage` `5325985`, vantage-dev `main` (this entry).
+- Owner decisions waiting: (1) test tools in the module envs — `ENV-1` blocked; options (A) a
+  toolchain release with an `extras:` key and test tools in the baseline (recommended), (B)
+  `exception:` envs, (C) a separate test env; (2) D14: a source's `measurement_counter` wraps
+  `0xFFFFFFFF` → 1, never 0 (recommended as one additive contract line); (3) reported: `IMP-0024`
+  moved from `WP-04` to `WP-05` (orchestrator's call).
+- Next, in order: `VNT-WP-04` → `WP-05` (with `IMP-0024`, wiring `BuildGraph`/`PlanText`, the event
+  log's file, declaring source ports) → `WP-10` → `WP-06`..`WP-09` → G3 → merge of `c1` (owner first).
+  Later: 8b, 8c; a clean-up package for the scripts the register retires; design-row notes
+  (`IMP-0006` + `NewestSourceTimeNotAfter`, `IMP-0011` "in `WP-04`", `SYS-0046` key `grid`).
