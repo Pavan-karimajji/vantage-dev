@@ -2498,3 +2498,35 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   model and window (8c, D21), not `WP-10`; the expected-red tests take their values from their own
   fixture configuration files, never a code default.
 - Verdict: accept. Commit the documents on `c1` (the `WP-02` worker's code is not staged).
+
+### 2026-11-01 · VNT-WP-02 · verdict
+- Result: done (830 s): `SampleBuffer`, `ReadSignalHeader` (by reflection on `sig_header`),
+  `IdentityTracker` (`counterDistance` only), `PortBus::DeclarePort` from the `RunSpec`,
+  `cycle.cpp` deleted with `test_ut_bus_cycle.cpp` (13) and `test_wp15a_row1_recording_read.cpp`
+  (2) removed (`src/simcore/bus/cycle.cpp` replaced); 32 new tests; C++ 234 → 251, Python 1066 / 16,
+  system 29 / 62 / 0 failed, `check_invariants.py` clean; boxes `[~]`.
+- **Found by the orchestrator:** a zero `measurement_counter` / `source_timestamp_us` was read as a
+  known value, against the frozen contract (`signal_header.proto`, RCT §2: `0` = unknown) — the
+  orchestrator's go-ahead ("read as it stands") was too loose. `cycle_counter` 0 is a real count.
+- Accepted: identity broken = `measurement_counter` back or repeated while `cycle_counter` advances
+  (the header-only proxy for "new content"; a byte-identical repeat is the stalled trigger of
+  `WP-04`); unclassified combinations `kOk`; gaps on `measurement_counter` only; a
+  `DynamicMessageFactory` per read (cache when `SimEngine` orders bus after pool, if cost shows);
+  source ports declared in `WP-05`. Process: the worker ran `git rm --cached` twice and undid it with
+  `git restore --staged`; the index was clean; both commands now named in the forbidden list.
+- Verdict: rework (1) — `0` reads as unknown, with planted cases.
+
+### 2026-11-01 · VNT-WP-02-R1 · verdict
+- Result: done (262 s). `ReadSignalHeader` reads `measurement_counter` 0 and `source_timestamp_us`
+  0 as unknown (`cycle_counter`, `sig_status` as read); `FindByCounter`/`NewestCounterNotAfter`
+  never match an unknown counter and a wanted 0 finds nothing; new
+  `SampleBuffer::NewestSourceTimeNotAfter` keyed on `source_timestamp_us` (skips unknown times),
+  `NewestNotAfter` stays on arrival time — `WP-05` composes 6a §6's time rule from the two; the
+  tracker does not judge an unknown counter and counts it (`IdentityCounts::unknown`). Planted
+  zero-header cases. C++ 251 → 258 (`-t gtest` 45 s), `sil`, `package` pass, Python 1066/16,
+  `check_invariants.py` clean.
+- Accepted: the sixth method — `IMP-0006`'s text names five; it gains `NewestSourceTimeNotAfter` at
+  the next design-row pass (with 8b).
+- **To the owner (D14):** the contract says `0` = unknown and counters wrap at `uint32`, but not that
+  a source skips 0 when `measurement_counter` wraps; a wrapping sender emits one unknown sample.
+- Verdict: accept. Commit on `c1`.
