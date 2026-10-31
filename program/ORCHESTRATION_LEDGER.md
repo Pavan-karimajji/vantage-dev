@@ -1492,3 +1492,90 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Gates: G1 green; G2's lab part done, G2 waits for C0 (register). Plan A: WP-01, WP-04,
   WP-05 done; WP-02, 03, 06, 07 started (closed by Vantage-side tests); WP-08..10 wait for
   step 8 and G2.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner decisions, **all not done yet**; the next orchestrator session carries them out.
+  1. **6b table approved as recommended, except** (not done yet):
+     - row 5 `src/adas_sim/diagnostics/`: split per file, one line per file. `evidence.py` and
+       `explain.py` go with the viewer (6a §13, moved out); `console.py`, `determinism.py`,
+       `diagnostics.py` and `summary.py` use the Session or two-clock model and are corrected
+       or retired; the rest reused.
+     - row 8 `src/adas_sim/io/`: reused, limited to reading a recording's topic index and
+       schemas for the launcher; data for a run is read only by the C++ reader.
+     - row 16 `scripts/check_anl_sw36.py`: corrected — its rule (R-SIM-23) stands, but it cites
+       sim v2 ids; step 8 gives it a new id.
+     Then 6b is frozen, and 6c-CN, 6c-SYS, 6d-1, 6d-2, 6e run one at a time.
+  2. **Screening agents** (not done yet): drop `.claude/agents/threat-screening.md` and
+     `ip-provenance-scan.md` from vantage-dev, and the "Before any push" row in
+     `.claude/routing.md`; record it in `.claude/IMPORTED.md`. Screening runs from 1v. The
+     history stays.
+  3. **`SYT-HDR-03.c2` through the kit** (not done yet): `CycleStamp` takes the first count in
+     its constructor (production 0); the lab template passes a lab-only calibration key. A
+     design-row edit of `RCT:IMP-0013`, not a contract change. The harness memory overwrite is
+     then removed.
+  4. **`EGO_PARAMS_YAML` stays required** (R-SIM-3a) (not done yet): lab bundles carry the real
+     `shared_config` ego file instead of an empty one.
+  5. **The orchestrator's other choices and the queued design-row fixes: approved.**
+  6. **Reference grep before a push, never after** (not done yet). It slipped twice, so the next
+     session adds a local pre-push hook in each of the four repos that runs the grep and refuses
+     the push on a hit. Hook and term list stay untracked (inside `.git`, never committed).
+     Report it to the owner before installing.
+  7. **Time of `LAB-WP-04`** (not done yet): it took 4 h 44 min. Find where the time went
+     (R-TEST-7) before the next long package, and fix the cause if it will repeat.
+- Next: closing HANDOFF below.
+
+### 2026-10-31 · HANDOFF · decision
+- Result: closing entry of this orchestrator session. No worker is running.
+- **Decisions to carry out:** the OWNER entry just above, items 1-7, all not done yet.
+- **Committed and pushed** (each local head equals `git ls-remote origin` at closing):
+  - vantage-dev `main` at `c643da3` before this entry's commit (session range
+    `1337aaa..c643da3`; this entry's commit is pushed on top, hash in the owner report).
+  - vantage `main` at `5580e71` (session range `548e7fe..5580e71`: HDR-1, lab design frozen,
+    `LAB-WP-01`..`08` boxes, DR-1).
+  - interfaces `vantage` at `102519a` (session range `132727e..102519a`: lab messages (D20),
+    L7-1, SP-1, RCT boxes from the lab, DR-1).
+  - vantage-lab `main` at `5bfe2e7` (session range `af584ec..5bfe2e7`: `LAB-WP-01`..`07`,
+    `LAB-WP-08` part 1).
+- **Not committed:**
+  - `modules/vantage`: `docs/VANTAGE_Migration_Register.md`, `scripts/check_migration_register.py`,
+    `tests/unit/test_check_migration_register.py` (6b + R1 + R2 + REG-R1; decision 1 changes
+    rows 5, 8, 16, then freeze). Do not touch until then.
+  - vantage-dev: none after this commit.
+- **Prompts drafted, not sent** (committed with this entry): `program/prompts/6c-CN.md`,
+  `6c-SYS.md`, `6d-1.md`, `6d-2.md`, `6e.md` — register rows, `vantage-builder`, one at a time;
+  the orchestrator checks every disposition and range against 6a before accepting (D19).
+- **Package states:**
+  - Program steps: 6a frozen; 6b accepted, awaiting decision 1 and freeze; 6c-6e not started;
+    7 frozen (D20); 8 not started.
+  - Lab (`VANTAGE_Lab_Design.md` §9): `LAB-WP-01`..`07` `[x]`; `LAB-WP-08` `[~]`, closed by
+    `LAB-53` (`supervise.py`) and the supervised `hang`/`crash` cases, which need Vantage's
+    `simengine --supervise`.
+  - Plan A (`trace_check --status`): packages 3 done (WP-01, 04, 05), 4 started (WP-02, 03, 06,
+    07: closed by Vantage-side tests), 3 open (WP-08..10: wait for step 8 and G2); design rows
+    27 done, 6 started, 9 open of 42.
+  - Gates: G1 green. G2: the lab's part done (§6.4's first group passes on the lab alone);
+    G2 also needs C0 (register frozen). G3-G5 not green.
+- **Open questions:**
+  - For step 8: (a) the run setup `schema` version string (ARCH §2.3 gives none; the lab uses
+    one constant, `RUN_SPEC_SCHEMA`); (b) how Vantage finds a `config`-variant bundle (the run
+    setup carries only its hash); (c) `Q-L4`, the lab's recording conventions; (d)
+    `rates_not_multiple` periods still share a 10 ms divisor.
+  - Later, small: the car builds `LabImage`'s descriptor by hand (checked against the proto by
+    a test); it could come from a manifest.
+- **Next steps, in order:**
+  1. Decision 7: find where `LAB-WP-04`'s 4 h 44 min went (R-TEST-7); fix a cause that will
+     repeat, before the next long package.
+  2. Decision 6: design the pre-push hook for the four repos, report it to the owner, install
+     only on a yes.
+  3. Decision 2: drop the two screening agents and the routing row; record in `IMPORTED.md`.
+  4. Decision 1: the three 6b changes (rows 5, 8, 16), checker clean, freeze 6b; commit and push
+     vantage, then vantage-dev.
+  5. Decisions 3 and 4: `CycleStamp` first count (RCT `IMP-0013` design-row edit, kit, template
+     key, harness without the memory overwrite); lab bundles carry the real `shared_config` ego
+     file.
+  6. 6c-CN → 6c-SYS → 6d-1 → 6d-2 → 6e, one at a time; then C0; then step 8 (planner), which
+     also answers the four open questions; then the Vantage engine (WP-08..10) and `LAB-53`.
+- Reminder for the next session: reference paths are in the orchestrator's memory only; check the
+  reference before deciding or escalating and say "reference does X"; never pass reference paths
+  to workers or tracked files. Windows Python (`cmd.exe /c python`) carries every test
+  dependency. Edit/Write on this filesystem may report a false ENOENT: verify, never retry blindly.
