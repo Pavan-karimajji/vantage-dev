@@ -2033,3 +2033,40 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   (4) choosing recordings by classification (`SYS-0023`) superseded by D13 with the marks.
 - Verdict: accept. **Register complete (6b-6e).**
 - Next: commit and push; C0 (architecture + register frozen) to the owner.
+
+### 2026-10-31 · C0 · decision
+- Result: **gate C0 green** (owner yes): architecture (6a) and register (6b-6e) frozen.
+  Owner answers on the open questions, not done yet where a change is needed:
+  2. Several recordings in one engine run: carried; step 8 decides. Lean: one recording per
+     engine run, many recordings = a batch of engine runs (R-SIM-19); `sources[]` = the several
+     files of one measurement. Step 8 makes 6a §1 and §2.3 agree.
+  3. Side-by-side builds: parked; the Why names ARCH §14. Comparing two builds is two engine
+     runs over one recording, compared by port values (R-SIM-24).
+  4. Embedded config bundle: Vantage's job, not the contract.
+  5. `PARITY:SYS-0023` (choose recordings by classification): **carried**, not superseded — the
+     batch loop choosing which recordings to run; step 8 decides where the tags come from.
+  6. Safety-evidence rows: carried to step 8 (OQ-17 answered yes 2026-08-13: tool outputs will
+     be cited in a safety argument).
+  7. `unknown` origin: Vantage's reader mark, outside the contract.
+  8. **Step 8 split:** design and tests for C1 (the orchestrator) written and frozen first, C1's
+     code starts while the rest is written; the split and the first prompt go to the owner.
+  9. Decisions 3 and 4 and `WP-11`/`WP-12` run alongside (the `IMP-0013` edit to the owner first).
+- Next: register edits for 3 and 5 (`REG-C0`); `WP-11` and decision 4 in parallel; the
+  `IMP-0013` draft and the step 8 split to the owner.
+
+### 2026-10-31 · REG-C0 / WP-11 / DEC-4 · prompt
+- Workers: `REG-C0` vantage-mechanic (register: the side-by-side rows `superseded` by ARCH §14
+  with the R-SIM-24 comparison, `PARITY:SYS-0023` carried); `WP-11` vantage-builder
+  (interfaces: Python writer, `check_recording.py`, `check_one_recording_writer.py`, install
+  block, tests with planted violations); `DEC-4` vantage-builder (lab: requires
+  `adas-shared-config`, bundles pack its `base` ego file, generator writes none). Three repos,
+  no file shared; `WP-12` follows `WP-11` and `DEC-4` (both touch the lab's index/generator).
+- Interpretation recorded: owner answer 3 "parked; the Why names ARCH §14" → word `superseded`,
+  Target `ARCH §14` (6a holds the feature for later, so `retired`'s "no one holds it" is wrong).
+- Next: review each; the `IMP-0013` draft and the step 8 split to the owner.
+
+### 2026-10-31 · REG-C0 · verdict
+- Result: done (25 s). Eight §4.4 rows as written (diff read: 8 lines replaced); register 0
+  findings; self-test 11/11.
+- Verdict: accept
+- Next: commit and push vantage, then vantage-dev.
