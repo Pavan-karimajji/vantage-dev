@@ -2070,3 +2070,29 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   findings; self-test 11/11.
 - Verdict: accept
 - Next: commit and push vantage, then vantage-dev.
+
+### 2026-10-31 · 8 · decision
+- Result: drafts to the owner, nothing launched. (1) Step 8 split: `8a` C1 (set skeleton,
+  `RUN`/`ORC`/`SEL`/`STP`/`THR`/`EQO` SYS rows, C1 IMP rows, G3 tests, 6a §1/§2.3 aligned, the
+  carried rows it states re-pointed to `VNT:SYS` UIDs) — frozen, then C1 code; `8b` C2 (writer,
+  inspector, supervisor, seal; RCT WP-09/10; G4; `LAB-53`); `8c` the rest (launcher and window,
+  scenario script, batch, configuration, diagnostics, delivery, determinism axes, safety-evidence
+  stance) and the end of the carried-row coverage. Prompt `program/prompts/8a.md` (draft).
+  (2) Coverage of the ~855 carried UIDs: re-point their Target to the `VNT:SYS` UIDs that state
+  them, part by part; the register check (it already accepts `VNT:<UID>`) gains two rules —
+  the UID exists in the Vantage set, and after `8c` no bare `VNT` remains. (3) `IMP-0013` draft
+  for decision 3 (`CycleStamp` takes the own count before the first run in its constructor,
+  production 0; lab key `LAB_<C>_START_COUNT`). Reference: the cycle counter is the
+  component's own run count, on the ECU wherever the task stands, on the PC from 0.
+- Next: owner answers; `WP-11` and `DEC-4` still running.
+
+### 2026-10-31 · DEC-4 · verdict
+- Result: done (208 s). Lab requires `adas-shared-config/1.0.0`; `EGO_PARAMS_YAML` is the
+  package's `base/vehicle/ego_params.yaml` through its resource directory (no sibling path);
+  the generator writes no ego file. vs2026 lock refreshed by `--update-lock` (R-BUILD-7 refusal
+  first, as expected); `sil` build 34 s; all five bundles byte-identical to the
+  `shared_config` file; lab tests 224 passed, 14 skipped (15 s). Diff read; no doc mentions an
+  empty ego file. Notes: the CMake line reads the Release-only resource variable (the lab builds
+  Release only); the ubuntu_gcc lab lock needs one `--update-lock` at the next Linux build.
+- Verdict: accept. Decision 4 done.
+- Next: commit and push vantage-lab, then vantage-dev (pointer); `WP-11` still running.
