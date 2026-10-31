@@ -2017,3 +2017,19 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Prompt: `program/prompts/6e.md` — dispose every live row of the sim v2 parity set in register
   §4.4; same rules; §4.1-§4.3 committed as the parents' record.
 - Next: review; then C0.
+
+### 2026-10-31 · 6e · verdict
+- Result: done (363 s). 163 live PARITY rows: 109 listed in 65 rows (13 section, 52 single),
+  54 IMP inherit; over all 163: carried 77, superseded 75, retired 11, moved 0. Whole register:
+  universe 1572, listed 1143, inherited 429, missing 0, **0 findings**; self-test 11/11.
+  Orchestrator read all 65 rows against 6a: viewer features (transport, speed, step units,
+  marks, plug-in identity) D13; launcher-window rows carried (D21); the side-by-side two-build
+  rows retired as parked in ARCH §14 (same as the owner's `CN-0222`); bundle embedding carried
+  (as `SIM:SYS-0197`).
+- To the owner (open questions, best word in the register): (1) several recordings in one
+  engine run — ARCH §1 says "one recording or slice", §2.3 keeps `sources[]` a list; carried;
+  (2) side-by-side builds retired — reference runs a second copy of the selected components in
+  the same run; ARCH §14 parks it; (3) should C6 require the embedded bundle bytes/hash (D14);
+  (4) choosing recordings by classification (`SYS-0023`) superseded by D13 with the marks.
+- Verdict: accept. **Register complete (6b-6e).**
+- Next: commit and push; C0 (architecture + register frozen) to the owner.
