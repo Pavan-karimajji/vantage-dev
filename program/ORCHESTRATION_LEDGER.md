@@ -1422,3 +1422,25 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   example, each with its corner case shown to happen; `SYT-RSY-04` on all; `loop_no_edge`
   refused at load.
 - Next: review. `LAB-WP-08` waits in part for Vantage (`simengine --supervise`, `LAB-53`).
+
+### 2026-10-31 · LAB-WP-07 · verdict
+- Result: done. Eight catalogue files with §6.1's numbers (25 libraries over 9 topologies);
+  each corner case shown to happen (`late_consumer` seed 2 holds the 100/102 ms example;
+  `feedback` reads `B`'s previous run; `data_triggered` 66 runs for 66 `X` samples;
+  `rates_not_multiple` runs on 20/30/70 ms; `measured_middle` `cut_m`); `loop_no_edge`
+  accepted only with `expect: refused_at_load`. `SYT-RSY-04` passes on every case with 0
+  mismatches by refSync; without refSync `late_consumer` differs in 28 runs and `feedback`
+  in 100. Orchestrator rerun: 192 passed, 2 skipped (12.3 s). No RCT box moved.
+- Accepted deviation: `feedback.yaml` declares `B` before `A` so `previous_cycle` matters.
+- Note for the design owner: `rates_not_multiple` periods share the 10 ms source period, so
+  a common divisor exists; the case still shows that no stage needs a shared grid.
+- Verdict: accept
+- Next: pushed vantage-lab `2a6df14..7f0cf1a`, vantage `569add8..c3293c6`; LAB-WP-08a.
+
+### 2026-10-31 · LAB-WP-08a · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-08a.md` — `LAB-49`..`LAB-52`: camera topology with a big
+  frame, `renumber`, `counter_jump`, `drop_sample`, `drop_ref_sync`, drill scenarios and the
+  `hang`/`crash` cases; `LAB-53` (supervised run) waits for Vantage's `simengine --supervise`,
+  so `LAB-WP-08` stays `[~]`.
+- Next: review.
