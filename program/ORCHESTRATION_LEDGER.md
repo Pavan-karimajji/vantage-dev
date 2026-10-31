@@ -2530,3 +2530,29 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - **To the owner (D14):** the contract says `0` = unknown and counters wrap at `uint32`, but not that
   a source skips 0 when `measurement_counter` wraps; a wrapping sender emits one unknown sample.
 - Verdict: accept. Commit on `c1`.
+
+### 2026-11-01 · VNT-WP-03 · prompt
+- Worker: vantage-builder, on `c1`, inventory first (users of the old schedule dump; how
+  `<stage>.control` in the recording's index is known at load; what `orchestrator.hpp` declares
+  now). Rows `IMP-0011`..`IMP-0015`.
+
+### 2026-11-01 · VNT-WP-03 · decision
+- Result: step 0 inventory received: the schedule dump has no user outside its own files and
+  `test_sch_dump.cpp` (4, removed under `scheduler/dump.cpp` replaced). Orchestrator answers:
+  `scheduler.hpp` keeps the `Scheduler` class only until `WP-04` (`IMP-0024`); `BuildGraph(spec,
+  recorded_topics)` pure and unit-tested, not wired until `WP-04`/`WP-05` (wiring now would redden
+  fixtures with no trigger, outside the expected-red list); `EventQueue`/`Orchestrator`/`Readiness`/
+  `EventLog` forward-declared; rank as 6a §2.2 (checked).
+
+### 2026-11-01 · VNT-WP-03 · verdict
+- Result: done (639 s). `orchestrator.hpp` (`Graph`, `BuildGraph(spec, recorded_topics)`, `Rank`,
+  `PlanText`; `EventQueue`/`Orchestrator`/`Readiness`/`EventLog` forward-declared), `graph.cpp`,
+  `plan_dump.cpp`; `scheduler.hpp` keeps the `Scheduler` class until `WP-04`; `scheduler/dump.cpp`
+  and `test_sch_dump.cpp` (4) removed under `scheduler/dump.cpp` replaced; 29 new tests. The
+  worker's first gtest run caught a `Rank` crash (a map lookup inserting entries) and fixed it.
+  Orchestrator read `Rank` (Kahn's pass, leftovers = the loop) and reran: C++ 283/283 (34 s);
+  worker: `sil`, `package` pass, Python 1066/16, system 29/62/0 failed, `check_invariants.py` clean.
+- For later: `IMP-0011` says "replaces `scheduler.hpp`" — add "in `WP-04`" at the next design-row
+  pass; whether a `previous_cycle` input may be a stage's trigger is for `WP-04` to decide (the
+  design is silent).
+- Verdict: accept. Commit on `c1`.
