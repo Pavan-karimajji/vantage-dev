@@ -1974,3 +1974,21 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   retired 10.
 - Verdict: accept. **6c done.**
 - Next: commit and push vantage, then vantage-dev; then 6d-1.
+
+### 2026-10-31 · 6d-1 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6d-1.md` — dispose every live `SIM:SW` row up to `SW-0188` in register
+  §4.2 (IMP rows inherit; rules incl. D21/D22, the window/model refinement, the in-section
+  check); the orchestrator checks every disposition and range against 6a (D19).
+- Next: review.
+
+### 2026-10-31 · 6d-1 · verdict
+- Result: done (366 s). 188 live `SIM:SW` rows (`SW-0001`..`0188`) in 163 rows (6 section, 157
+  single): carried 150, superseded 32, retired 3, moved 3; 189 IMP rows inherit; §4.2 missing 0,
+  no other finding; self-test 11/11; checker tests 38 passed. Orchestrator read all 163 rows
+  against 6a and their parents (D10 grid, D18 selection, D22/ARCH §13 one clock, R-SIM-23,
+  launcher model): consistent. Checked `SW-0147` (bounded, explicit restart) against ARCH §3.7
+  — it forbids only turning a clean failure into a pass by retrying, and writes an attempt
+  manifest: carried is right. The worker's questions follow parents already decided.
+- Verdict: accept
+- Next: commit and push vantage, then vantage-dev; then 6d-2.
