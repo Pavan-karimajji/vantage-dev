@@ -2200,3 +2200,27 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   for dropped ports, `library="vantage-lab"`). `WP-12`'s earlier deviations accepted.
 - Verdict: accept. **WP-11 and WP-12 done on real builds.**
 - Next: commit interfaces, vantage-lab, vantage (lab design, `CHK-1`), vantage-dev; then `DEC-3`.
+
+### 2026-10-31 · DEC-3 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/DEC-3.md` — `CycleStamp(std::uint32_t startCount = 0)`; `IMP-0013`
+  re-worded (owner-approved text) `[~]` → `[x]` when `SYT-HDR-03.c2` passes through the key; lab
+  key `LAB_<C>_START_COUNT` (0 in every `default.yaml`, not refused when absent); harness memory
+  write removed; real `interfaces` package build, C++ unit tests, real lab build.
+- Next: review; `8a` still running.
+
+### 2026-10-31 · DEC-3 · verdict
+- Result: done (438 s). `explicit CycleStamp(std::uint32_t startCount = 0)`; two kit tests; lab
+  `LAB_<C>_START_COUNT: 0` per `default.yaml`, read by `lab_sil.cpp.in` (absent = 0), passed to
+  `LabComponent`; harness memory write removed; `SYT-HDR-03.c2` through a bundle variant
+  (0, 1, 2 after `0xFFFFFFFF`); `IMP-0013` reworded, `[x]`. Real `interfaces` package build
+  (24 s), C++ unit tests 34/34 (17 s), real lab build `--update-lock` (95 s); lab 236 passed, 14
+  skipped; `interfaces` `tests/python` 56 passed; RCT trace_check PASS; `check_invariants.py`
+  clean. Diffs read.
+- Accepted deviations: `template/lab_sil.cpp.in` (the only file that reads the bundle; the
+  component stays free of file I/O, R-ARCH-2) and `tests/unit/test_generate.py` (asserts the key
+  set) changed outside the list; `LabHarness(bundle=)` added.
+- Follow-ups for the next lab package: a malformed `LAB_<C>_START_COUNT` is reported as
+  "missing" (wrong word); Lab Design §4.2's `default.yaml` row does not name the new key.
+- Verdict: accept. **Decision 3 done.**
+- Next: commit interfaces, vantage-lab, vantage (lab design only), vantage-dev; `8a` running.
