@@ -1403,3 +1403,22 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   files, presets and lock file named, `tests/unit/` in §8, §5.5 window edges on source time,
   `RCT:IMP-0028` wording, `RCT:IMP-0030` tightened and `[~]`, `SYT-CST-02` Steps sentence.
 - Next: review.
+
+### 2026-10-31 · DR-1 · verdict (with rework 1)
+- Result: done. Lab design: `LAB-03`, §4.3 and §8 list the eight copied files; `LAB-04` and
+  §8 *CMake* name `CMakePresets.json`; `LAB-06` and §8 *Build stub* name `requirements.lock`
+  (made by `scripts/lock_python_env.py`); §8 *Tests* adds `tests/unit/`; §5.5 window edges
+  on source time. RCT: `IMP-0028` and the *Blocked* prose say "topology file";
+  `IMP-0030` tightened to 59 words, `[~]` closed by `SYT-CTL-04`/`06` on Vantage (`WP-08`);
+  `SYT-CST-02` Steps define the first INVALID-window run by the `refSync` sticker. No SYS
+  row, message, field, layout item or case changed. Rework 1 (same worker,
+  `program/prompts/DR-1-R1.md`): the two leftovers. trace_check PASS.
+- Verdict: accept
+- Next: pushed interfaces `7b7e61a..102519a`, vantage `ff366bc..569add8`; LAB-WP-07.
+
+### 2026-10-31 · LAB-WP-07 · prompt
+- Worker: vantage-builder (sonnet, high)
+- Prompt: `program/prompts/LAB-WP-07.md` — the eight topologies of §6.1 after the running
+  example, each with its corner case shown to happen; `SYT-RSY-04` on all; `loop_no_edge`
+  refused at load.
+- Next: review. `LAB-WP-08` waits in part for Vantage (`simengine --supervise`, `LAB-53`).
