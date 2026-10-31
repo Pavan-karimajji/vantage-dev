@@ -2302,3 +2302,59 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   not `refSync`/`compState`; lab design §5.5, §6.1, §6.2 tables to list the new verb, topology
   and scenarios.
 - Verdict: accept. **8a frozen** (owner yes, given with the nine answers).
+
+### 2026-10-31 · C1 · decision
+- Result: before prompting `WP-01`, a sequencing problem found and brought to the owner: `WP-01`
+  removes `grid_step_ns`/`order`/`sampling`/`on_missing` from `RunSpec` and refuses them (and any
+  unknown key) at load, but the old grid scheduler (replaced in `WP-03`/`WP-04`), the runner
+  (`WP-05`) and the Python setup writer `emit.py` (8c) still use them — 11 code / 11 test files
+  for `grid_step_ns`, 18 / 53 for `period_ns`. Landed alone, `WP-01` leaves the engine not
+  compiling and the existing engine tests red until `WP-05`, and `emit.py` writing unloadable
+  setups until 8c. The lab already writes `adas.sim.runspec/2.0`, so G3 is unaffected.
+- Options put to the owner: (A) a `c1` branch in vantage — each package builds and passes its own
+  tests there, a test of a replaced path is retired by the package that replaces it (per the
+  register), `main` stays green, merge at G3; plus `emit.py`'s correction pulled into C1 (a
+  design-row addition) so Vantage's own launcher writes loadable setups at the merge;
+  (B) re-order on `main`: the refusals and field removals move to the package that deletes the
+  old scheduler, so every commit stays green (design-row moves). Recommendation (A).
+- Also to the owner: `LAB-62`'s eighth recording verb (D20 (3) fixed seven) and
+  `LAB_<C>_RENUMBER` shifting data outputs only.
+- Next: owner answers; then `WP-01` and the `LAB-WP-10` build.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers; none done yet.
+  1. **(A) a `c1` branch in vantage**, with two conditions: (a) every commit on `c1` builds the
+     whole of vantage and passes its full unit suite; a test of the old path that can no longer
+     pass is removed in the same commit, naming the register row that retires it; the branch is
+     never left broken between packages. (b) `c1` is pushed normally, so the superproject pointer
+     never names a local-only commit; the merge into `main` at G3 goes to the owner first —
+     normal merge, no force, submodule first.
+  2. `emit.py`'s correction joins C1 as one new design row (an addition to frozen 8a): approved.
+  3. `repeat_sample` as the eighth recording verb: yes — recorded in plan §2 as a dated change to
+     D20 (3).
+  4. `LAB_<C>_RENUMBER` shifts only the data outputs' counter: yes.
+- Order: `8a-R2` (planner: the `emit.py` row, D20 (3) change, the lab design's §5.5/§6 tables
+  for the new verb, topology and scenarios) → `WP-01` on `c1` and `LAB-WP-10` alongside.
+
+### 2026-10-31 · 8a-R2 / WP-01 / LAB-WP-10 · prompt
+- `c1` created from vantage `main` at `7fd0eb8` and pushed (owner decision).
+- `8a-R2` (same planner): the setup writer row in `WP-01`, D20 (3) amended, lab design §5.5 /
+  §6.1 / §6.2 / §10 follow `LAB-WP-10`. Runs first.
+- `WP-01` (vantage-builder, on `c1`, after `8a-R2`): **step 0 is an inventory, then stop** — every
+  file and test touching a removed key, split into updated / removed (with register row) / moved
+  later, and whether `simengine` still runs end to end; the orchestrator approves before edits.
+  Then the rows, unit tests, the whole vantage build (`sil`, `gtest`, `package`) and full unit
+  suite; rows `[~]` closed by their `SYT` tests in `WP-09`.
+- `LAB-WP-10` (vantage-builder, after `8a-R2`): `LAB-57`..`63` with each case shown to happen; the
+  `START_COUNT` "missing"/"malformed" fix.
+
+### 2026-10-31 · 8a-R2 · verdict
+- Result: done. `IMP-0051` (`WP-01`): `emit.py::emit_run_spec` and `run_spec.schema.json` write
+  schema 2.0 and the new keys, stop writing `grid`, `order`, `delay_steps`, `sampling`,
+  `on_missing`; D20 amended (eighth verb); lab design §5.5 `repeat_sample`, §6.1
+  `coprime_periods`, §6.2 `renumber_lib`/`shifted` and `repeat_trigger`/`by_data`, §10 `Q-L8`.
+  VNT PASS 98 requirements, 47 tests; register 0 findings.
+- Found: the JSON key is `grid` (an object with `step_ns`); `SYS-0046` and ARCH §2.3 say
+  `grid_step_ns` (the C++ field). The refusal still covers it ("any key its schema does not
+  name"); to the owner as a wording fix for the next 8x pass.
+- Verdict: accept. Commit vantage on `c1`, then vantage-dev.
