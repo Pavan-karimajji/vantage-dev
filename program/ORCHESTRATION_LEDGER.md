@@ -2363,3 +2363,36 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Result: orchestrator error fixed: the C1 prompt was saved as `program/prompts/WP-01.md`,
   overwriting the contract's `WP-01` prompt of 2026-10-30. Restored the original; the C1 prompt is
   `program/prompts/VNT-WP-01.md`. From here, Vantage package prompts are named `VNT-WP-nn.md`.
+
+### 2026-10-31 · VNT-WP-01 · decision
+- Result: step 0 inventory received (C++: `runspec.hpp`, `load.cpp`, `main.cpp`, scheduler
+  constructor and dump, `simcore.cpp`, graph dump; Python: `emit.py`, the schema, `canon.py`,
+  `bridge.py`, `orchestrate/run.py`; ~20 test files updated, 4 tests removed with register rows,
+  none parked; `simengine` loads a 2.0 lab setup but steps it wrongly (grid 0) until `WP-03`..`05`).
+  Orchestrator answers:
+  - **D-A** yes: the `Scheduler` constructor takes grid and order as arguments (0 and setup order
+    from `simEngineCreate`); no gcd derived; `WP-04` deletes it.
+  - **D-B** yes: `RunSetupValues`, a required argument with no defaults; `bridge.py` and
+    `orchestrate/run.py` change only to forward it (callers of the writer, `IMP-0051`'s scope).
+  - **D-E** the 2.0 schema names exactly 6a §2.3's keys, at every level, `additionalProperties`
+    false: `coherence_verdict` stays; `diagnostics` and `reference_build_sha256` (parked
+    side-by-side, ARCH §14) are not keys; `⊘` = present and integer.
+  - **D-F** yes: `_compute_grid_step_ns` stays in Python for fault windows only, never written;
+    a note for 8c (fault windows in steps or time, `SIM:SW-0108`).
+  - **D-G** yes: the run manifest is untouched; a note for 8b/8c.
+  - Graph dump: drop `GraphView.grid_step_ns` and its line (no grid exists).
+- **To the owner:** D-C (engine-running system tests red until `WP-05`, against the "never
+  broken" condition) and D-D (`--config`, `--timeout-ms`, `--restart-on-crash`,
+  `--attempt-timeout-ms` against `SYS-0001`'s "only `--threads` and `--wait-for-attach`").
+
+### 2026-10-31 · LAB-WP-10 · verdict
+- Result: done (1172 s). `coprime_periods` (7/11/13 ms) with provisional values;
+  `LAB_<C>_RENUMBER` (data outputs only, modulo 2^32; `refSync`/`compState` keep the control's);
+  `renumber_lib`/`shifted`; recording verb `repeat_sample` (byte-identical, 1 ms after; the car's
+  bus has it once); `repeat_trigger`/`by_data`; a malformed optional key now says "malformed".
+  Each case shown in a test citing its row. Lab build 117 s; lab suite 268 passed, 18 skipped
+  (19 s); VNT trace_check PASS (lab design 62/63, `LAB-WP-10` `[x]`); orchestrator read the
+  template and recorder diffs; `check_invariants.py` clean (9 s).
+- Accepted deviations: `apply_recording_edits` returns a copy count (0/1/2); two scenario-list
+  assertions updated; the suite ran on the system Python (the old test venv lacks `mcap`).
+- Verdict: accept. Commit vantage-lab (`main`), the lab design's boxes on vantage `c1`, vantage-dev.
