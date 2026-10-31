@@ -52,6 +52,8 @@ Concept (plain English, with examples and evidence):
 | D18 | **Fallback by counter; breaks by the component under test; the seal; engine run.** (1) A recorded refSync entry whose sample is not found falls back by counter on that input: the newest sample whose `measurement_counter` is not after the wanted one (`counterDistance`), badged `KIND_FALLBACK`. The time rule ("newest not after the trigger time") is only for a stage with no recorded refSync, with one exception: beyond `fallback_max_gap` (a run-setup key, counter steps by `counterDistance`, value ⊘, provisional value from the lab design) the counter fallback takes nothing, the time rule picks the sample, `KIND_FALLBACK` is raised, and the event log records stage, port, wanted counter, found counter and gap. (2) A simulated output that does not copy its control's `measurement_counter` (a `SYS-0001` break by the component under test) goes to the engine's event log (stage, port, step) and the engine run goes on; `KIND_IDENTITY_BROKEN` keeps the D17 (3) meaning. (3) The live measurement is written only by the writer library; its seal call, used by the supervisor after the worker is confirmed dead, writes `outcome` and `status` and nothing else. (4) The run-setup keys `sampling` and `on_missing` are refused at load. (5) A **run** is one run of one component (the contract's meaning); the whole execution is an **engine run**: one outcome, one run id, one live measurement. (2), (3) and the `SYS-0028` wording of (5) are owner-approved under D14. | 2026-10-30 |
 | D19 | **Worker models.** Planning documents (requirement sets, design rows, test specs, architecture or contract changes) go to an Opus worker at high effort. Migration-register rows go to a Sonnet worker at high effort, and the orchestrator checks every disposition and range against the frozen architecture before accepting. Code, build and mechanical edits go to a Sonnet worker at medium or high effort. Which agent type does which kind of work: `program/VANTAGE_PROGRAM.md` §1. | 2026-10-31 |
 | D20 | **Lab messages and lab calibration (step 7).** (1) `adas.lab.LabSample` and `adas.lab.LabImage` live in `interfaces`, `proto/lab/`, package `adas.lab`, additive, one `sig_header` each, each file headed "lab-only, never a production port" (an owner-approved contract addition under D14). (2) A lab component's maximum input age and recovery runs are not defaults in code: they are the calibration keys `LAB_<C>_MAX_AGE_US` and `LAB_<C>_RECOVERY_RUNS`, given provisional values in `catalogue/provisional.yaml`; the generator refuses a component without them. (3) The lab design's other open questions as it recommends; `Q-L4` is confirmed in step 8. | 2026-10-30 |
+| D21 | **Launcher window.** A thin window over the launcher model (ARCH §3.1): for each stage `simulate` / `measured` / `off` and its implementation, the wiring file, overrides, the cuts the chosen recording can feed, *copy command line* and *start*. No logic in the window: every action is a launcher-model call, and the copied command line does exactly what *start* does (`R-SIM-16`). Built with Python's standard-library toolkit, so no graphical package is installed. Narrows D13 from "no window" to "no viewer"; the ARCH §1 line changes with it (owner-approved under D14). Built after C1. | 2026-10-31 |
+| D22 | **Recording writer.** Every recording follows one set of conventions (topics, schemas, message order, metadata, provenance), an additive RCT contract approved under D14; it closes `Q-L4`. Two writers keep them, held equal by one conformance test that proves both follow the conventions and that Vantage's reader accepts both: (1) the engine's C++ writer (ARCH §2.3), for an engine run's output recording; (2) one Python writer in `interfaces`, the lab's `McapRecorder` moved there with its metadata (`source_kind`, `run_kind`, provenance) turned into arguments, for every producer: the lab, the scenario-to-recording script, the simulator bridges, the car logger on a PC. It replaces vantage's `io/mcap.py` `McapWriter`. It lives in `interfaces` because the lab is Vantage's independent check and must not depend on Vantage, and every producer already depends on `interfaces`. A **scenario-to-recording script** builds real interface messages from a scenario file of explicit values and writes them through the Python writer, so a test feeds exactly the values it wants; built after step 8. | 2026-10-31 |
 
 ## 3. Where everything lives
 
@@ -123,6 +125,9 @@ reproduce it.
   `adas.livemeas`). It carries everything viz shows today. Its parts and why:
   `RCT_Architecture.md` §6; every field and the layout:
   `RCT_Implementation_Design.md`.
+- **Recording conventions** (D22): the topics, schemas, order, metadata and
+  provenance every recording follows, and the one Python writer every producer
+  uses.
 
 ### Plan B — workspace (`program/WORKSPACE_Plan.md`, no requirement layers)
 Create `vantage-dev`, the `vantage` fork and `vantage-lab`; bring over root
@@ -131,11 +136,12 @@ machinery; restructure `vantage` to the standard component layout as one package
 shared toolchain.
 
 ### Plan C — Vantage (`vantage`, VNT)
-Launcher, orchestrator (six rules), runner, per-port sample buffers, live measurement writer
-(three C calls, common to every engine), a **live measurement inspector** (a
-command-line tool that attaches, dumps and checks the live measurement, used
-instead of a viewer to verify it), other engines. Starts from the reuse analysis (seed: 1v
-`docs/vantage_event_resim_plan.md`).
+Launcher and its window (D21), orchestrator (six rules), runner, per-port sample
+buffers, live measurement writer (three C calls, common to every engine), a
+**live measurement inspector** (a command-line tool that attaches, dumps and
+checks the live measurement, used instead of a viewer to verify it), a
+scenario-to-recording script (D22), other engines. Starts from the reuse analysis
+(seed: 1v `docs/vantage_event_resim_plan.md`).
 
 ### The lab (`vantage-lab`, designed in `VANTAGE_Lab_Design.md`)
 Your A, B, C, D components, **generated** from a short description file instead
@@ -149,6 +155,7 @@ of hand-written, plus a fake car that produces the known right answer.
 - The fake car reuses the executable model already written
   (in 1v's git-ignored sim study notes)
   as its timing logic.
+- The fake car writes its recordings with the Python writer in `interfaces` (D22).
 - First milestone: the running example only (X, Y, Z, A–E). More topologies are
   added as files, one corner case at a time.
 
@@ -164,6 +171,8 @@ L1  lab: generator + running example ┼─► gate G2: lab components pass cont
 L2  lab: fake car recordings        ─┘
 C1  orchestrator (six rules)        ───► gate G3: every lab topology exact vs fake car,
                                           single- and multi-threaded identical
+C1s scenario-to-recording script   ───  alongside C1, after step 8; no gate of its own (D22)
+C1w launcher window                ───  after C1; no gate of its own (D21)
 C2  livemeas writer + inspector     ───► gate G4: for every lab topology the inspector finds
                                           every live-measurement item in it, and every
                                           failure drill passes (with test readers, no viewer)

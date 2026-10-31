@@ -1675,3 +1675,123 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   applied the filter by hand; only the new `IMPORTED.md` row remains.
 - Verdict: accept
 - Next: commit and push vantage-dev (decision 2 done); then decision 1 with point A.
+
+### 2026-10-31 · 6b-R3 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6b-R3.md` — owner decision 1: `diagnostics/` split into 13 file
+  rows, `io/` reused for the topic index and schemas only, `check_anl_sw36.py` corrected.
+  Point A's two rows (`cli/record.py`, `sources/`) wait for the owner's answer on D22, which
+  names their successor.
+- Next: review; meanwhile the A finding and the D21/D22 drafts to the owner.
+
+### 2026-10-31 · OWNER-A-B · decision
+- Result: brought to the owner, not acted on.
+  - **A, the check:** of the retired 6b rows, three make recordings: `cli/record.py` and
+    `sources/` (the owner's two) and `cli/run.py` (`sim run --record`, same `Recorder`). For
+    `cli/run.py` a successor already exists in 6a: an engine run writes its own recording
+    (`outputs.path`, ARCH §2.3, §3.3) — recommended `replaced`. Also `scripts/gui.py` (a
+    launcher window) has a successor if D21 is approved — recommended `replaced` then.
+  - **Reference:** its configuration window picks per component simulate / measure / an
+    alternate input path / "alone" (pulls in declared feeders), the wiring file and a
+    two-stage export, writes config files a command line also accepts, and starts the run.
+    Its car logger and its simulation write one recording format with the data description
+    embedded; stage results are exported into that same format.
+  - **Conflicts found while drafting:** (1) 6a §1 says "no window and no viewer" — D21
+    amends a frozen line; (2) an engine run writes its recording through the C++ writer
+    (6a), so `McapRecorder` cannot be the only writer — drafted as one set of conventions,
+    two writers, one conformance test; (3) vantage's Python `io/mcap.py` holds its own
+    `McapWriter` (from sim) — moving `McapRecorder` in should replace it, not sit beside it;
+    (4) `McapRecorder`'s metadata is lab-fixed (`synthetic`, `sim`, `mocked`) — it becomes
+    arguments.
+- Next: owner answers D21, D22, items (1)-(2), and the two extra rows; 6b-R3 in review.
+
+### 2026-10-31 · 6b-R3 · verdict
+- Result: done (107 s). `diagnostics/` as 13 file rows; `io/` reused, limited to the topic
+  index and schemas; `check_anl_sw36.py` corrected. `C-CODE` clean (0.65 s); self-test 10 of
+  10 caught. Rows read by the orchestrator; claims checked at `seed-from-sim`: `console.py`
+  (30 lines) and `summary.py` (91) hold no `Session`, tick or two-clock use, so `reused`;
+  `estimate.py` (`tick_count`) and `logging.py` (`tick=`) count ticks, so `corrected`.
+- Deviations, to the owner with the freeze: (1) the owner's premise that `console.py` and
+  `summary.py` use the Session model does not hold in the code — `reused`; (2) a
+  `src/adas_sim/diagnostics/` directory row was kept because `C-CODE` demands one per entry
+  under `src/adas_sim/`; its word carries no fact once all 13 files have rows.
+  Recommendation: the checker accepts a directory whose every entry has its own row, and the
+  directory row goes (planted test for both cases).
+- Verdict: accept (rows); the directory row waits for the owner.
+- Next: owner answers on D21/D22, the extra rows and these two points; then the 6b freeze.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers for the 6b freeze, D21 and D22; none done yet. One package applies them
+  all and brings the freeze; 6b freezes on the owner's yes; then 6c-CN onward.
+  1. `console.py`, `summary.py`: `reused` (the owner's premise was wrong).
+  2. The `src/adas_sim/diagnostics/` directory row goes; the register check accepts a directory
+     whose every entry has its own row, with a planted test for each case.
+  3. **D21 approved as drafted**, including 6a §1 "no window and no viewer" → "no viewer"
+     (D14-approved).
+  4. **D22 approved: one set of conventions, two writers, one conformance test.** C++: the
+     engine's writer (6a), for an engine run's output recording. Python: `McapRecorder`, its
+     metadata (`source_kind`, `run_kind`, provenance) turned into arguments; it replaces
+     vantage's `io/mcap.py` `McapWriter` — the `io/` row says so and keeps reading the topic
+     index and schemas. The conformance test proves both writers follow the conventions and
+     that Vantage's reader accepts both.
+  5. Item (1), the scenario-to-recording script: yes, planned, built after step 8.
+  6. **Item (2): the Python writer moves to `interfaces`**, not vantage: the lab is Vantage's
+     independent oracle and must not depend on Vantage; every user of the writer (lab,
+     scenario script, bridges, car logger) is a producer, and producers already depend on
+     `interfaces`. The recording conventions become an **additive RCT contract (approved
+     under D14)**, and `Q-L4` closes there, not in step 8. The orchestrator drafts where in
+     the RCT set it lands and which RCT rows change, and brings it with the freeze.
+  7. `cli/run.py` → `replaced` by `outputs.path`; `scripts/gui.py` → `replaced` by D21.
+- Next: read RCT, plan §4-§5, ARCH §1 and the checker; prompt the one package (6b-R4).
+
+### 2026-10-31 · 6b-R4 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6b-R4.md` — the owner's answers in one package: the register's
+  `diagnostics/` directory row deleted, `io/` corrected (its `McapWriter` gives way to the
+  Python writer in `interfaces`), `cli/record.py` and `sources/` replaced by
+  `src/adas_sim/scenario/record.py`, `cli/run.py` by `src/simengine/main.cpp`
+  (`outputs.path`), `scripts/gui.py` by `src/adas_sim/launcher/window.py`; the check accepts a
+  directory fully covered by its files' rows (two planted tests); plan D21, D22 and their §4/§5
+  lines; ARCH §1 "no viewer" and two §11 (N) rows naming the two new files (the register
+  check requires a `replaced` target to be named in ARCH — flagged to the owner with the freeze).
+- Next: review; meanwhile draft the RCT placement of the recording contract.
+
+### 2026-10-31 · 6b-R4 · verdict
+- Result: done (173 s). Register: `diagnostics/` directory row gone; `io/` corrected,
+  `cli/record.py` and `sources/` replaced by `src/adas_sim/scenario/record.py`, `cli/run.py` by
+  `src/simengine/main.cpp`, `scripts/gui.py` by `src/adas_sim/launcher/window.py`. Check: a
+  directory with no row is covered when every file under it at the seed has a row, else each
+  uncovered file is named; two tests and one self-test case. Plan: D21, D22, §4 (Plan A
+  bullet, Plan C paragraph, lab bullet), §5 `C1s`/`C1w`. ARCH: §1 "no viewer … launcher window
+  (`D21`)", `src/adas_sim/scenario/` in New directories, two §11 (N) rows. Diffs read; texts as
+  given. Orchestrator rerun: code kinds clean (0.47 s), self-test 11/11, tests 38 passed (0.18 s).
+- Verdict: accept
+- Next: R-TEST-2 gate; the 6b freeze and the RCT placement of C6 to the owner.
+
+### 2026-10-31 · 6b · decision
+- Result: R-TEST-2 gate before the freeze commit: `modules/vantage` `tests/unit` 1050 passed,
+  16 skipped (42.6 s, Windows Python); `check_invariants.py` clean (10.8 s, Windows Python; under
+  WSL `SIG-1` cannot run, no `protoc`). Freeze and the RCT placement of the recording contract
+  (C6) brought to the owner; nothing committed.
+- Next: owner yes → commit and push vantage (register, check, tests, ARCH), then vantage-dev
+  (plan, ledger, prompts, pointer); then 6c-CN.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers; none done yet.
+  1. **6b freeze: yes**; both commits as proposed (grep first; the hook checks at push).
+  2. **C6 placement approved as drafted**; the lab finds the writer through `index.json`
+     (choice 2a). The frozen 6a §11 rows and the Lab Design edits are approved.
+  3. Corrections for `RCT-C6`: (a) `SYS-0039` contradicted `R-SIM-24` — reworded: the writer
+     reads no clock, so the same arguments give a byte-identical file; the logging time is
+     metadata passed in by the caller (the lab passes none); a car or HIL recording keeps its
+     real logging time; `SYT-REC-03` stays. (b) `SYS-0040`: the closed origin list is
+     measured / truth / mocked / simulated / overridden (`R-SIM-15`). (c) `ANL-06`: a third
+     writer would appear in vantage or vantage-lab, not in interfaces — say where the check
+     runs so it covers those repos, and plant the violation in one of them.
+  4. Then `RCT-C6` (planner), then 6c-CN.
+- Next: commit and push vantage, then vantage-dev (6b frozen).
+
+### 2026-10-31 · 6b · decision
+- Result: **6b frozen** (owner yes). vantage `111402d` pushed (`5580e71..111402d`): register,
+  its check and tests, ARCH §1/§11. vantage-dev: plan (D21, D22), ledger, prompts, pointer.
+- Next: `RCT-C6` (vantage-planner), then 6c-CN.
