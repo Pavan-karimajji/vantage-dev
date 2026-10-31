@@ -2224,3 +2224,81 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   "missing" (wrong word); Lab Design §4.2's `default.yaml` row does not name the new key.
 - Verdict: accept. **Decision 3 done.**
 - Next: commit interfaces, vantage-lab, vantage (lab design only), vantage-dev; `8a` running.
+
+### 2026-10-31 · 8a · verdict
+- Result: done (1424 s). Vantage set created: `layers.yaml` (VNT, SYS + IMP, context ARCH /
+  register / lab design, budget 8 parts x 30 = 240), `SYS-0001`..`0045` in `RUN`/`ORC`/`SEL`/
+  `STP`/`THR`/`EQO`, `IMP-0001`..`0048` in `WP-01`..`WP-09` (all `[ ]`; `RCT:IMP-0032`/`0033`/
+  `0048` cited, not repeated), test spec (10 fixtures, 42 `SYT`, `ANL-01`..`03`; G3 = §1:
+  `SYT-EQO-01` + `SYT-THR-01`); 6a §1 and §2.3 agree on one recording per engine run; 29 carried
+  register rows placed. Orchestrator read all 45 SYS rows and the G3 group; reran: trace_check
+  PASS (93 requirements, 45 tests); register 0 findings, placement 29 of 826; RCT unchanged.
+- Accepted deviations: lab design declared without `rollup: true` (the checker's rollup pattern
+  does not match `LAB-WP-nn`); `IMP-0023` places the event log (6a §11 names no file); `SYS-0007`
+  /`0008` cover the `mode` key; test file names chosen (6a §11 leaves them to step 8).
+- Found: `SYS-0043` typo "simulated RUN-run output".
+- To the owner with the freeze: schema string; bundle lookup (8c); a no-common-divisor topology;
+  `F-RENUMBER-LIB` (a lab component that renumbers); "stalled trigger" undefined; refusing
+  retired and unknown keys at load; clock ticks start; divergence grace and by-field (8c); the
+  lab design's rollup.
+- Verdict: accept, pending the owner's answers (a small `8a-R1` applies them before the freeze).
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers on the 8a freeze questions — all nine as recommended, with refinements;
+  none done yet.
+  1. Schema string `adas.sim.runspec/2.0`. 2. Retired (`delay_steps`, `grid_step_ns`, `order`)
+     and unknown keys refused at load — one 8a row.
+  3. **Clock ticks count from the whole recording's first reception time, also when a run covers
+     only a slice; a slice skips the ticks before its start, so it ticks at the same instants as
+     the full run** — said in `IMP-0016`.
+  4. **Stalled trigger:** a trigger-input sample whose counter equals the last one
+     (`counterDistance == 0`, never `==`) with the same content starts no run and is counted in
+     the event log; with new content it is identity broken (D17 (3)) — one 8a row.
+  5. A lab topology whose periods share no divisor (e.g. 7/11/13 ms) — lab package.
+  6. A lab component that renumbers its own outputs (`LAB_<C>_RENUMBER`, for `SYT-ORC-05`) — lab
+     package.
+  7. Bundle lookup → 8c (setup carries the resolved bundle path; hash mismatch refused).
+  8. Divergence grace and divergence by field → 8c.
+  9. **The checker's rollup pattern made general (`<PREFIX>-WP-nn` for any prefix)**, not
+     lab-only, so it back-ports to 1v as a plain improvement; recorded in `IMPORTED.md`.
+- Order: `8a-R1` (typo, rows 2 and 4, the `IMP-0016` sentence) → freeze 8a → commit vantage, then
+  vantage-dev → C1 `WP-01`. Lab packages 5 and 6 and the checker change run alongside.
+
+### 2026-10-31 · 8a-R1 / CHK-2 · prompt
+- `8a-R1` (same planner): typo; `RUN` row for retired and unknown keys; `SYS-0004` schema string;
+  `IMP-0016` clock-tick sentence; stalled-trigger row (`counterDistance == 0`); lab design
+  `LAB-WP-10` rows (no-divisor topology, `LAB_<C>_RENUMBER`, the trigger repeat if needed) and the
+  §4.2 key; 8c pointers. Lab rows are planning, so they go to the planner; the lab build follows.
+- `CHK-2` (vantage-builder): checker rollup ids generalised to `<PREFIX>-WP-<n>`, a planted case,
+  `IMPORTED.md` row, `rollup: true` on the lab design.
+
+### 2026-10-31 · CHK-2 · verdict
+- Result: done (107 s). Rollup package ids `(?:[A-Z]{1,6}-)?WP-<id>` in the three rollup
+  patterns; built-in planted `ZZ-WP-01` case (self-test 27/27); `IMPORTED.md` row; lab design
+  `rollup: true` (`--status`: 9 packages, rows 55/56 — `LAB-WP-10` arrives with `8a-R1`).
+  RCT, VNT and example sets PASS.
+- Found: the example's `py/trace_check.py` is the copy users take into a set (its README), now
+  different from the checker.
+- Verdict: rework (1) — sync the example copy, name it in the `IMPORTED.md` row.
+
+### 2026-10-31 · CHK-2-R1 · verdict
+- Result: done. The example's `py/trace_check.py` is byte-identical to the checker again (cmp);
+  `IMPORTED.md` row names both; example set PASS and self-test 27/27 with either copy. The
+  example's `test_checker_additions.py` already differed from the top-level one before this
+  package — left as it was (imported that way).
+- Verdict: accept. Commit with the 8a freeze.
+
+### 2026-10-31 · 8a-R1 · verdict
+- Result: done (230 s). `SYS-0043` typo; `SYS-0004` names `adas.sim.runspec/2.0`; new
+  `SYS-0046` (retired and unknown keys refused, `SYT-RUN-09`, `IMP-0049`) and `SYS-0047`
+  (stalled trigger at `counterDistance` 0, same content, `SYT-ORC-11`, `IMP-0050`); `IMP-0016`
+  the owner's clock sentence; `SYS-0031`/`ANL-02` also forbid `==`/`!=` on counters; §9 has no
+  open decision (bundle lookup, divergence grace and by-field → 8c); lab design §4.2 key and
+  `LAB-WP-10` (`LAB-57`..`63`); 31 carried rows placed. Orchestrator read the new rows; reran:
+  VNT PASS 97/47, RCT PASS, register 0 findings, checker tests 48 passed; R-TEST-2 gate: root
+  `scripts/tests` 831 passed, 24 skipped (68 s), `check_invariants.py` clean (9 s).
+- To the owner (not blocking C1): `LAB-62` adds an eighth recording verb `repeat_sample`, where
+  D20 (3) / `Q-L8` fixed seven — a decision change; `LAB_<C>_RENUMBER` shifts data outputs only,
+  not `refSync`/`compState`; lab design §5.5, §6.1, §6.2 tables to list the new verb, topology
+  and scenarios.
+- Verdict: accept. **8a frozen** (owner yes, given with the nine answers).

@@ -211,18 +211,18 @@ def parse_plan(path: Path) -> list[dict]:
 # A delivery design (`context: … rollup: true`) has the same two halves as a
 # plan -- a package list and a design-row table -- with ids scoped to itself,
 # so the rollup is the same computation over different names. Deliberately
-# generic: `WP-<anything>` and `<PREFIX>-<digits>`, because the checker must
+# generic: `[<PREFIX>-]WP-<anything>` and `<PREFIX>-<digits>`, because the checker must
 # contain no module's vocabulary or "copy it to any module" stops being true.
 RE_ROLL_ROW = re.compile(
     r"^\|\s*`\[(?P<box>[ x~])\]`\s*\|\s*`(?P<rid>[A-Z]{1,4}-\d{2,4})`\s*\|"
-    r"\s*`(?P<wp>WP-[A-Za-z0-9]+)`\s*\|(?P<rest>.*)$"
+    r"\s*`(?P<wp>(?:[A-Z]{1,6}-)?WP-[A-Za-z0-9]+)`\s*\|(?P<rest>.*)$"
 )
 RE_ROLL_ROW_ANY = re.compile(
     r"^\|(?:\s*`\[[ x~]\]`\s*\|)?\s*`(?P<rid>[A-Z]{1,4}-\d{2,4})`\s*\|"
-    r"\s*`(?P<wp>WP-[A-Za-z0-9]+)`\s*\|"
+    r"\s*`(?P<wp>(?:[A-Z]{1,6}-)?WP-[A-Za-z0-9]+)`\s*\|"
 )
 RE_ROLL_WP = re.compile(
-    r"^-\s*\[(?P<box>[ x~])\]\s*\*\*(?P<wp>WP-[A-Za-z0-9]+)\*\*(?P<rest>.*)$"
+    r"^-\s*\[(?P<box>[ x~])\]\s*\*\*(?P<wp>(?:[A-Z]{1,6}-)?WP-[A-Za-z0-9]+)\*\*(?P<rest>.*)$"
 )
 
 
@@ -1311,11 +1311,21 @@ def selftest(root: Path = ROOT) -> int:
             print(f"  {code:<20}{fname:<40}{'yes' if caught else 'NO -- CHECK IS BLIND'}")
             if not caught:
                 failures += 1
+    # A prefixed package id (`<PREFIX>-WP-<n>`) rolls up like `WP-<n>`: the box
+    # says done, one of its rows is open, so C-WPROLL must fire (built in, since
+    # no module's own set is allowed into the checker).
+    planted = ("- [x] **ZZ-WP-01** -- planted\n"
+               "| `[x]` | `ZZ-01` | `ZZ-WP-01` | -- | first row |\n"
+               "| `[ ]` | `ZZ-02` | `ZZ-WP-01` | -- | second row |\n")
+    caught = any(f.code == "C-WPROLL" for f in rollup_findings(planted, "planted")[0])
+    print(f"  {'C-WPROLL':<20}{'<PREFIX>-WP-<n> package':<40}{'yes' if caught else 'NO -- CHECK IS BLIND'}")
+    if not caught:
+        failures += 1
     print()
     if failures:
         print(f"  {failures} check(s) did not catch their planted violation.\n")
         return 1
-    print(f"  All {len(mutations)} checks caught their planted violation.")
+    print(f"  All {len(mutations) + 1} checks caught their planted violation.")
     print(f"  Baseline codes present without mutation: {sorted(base_codes) or 'none'}\n")
     return 0
 
