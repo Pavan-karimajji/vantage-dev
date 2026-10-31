@@ -1357,3 +1357,49 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   (any cut and order; `use_ref_sync=False` counts mismatches), `SYT-RSY-04` on every case;
   closes `G2` without Vantage.
 - Next: review.
+
+### 2026-10-31 · LAB-WP-06 · verdict
+- Result: done. `setup_writer.py` (`load_provisional` is the only reader of
+  `provisional.yaml`, moved out of `generate.py`; `write_run_setup` with a
+  `.run.provisional.json` sidecar marking the provisional values), `run_setup:` part of
+  `provisional.yaml`, `compare.equal_outputs`, `reference.ReferenceResim`, verbs `setup` and
+  `reference`, `tests/test_catalogue.py`. `tests` 126 passed, 2 skipped (jump: a Vantage host
+  call); `SYT-RSY-04` passes on `base` (`cut_c`, `all_simulated`), `restart`, `fault`;
+  `use_ref_sync=False` counts 83/83/83/71 mismatching runs. RCT `IMP-0027`, `IMP-0031` `[x]`.
+- Finding (orchestrator): the re-run fed every component the **recorded** sample even when
+  the producer was simulated, so the cut and run-order tests could not fail (R-REQ-5).
+  Reference model check: its resim feeds a simulated producer's own re-run outputs
+  downstream, matched by counter, with readiness waiting. Rework (1).
+- Accepted as is: the provisional sidecar; `limits.*` and `coherence_verdict` as provisional
+  values; `outputs.path` and `outputs.livemeas` on every case; `RUN_SPEC_SCHEMA` one constant.
+- For step 8 (Vantage requirements): the run setup `schema` version string (ARCH §2.3 gives
+  none); how Vantage finds a `config`-variant bundle (the setup carries only its hash).
+- Verdict: rework (1)
+- Next: LAB-WP-06-R1.
+
+### 2026-10-31 · LAB-WP-06-R1 · prompt
+- Worker: vantage-builder (sonnet, high), the same agent continued
+- Prompt: `program/prompts/LAB-WP-06-R1.md` — live feed of simulated outputs with readiness
+  waiting and a reported deadlock; two planted violations only a live feed catches; `lab/`
+  git-ignored.
+- Next: review; then commit LAB-WP-06 and DR-1.
+
+### 2026-10-31 · LAB-WP-06-R1 · verdict
+- Result: done. Simulated producers' re-run outputs feed their consumers by refSync counter;
+  a run waits in event order; a stall raises an error naming component, run, input and
+  counter. Planted (a): `A` re-run with a key removed makes `A` and `B` differ (a recorded
+  feed would leave `B` equal); with `A` measured all equal. Planted (b): a deleted `A` run
+  is reported under three orders. `lab/` git-ignored. Orchestrator rerun: 128 passed,
+  2 skipped (7.3 s); trace_check PASS; no Vantage import.
+- Verdict: accept
+- Gate note: the lab's part of `G2` is done (§6.4's first group passes on the lab with no
+  Vantage). `G2` itself also needs `C0` (register frozen), so it is **not green yet**.
+- Next: pushed vantage-lab `0225866..2a6df14`, interfaces `628ed2d..7b7e61a`, vantage
+  `e7e34d3..ff366bc`; DR-1, then LAB-WP-07.
+
+### 2026-10-31 · DR-1 · prompt
+- Worker: vantage-planner (opus, high)
+- Prompt: `program/prompts/DR-1.md` — design rows follow the build: `LAB-03` eight copied
+  files, presets and lock file named, `tests/unit/` in §8, §5.5 window edges on source time,
+  `RCT:IMP-0028` wording, `RCT:IMP-0030` tightened and `[~]`, `SYT-CST-02` Steps sentence.
+- Next: review.
