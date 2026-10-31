@@ -2396,3 +2396,45 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Accepted deviations: `apply_recording_edits` returns a copy count (0/1/2); two scenario-list
   assertions updated; the suite ran on the system Python (the old test venv lacks `mcap`).
 - Verdict: accept. Commit vantage-lab (`main`), the lab design's boxes on vantage `c1`, vantage-dev.
+
+### 2026-10-31 · OWNER · decision
+- Result: owner answers on `VNT-WP-01`.
+  - **D-C yes:** engine-running system tests may stay red on `c1` until `WP-05`; the merge to
+    `main` still requires them green. **The expected-red tests are listed by name** (in the
+    package report, each commit message on `c1` while they are red, and the ledger), so any
+    other failure stands out.
+  - **D-D yes:** `--config`, `--timeout-ms`, `--restart-on-crash`, `--attempt-timeout-ms` stay in
+    `WP-01`; 8b decides each against `SYS-0001` and records the reason for keeping or dropping it.
+- Next: go-ahead to the `VNT-WP-01` worker with D-A..D-G.
+
+### 2026-10-31 · VNT-WP-01 · verdict
+- Result: done (1775 s). `LoadRunSpec` reads `adas.sim.runspec/2.0`, refuses retired, unknown
+  (every level, key and place named) and `⊘`-missing keys; `simengine --threads N`; `emit.py`
+  writes only the new keys from a required `RunSetupValues`; schema JSON 2.0 with
+  `additionalProperties` false; scheduler takes grid 0 and the setup order (no gcd); graph dump
+  without grid. New `test_ut_runspec_load.cpp` (16) and `test_vnt_wp01_emit.py` (10). Removed, each
+  with its register row: `FractionalGridStepIsRefused`, UT-SPC-23, UT-SPC-07, the emit-time loop
+  test, the side-by-side spec test (`PARITY:SW-0013`). `IMP-0001`..`0005`, `0049`, `0051` `[~]`
+  closed by their `SYT` tests (`WP-09`). Orchestrator read `load.cpp`/`emit.py`; reran on Windows:
+  C++ 234/234 (32 s), Python unit 1066 passed, 16 skipped (45 s), `check_invariants.py` clean.
+- **Expected red on `c1`** (owner D-C), all `TypeError … 'setup_values'` from production callers
+  that cannot supply it yet (`cli/resim.py:149`, `orchestrate/worker.py:203`,
+  `check/runner.py:265`): `test_a5_it01_config_tree_deleted::test_config_tree_deleted_engine_still_runs_and_matches_the_baseline`,
+  `test_d15b_cli_resim::{test_sim_resim_cli_runs_a_real_stage_through_simengine,
+  test_sim_resim_cli_save_carries_a_real_divergence_in_its_manifest,
+  test_sim_resim_cli_without_save_still_reports_ticks_and_cleans_up}`,
+  `test_d15b_engine_bridge::{test_run_pipeline_via_engine_produces_a_real_recording,
+  test_backfill_schema_bytes_fills_a_real_output_topic}`,
+  `test_lnc_launch::test_launch_reaches_a_real_run_only_through_the_written_path`; expected the
+  same: `test_d6_day_one_walkthrough`, `test_e3_determinism_measured` (not runnable here). In this
+  checkout they skip (no stub DLL / df build), so the default `tests/system` run is 29 passed, 62
+  skipped, 0 failed.
+- **Found, to the owner:** (1) these reds turn green only when Vantage's own launcher can supply
+  `RunSetupValues` (8c's configuration), not at `WP-05` — so the G3 merge condition needs the
+  values' source in C1 or the merge waits for 8c; (2) the machine's system Python (3.14) has an
+  editable install of **1v-superproject's** `adas_sim`, so subprocess tests run 1v code; vantage's
+  own `.venv-sim-win32` imports this tree but has no `pytest` (test dependencies not in its lock).
+- Accepted deviations: `test_c3_check.py` wraps `invoke_engine` with provisional values (to be
+  replaced when the launcher has a source); `test_c1c_stubdll.py` updated, runs a 2.0 setup end to
+  end; `test_it10` path escaping; `trigger: ""` for `measured`/`off` stages.
+- Verdict: accept. Commit on `c1`.
