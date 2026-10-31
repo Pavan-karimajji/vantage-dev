@@ -1992,3 +1992,28 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   manifest: carried is right. The worker's questions follow parents already decided.
 - Verdict: accept
 - Next: commit and push vantage, then vantage-dev; then 6d-2.
+
+### 2026-10-31 · 6d-2 · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6d-2.md` — dispose every live `SIM:SW` row from `SW-0189` in register
+  §4.3 (IMP rows inherit); same rules; §4.1 and §4.2 committed as the parents' record.
+- Next: review.
+
+### 2026-10-31 · 6d-2 · verdict
+- Result: done (371 s). 187 live `SIM:SW` rows (`SW-0189`..`0429`, 41 of them scattered in
+  earlier sections) in 185 rows (1 section, 184 single): carried 149, superseded 24, retired 10,
+  moved 4; 186 IMP rows inherit; §4.3 missing 0; self-test 11/11. Orchestrator read all 185 rows
+  against 6a and the parents. Checked at source: `SW-0233` (three verbs — an engine run executes
+  and writes its own recording, so all three still exist: carried right); `SW-0298`/`0352`/
+  `0353` (= `RCT:SYS-0026`) and `SW-0355` (= `RCT:SYS-0030`) moved right; `SW-0356` (the player
+  detects a dead engine) superseded by ARCH §9/§10 right — the player is gone and the
+  heartbeat, seal and inspector replace the mechanism (not the `SYS-0058` case, where 6a meets
+  the same obligation).
+- Verdict: accept
+- Next: commit and push vantage, then vantage-dev; then 6e.
+
+### 2026-10-31 · 6e · prompt
+- Worker: vantage-builder
+- Prompt: `program/prompts/6e.md` — dispose every live row of the sim v2 parity set in register
+  §4.4; same rules; §4.1-§4.3 committed as the parents' record.
+- Next: review; then C0.
