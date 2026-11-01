@@ -2590,3 +2590,22 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   log's file, declaring source ports) → `WP-10` → `WP-06`..`WP-09` → G3 → merge of `c1` (owner first).
   Later: 8b, 8c; a clean-up package for the scripts the register retires; design-row notes
   (`IMP-0006` + `NewestSourceTimeNotAfter`, `IMP-0011` "in `WP-04`", `SYS-0046` key `grid`).
+
+### 2026-11-01 · VNT-WP-04 · verdict
+- Result: done (1079 s; resumed after the rate limit, `c1` was clean). `EventQueue` (time, rank,
+  declaration order, source index, arrival; clocks from the recording's first reception time),
+  `Orchestrator::BeginStep`/`NextRunnable`/`Commit`/`EndStep`/`Jump`, `Readiness`, `EventLog`
+  (closed `EntryKind`, `event=degrade step= entry=`), stalled trigger (byte copy per trigger-input
+  stage), `IdentityTracker::Observe(…, content_differs)`; `reconcile.cpp` and its 2 `UtSch04` tests
+  removed (`scheduler/reconcile.cpp` retired); `IMP-0024` moved to `WP-05`. 59 new tests; the worker
+  planted four mutations (byte compare, `content_differs`, readiness `>=`, source index) — 12 tests
+  caught them — and restored the code. Orchestrator rerun with the earlier interpreter: C++ 340/340
+  (37 s), Python unit 1066/16 (45 s), system 29/62/0 failed (17 s; the worker's 25 came from a test
+  venv without `pandas`).
+- Accepted for `WP-05`: the orchestrator never calls the reader (`Jump` takes the runner's seek); a
+  trigger sample with an unknown counter starts a run each time; a ticket made through a
+  `previous_cycle` trigger runs in the next step (so a loop closed only by that edge cannot spin
+  inside one step) — both ARCH-silent, both recorded; `readiness_expired` and `kForcedParked` hand the
+  timeout to the runner, which raises `KIND_READINESS_TIMEOUT`; the badges and the four
+  runner-owned log entries are raised in `WP-05`.
+- Verdict: accept. Commit on `c1`.
