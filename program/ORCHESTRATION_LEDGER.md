@@ -2652,3 +2652,47 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   fixture's manifest declares a 10 ms clock (its system test writes no start). Process: one denied
   `git rm --cached`; files deleted with plain `rm`.
 - Verdict: accept. Commit interfaces, vantage `c1`, vantage-dev.
+
+### 2026-11-01 · VNT-WP-10 · prompt
+- Worker: vantage-builder, on `c1`: `IMP-0052` (`Pipeline.load`/`setup_values`, the three callers),
+  `SYT-RUN-10`, the `test_c3_check` fixture removed; the expected-red tests run by node id with the
+  stub copied in and removed after; `[x]` only if every one passes.
+
+### 2026-11-01 · OWNER · decision
+- Result: owner: stop and summarise once the current agents are done. `VNT-WP-10` is the only one
+  running; no new package is launched after it.
+
+### 2026-11-01 · VNT-WP-10 · verdict
+- Result: done (1033 s). `Pipeline.load` parses `run_setup:` and the stage keys; `Pipeline.setup_values()`
+  returns `RunSetupValues`, a missing value an `AuthoringError` naming it, no default; `sim resim`,
+  the batch worker and `sim check` pass them; `launcher/write.py` and `runspec/manifest.py` write them
+  back; `test_c3_check`'s fixture removed; `SYT-RUN-10` (`tests/system/test_vnt_run_config.py`, 9)
+  and 18 unit tests. **Every runnable expected-red test of `c327be2` passes by node id** (7, with the
+  stub copied in and removed after); `test_d6_day_one_walkthrough` and
+  `test_e3_determinism_measured` are not runnable here. `IMP-0052`, `WP-10` `[x]`. Orchestrator rerun:
+  Python unit + system 1113 passed, 87 skipped (57 s); worker: C++ 388/388, `sil`, `package`,
+  `check_invariants.py` clean.
+- Notes for later: `previous_cycle` is a stage-level list in the pipeline file (the run setup keeps
+  it per input) — 8c to confirm; `test_e3` needs df's `df_only.yaml` to gain the values (migration);
+  Python `Pipeline.load` still refuses any wiring loop (`grid.check_zero_delay_cycles`), even one
+  closed by `previous_cycle` — the clean-up or `WP-09`; the design's *Blocked* note on the
+  `c327be2` reds is now stale — retire at the next design-row pass.
+- Verdict: accept. Commit on `c1`.
+
+### 2026-11-01 · HANDOFF · decision
+- Result: stopped at the owner's word; no agent running.
+- **C1 on vantage `c1`:** `WP-01`..`WP-05` and `WP-10` landed (`WP-10` `[x]`; the others `[~]`,
+  closed by their `SYT` tests in `WP-09`); the engine steps through the orchestrator; the `c327be2`
+  expected-red tests pass. Left: `WP-06` (equal outputs; remove `NewestSourceTimeNotAfter`),
+  `WP-07` (threads), `WP-08` (source checks), `WP-09` (the C1 tests and gate G3) → G3 → the merge of
+  `c1` into `main` (owner first).
+- **Owner decisions waiting:** (1) test tools in the module environments (`ENV-1` blocked) — (A) a
+  toolchain release with an `extras:` key and test tools in the baseline (recommended), (B)
+  `exception:` envs, (C) a separate test env; (2) D14: a source's `measurement_counter` wraps
+  `0xFFFFFFFF` → 1, never 0 (recommended).
+- **Recorded for later:** 8b (live measurement writer, inspector, supervisor; the four `simengine`
+  options against `SYS-0001`; the transport publisher's retirement); 8c (launcher window, scenario
+  script, configuration incl. bundle lookup, `previous_cycle` shape, divergence grace and by-field);
+  a clean-up package (scripts the register retires; `check_engine_boundary.py`'s old package name;
+  the Python loop check); design-row notes (`IMP-0011` "in `WP-04`", `SYS-0046` key `grid`, the stale
+  *Blocked* note).
