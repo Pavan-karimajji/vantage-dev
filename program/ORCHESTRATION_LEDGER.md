@@ -2609,3 +2609,46 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   timeout to the runner, which raises `KIND_READINESS_TIMEOUT`; the badges and the four
   runner-owned log entries are raised in `WP-05`.
 - Verdict: accept. Commit on `c1`.
+
+### 2026-11-01 · VNT-WP-05 · prompt
+- Worker: vantage-builder, on `c1`, inventory first: the `Scheduler` call sites; where badges live
+  before the live measurement; the event log's file; the smallest `SetLiveMeasurement` before 8b;
+  ABI 3 callers; which system tests change state. Rows `IMP-0024`, `0026`..`0031` and
+  `RCT:IMP-0032`/`0033` (interfaces design boxes).
+
+### 2026-11-01 · VNT-WP-05 · decision
+- Result: step 0 inventory received (33 `Construct` call sites; `test_ut_sch_core.cpp` (5) removed
+  under `scheduler.hpp` replaced; no lab recordings built here, so proof is unit/gtest level).
+  Orchestrator answers, all as recommended: `Construct` over one reader per `sources[]` file;
+  `Runner::Preflight` (refusals + plan before any library loads); a source port's depth = the
+  largest consumer depth, declaration mandatory, fallback removed; compiled `CycleControl`/`RefSync`
+  (the contract the engine obeys, not component bindings — R-SIM-11 not touched); `RunStage` takes
+  the exec call as a function; the engine-run recording holds what arrived or was committed per
+  step (held values are the live measurement's); byte divergence until `WP-06`; transport publisher
+  and the `exec_timeout` argument kept for 8b; `run_start` on stderr; event log at
+  `<outputs.path>.events.log` (none without `outputs.path`); `SetLiveMeasurement` with a
+  `LiveMeasSink` carrying step, time, values and badges — the step tap's carrier (`F-TAP`), 8b
+  adapts it to `liveMeasStep`.
+
+### 2026-11-01 · VNT-WP-05 · verdict
+- Result: done (2365 s). `Runner::Preflight`/`Construct` (one reader per `sources[]` file, plan and
+  run_start on stderr before any library loads), `StepOnce` through the orchestrator, `ReadAhead`,
+  `RecordedReference`, `SelectInputs` (`RCT:IMP-0033`), `RunStage`, `ControlWriter::Write`
+  (`RCT:IMP-0032`, compiled `CycleControl`), `simEngineSeek`, ABI 3, `LiveMeasSink` with badges, the
+  event log at `<outputs.path>.events.log`; `PortBus` refuses an undeclared port; `Scheduler`,
+  `due.cpp` and `test_ut_sch_core.cpp` (5) removed under `scheduler.hpp` replaced. 50 new tests; 32
+  `Construct` sites moved; no `UtRun14`/`ItTrn*` expectation needed changing. Orchestrator rerun:
+  C++ 388/388 (37 s), Python unit + system 1095 passed, 78 skipped (55 s); worker: `sil`, `package`,
+  `check_invariants.py` clean. Boxes `[~]` incl. `RCT:IMP-0032`/`0033` and `RCT:WP-08`.
+- Found: `check_engine_boundary.py` looks for `SELF_NAME = "adas-sim"`, red since the package was
+  renamed `adas-vantage` (`3f34a11`, Plan B) — unrelated, not in `check_invariants`; goes to the
+  clean-up package. `SampleBuffer::NewestSourceTimeNotAfter` is now used only by its tests (the
+  per-sample time rule replaced it; mixed known/unknown times picked wrong) — `WP-06` removes it.
+- Accepted: per-sample time rule; clock-started controls numbered `k + 1` from the first reception
+  time (checked against the lab in `WP-09`); `Construct` prints the plan only on request (the engine
+  prints it before loading); byte divergence and byte-based warming-up until `WP-06`; badge subjects
+  `stage.port` / stage; an unwired input not offered, a missing sample offered empty (ARCH §6);
+  recorded refSync and outputs held apart in `RecordedReference`; the `echo_stub_with_output`
+  fixture's manifest declares a 10 ms clock (its system test writes no start). Process: one denied
+  `git rm --cached`; files deleted with plain `rm`.
+- Verdict: accept. Commit interfaces, vantage `c1`, vantage-dev.
