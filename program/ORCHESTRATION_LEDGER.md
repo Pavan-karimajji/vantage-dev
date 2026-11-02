@@ -3044,3 +3044,22 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   its result and the `c1` → `main` merge plan to the owner before any merge.
 - Worker: vantage-builder (Sonnet, high). Stops Part A if finding `adas_recording` from Vantage's
   environment needs a choice the row leaves open.
+
+### 2026-11-02 · VNT-WP-09a · verdict
+- Part B done: `tests/support/lab_cases.py` (lab root `VANTAGE_LAB_ROOT` or the sibling
+  `vantage-lab`; skips with a reason; `edit_recording` through `adas_recording` via the lab's
+  `index.json`), 7 tests; `tests/support/step_tap.cpp` (478 lines on `cut_c`; a 500 → 1500 ms
+  jump; identical at 1 and 3 threads), reaching the `Runner` through an internal
+  `SimEngineRunner` (`engine_access.hpp`, not ABI); `tests/fixtures/exec_probe` (`diamond`: one id
+  at 1 thread with no timeout; B with C overlap at 2). Python 1158/87; gtest 415 unchanged.
+  Orchestrator: read the diff; rerun the new tests and the header check, 21 passed (3 s).
+  Rows `IMP-0040`..`0042` `[~]`. Accepted; committed vantage `c1` `4c5d925`.
+- Part A not done (`RCT:IMP-0048` `[ ]`): the worker stopped before changing anything, as told.
+  **To the owner:** (1) how Vantage's environment finds `adas_recording` — worker and orchestrator
+  recommend a path file written from the `adas-interfaces` Conan package folder, the lab's
+  mechanism; (2) `adas_recording` does not match what Vantage's Python writer does today (ns and
+  `capture_time_ns`, `config_bundle`/`plugin_bundles` blocks, no-manifest files) — worker
+  recommends retiring the Python rewrite paths (`.mcap` write in the codec registry,
+  `sim convert` write, `bridge.py`'s three rewrite helpers) rather than adapting them;
+  (3) `SYS-0040` (one thread by default) is false whenever `exec_timeout_ms` > 0: the watchdog
+  runs every call on a fresh thread.
