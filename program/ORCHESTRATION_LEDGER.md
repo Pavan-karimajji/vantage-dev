@@ -3138,3 +3138,39 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `outputs.path` until an ingest map states their provenance (`R-SIM-23`).
 - Prompt amended (26 edits, dry-run PASS 96/42 and 112/52, no budget note; final-state boxes
   PASS).
+
+### 2026-11-02 · VNT-WP-09a-R1 · verdict
+- Result: done, four parts. `interfaces`: writer's `config_bundle` argument, check by
+  `bundle_sha256` (temp folder, no second hash code), `SYT-REC-05`; package `1.1.0#fd5a546d`.
+  `vantage`: per-target `adas_recording.path` beside `simengine` (`file(GENERATE)` from the
+  target's own package folder); Python writer retired (`McapWriter`, `.mcap` codec write,
+  `sim convert` write, `bridge.py` merge/rewrite helpers, `--save` manifest patch); `sim record`
+  on `adas_recording`; engine writes C6 topics under port names (reader canonicalises back),
+  `manifest` (`run_kind: resim`, carried `source_kind`/origins, refusal when unstated, no
+  `created_utc`) and `config_bundle` (`cut_c`: A, B, D, E, 16 files, never C); `ExecTimeout` one
+  long-lived call thread per caller slot; a timeout exits 7 and the process refuses later runs
+  (internal test hook `SimEngineClearTimeoutRefusalForTest`). Also fixed: the mcap reader's
+  `GetMeta` after `Open` overwrote the first message's bytes (metadata now cached at `Open`).
+- Orchestrator: docs byte-identical to the dry run except the new C6 row had lost its closing
+  ` |` — restored (one character, the prompt's text). Read the C++ diff whole and the Python
+  `src` diff; reran vantage gtest 423/423 (42 s), Python 1170 passed / 85 skipped (50 s), the 12
+  new REC/ANL-06 tests run (none skipped); `interfaces` pytest 67 (py -3.14, 4 s);
+  `check_invariants` clean (8 s); both `trace_check --status` PASS. Reference-term grep clean;
+  diff-stat equal with and without `--ignore-cr-at-eol`.
+- Verdict: accept. Committed `interfaces` `vantage` `b3e3e15`, vantage `c1` `0dd6ffb`,
+  superproject.
+- **To the owner:** (1) `sim resim --save` recordings now carry only C6's manifest keys; the
+  producer keys the Python patch added (`library_sha256`, `run_spec_sha256`, `divergence`,
+  `process_nonce`) are gone, so `--pin-builds` reads them "unpinnable" and `R-SIM-24`'s axis
+  derivation from manifests loses its inputs. Recommend the engine write its own producer keys
+  beside C6's (`run_id`, `spec_sha256`, per stage `library_sha256` and `config_bundle_sha256`) in a
+  design row of 8c (the comparison of two runs). (2) `tests/support/foreign_mcap.py` writes
+  legacy-shaped `.mcap` inputs for reader tests with the mcap package's writer; `ANL-06` covers
+  `src/` only and raw writers in tests predate this (`test_a4_legacy.py`, `test_si15_orchestrate.py`)
+  — accepted unless the owner objects. (3) `df` `carla_testruns` recordings are refused as outputs
+  (no manifest) — already the G5 note: an ingest map states their provenance.
+- Known limits: a timed-out call that later returns writes into its caller's freed frame (as
+  `RunWithTimeout` always did); the process refuses further runs, but that late return can still
+  crash it. A topic no input holds and no stage computes is labelled `simulated` (it carries no
+  messages). Python's `config_bundle_bytes()` reads nothing from the new block (viewer phase).
+- Next: 09b (system test files `IMP-0043`..`0048` of Vantage, `SYT-RUN-11` included), then 09c (G3).
