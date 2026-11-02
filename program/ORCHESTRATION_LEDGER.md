@@ -2696,3 +2696,47 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   a clean-up package (scripts the register retires; `check_engine_boundary.py`'s old package name;
   the Python loop check); design-row notes (`IMP-0011` "in `WP-04`", `SYS-0046` key `grid`, the stale
   *Blocked* note).
+
+### 2026-11-02 · OWNER · decision
+- Result: the program moves to native Windows (`C:\ws\repo\vantage-dev`, `vs2026`); WSL /
+  `ubuntu_gcc` only for changes that can behave differently there (R-TEST-6), owner asked first.
+  **D23, manual relay:** no agent is launched; each prompt goes to `program/prompts/<id>.md`, the
+  owner pastes it into a fresh chat and brings the report back; one package at a time; the
+  15-minute watchdog no longer applies. Recorded in plan §2 and program §1 (owner-authorised edit).
+- **ENV-1: option (A)** with guard rails — a `vantage` branch of `toolchain`; a version that cannot
+  collide with any release from 1v's `main`, checked against `adas-local`; released once
+  (R-TEST-5); pins bumped only in `vantage` and `vantage-lab`; recorded in `.claude/IMPORTED.md`.
+  Version and branch to the owner before the release. Recorded as `D25`.
+- **Counter wrap, approved as two lines (`D24`):** a source's `measurement_counter` goes
+  `0xFFFFFFFF` → 1, never 0; a reader counting gaps treats that step as consecutive, in Vantage's
+  identity check only — `counterDistance` stays plain modulo 2³² (`RCT:SYS-0005` unchanged). Check
+  `RCT:SYS-0004`'s Accept at the wrap; add a lab case that crosses it.
+- Standing yes for C1 (`WP-06`..`WP-09`): commit and push each accepted package — submodule first,
+  reference-term grep first, normal pushes only (stop on a failure), no remote / credential /
+  git-config change, never 1v-superproject. G3 and the `c1` → `main` merge go to the owner first.
+
+### 2026-11-02 · ORCH · decision
+- Result: findings before prompting.
+  1. **`RCT:SYS-0004`'s Accept does not hold at the wrap as written:** "consecutive new
+     measurements differ by 1" reads `counterDistance(0xFFFFFFFF, 1)` = 2. Its Shall and Accept
+     gain the wrap step in the `D24` contract package (part of the approved change, reported).
+  2. **ENV-1 facts:** toolchain `main` = `f061dfd`, `adas-build-tools` `1.0.47`; `adas-local`
+     (`127.0.0.1:9300`, reachable, disabled in this machine's Conan config) holds only `1.0.46`; the
+     local cache holds `1.0.38`, `1.0.45`, `1.0.46`, `1.0.47`. Three root scripts accept only a bare
+     `X.Y.Z` pin (`check_conan_resolution.py`, `make_offline_bundle.py`, `BUN-1`), so the version
+     stays three-part. **Proposed: `1.0.9001`**, the vantage lane (`main`'s patch lane is at 47);
+     further vantage releases `1.0.9002`…; the lane ends at migration, when `main` takes the change
+     at its next own number. Branch: local `vantage` created at `f061dfd`, not pushed.
+  3. The baseline is generated from the checked-out components; here that drops the `df:*` /
+     `viz:*` lines — acceptable on `vantage`; 1v regenerates its own at migration.
+  4. Order: `ENV-2a` (toolchain code, baseline, no release) → review → `ENV-2b` (release once,
+     pins, locks, environments, suites in their own envs, `IMPORTED.md`) → the `D24` packages
+     (contract and design rows, then lab and vantage code) → `WP-06`..`WP-09`. The release sits
+     behind the review because a released version is never rebuilt (R-TEST-5).
+
+### 2026-11-02 · ENV-2a · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+- Prompt: `extras:` in `python_envs` (parsed in `config.py` only), the lock script installs
+  `<dir>[<extras>]`, the baseline generator resolves extras, baseline regenerated on `py -3.12`
+  (stop if a kept line changes version), version `1.0.9001`, lab `dev` extra; no release, no pin,
+  no lock, no env.

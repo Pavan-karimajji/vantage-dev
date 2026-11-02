@@ -10,14 +10,21 @@ read from the plan documents' checkboxes (§3), the history from
 
 | Role | Who | Does | Never does |
 |---|---|---|---|
-| **Owner** | the user | decides; approves commits, pushes, scope and contract changes | — |
+| **Owner** | the user | decides; approves commits, pushes, scope and contract changes; relays each prompt to a worker chat by hand and brings its report back (D23) | — |
 | **Orchestrator** | Opus, high effort | picks the next work package, writes one prompt for it, reviews the result, records the verdict | edits code or documents itself, except to fix a ledger entry |
 | **Worker** | one of the three worker agents below | carries out exactly one work package from one prompt and reports back | widens scope, commits, pushes, or decides an open question |
 
-**Which worker.** The orchestrator picks the agent type by the kind of work and
-launches it by `subagent_type` alone. It never passes `model` or `effort`: each
-agent's model and effort are set once, in its file under `.claude/agents/`, and
-a value passed at launch would override that one place.
+**Which worker.** The orchestrator picks the agent type by the kind of work.
+**It never launches an agent: the owner relays each prompt by hand (D23).** The
+orchestrator writes the prompt to `program/prompts/<id>.md` (§4.1); its first
+lines are `Your role: read .claude/agents/<type>.md and follow it.` (a plain chat
+does not load the agent file) and `Keep the report under 40 lines, in the §4.2
+shape.` It then tells the owner the file path, the agent type, the model and
+effort from that agent's file, and the line to paste into a fresh chat:
+`Read program/prompts/<id>.md and carry it out exactly.` The owner chooses the
+model, pastes the line and brings the report back. One package at a time unless
+the owner says otherwise. Each agent's model and effort are set once, in its file
+under `.claude/agents/`; the orchestrator only reports them.
 
 | Kind of work package | Agent type |
 |---|---|
