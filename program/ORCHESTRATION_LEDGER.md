@@ -2904,3 +2904,24 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   dry run; `trace_check` PASS, 107 requirements, 51 tests, no findings; `WP-11` open, rows 0/4.
 - Verdict: accept. Committed vantage `c1` `41ee85a`, superproject. Next: `VNT-WP-11` (prompt
   written).
+
+### 2026-11-02 · VNT-WP-11 · verdict
+- Result: done. `bus::MeasurementCounterDistance` (row formula) feeds `Observe`'s
+  `measurement_distance` and `SelectInputs`'s fallback gap; `HeaderOf` numbers a clock tick
+  (k mod `0xFFFFFFFF`) + 1; `tests/support/control_tick` prints 1, 2, `0xFFFFFFFF`, 1, 2 for ticks
+  0, 1, `0xFFFFFFFE`, `0xFFFFFFFF`, `0x100000000`. 5 new gtests; 3 existing wrap tests corrected to
+  `D24` (they encoded `0xFFFFFFFF` → 1 as a step of 2). Planted per step: 5 / 2 / 1 failures,
+  restored. Orchestrator read the whole diff (formula checked by hand, `counterDistance` and the
+  `cycle_counter` reading untouched); rerun `-t gtest` 393/393 (41 s); `check_invariants` clean;
+  `trace_check` PASS; Python not rerun (C++ only). Rows `IMP-0053`..`0056` and `WP-11` `[~]`,
+  closed in `WP-09`.
+- Noted: the worker's pre-change run showed 2 `UtExe05` failures that did not recur (stale binary);
+  watch for it.
+- Verdict: accept. Committed vantage `c1` `6efc0ce`, superproject.
+
+### 2026-11-02 · VNT-WP-06-08 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner. Two packages in one session at the
+  owner's request (a longer one): part A `WP-06` (`EqualOutputs`, the step-keyed latch,
+  warming up ends at the first equal output, `NewestSourceTimeNotAfter` removed), part B `WP-08`
+  (`check_engine_decisions.py`, `check_counter_compare.py`, `check_time_units.py` kept; planted
+  cases as `ANL-01`..`03` name them). Real findings are reported, never cleared by the worker.
