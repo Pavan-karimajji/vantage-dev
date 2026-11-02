@@ -2925,3 +2925,26 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   warming up ends at the first equal output, `NewestSourceTimeNotAfter` removed), part B `WP-08`
   (`check_engine_decisions.py`, `check_counter_compare.py`, `check_time_units.py` kept; planted
   cases as `ANL-01`..`03` name them). Real findings are reported, never cleared by the worker.
+
+### 2026-11-02 · VNT-WP-06-08 · verdict
+- Result: both parts done. A (`WP-06`): `EqualOutputs` (reflection: `cycle_counter` zeroed, a
+  `refSync` compared only on each entry's counter and source time, else exact), the latch keyed by
+  step and fed through it, RESTART runs (ticket or written control's `op_mode`) never observed,
+  `first_divergence` logged once, warming up ends by `EqualOutputs`; `NewestSourceTimeNotAfter`
+  and its 2 tests removed (grep: no other caller). Planted byte equality → 5 failures, restored.
+  3 old-path tests in `test_ut_run_core.cpp` moved their expected divergence from cycle 0 (a
+  RESTART run, now skipped) to cycle 1. B (`WP-08`): `check_engine_decisions.py`,
+  `check_counter_compare.py` with `--selftest` planting `ANL-01`/`ANL-02` `.c2`/`.c3`; 23 Python
+  tests; `check_time_units.py` true as written (`IMP-0039` `[x]`).
+- Orchestrator: read the engine diff; rerun `-t gtest` 401/401 (42 s), the 23 script tests
+  (5 s), both scripts over the tree (findings as reported) and the counter selftest. Worker:
+  `sil`, `package`, Python 1136/87, `check_invariants` clean.
+- Real findings, not cleared (to the owner): `ANL-01` — `control.cpp:62` parses the recorded
+  control for `op_mode`, `select_inputs.cpp:87` parses the recorded `refSync`; `ANL-02` — three
+  tests of a counter against 0 (unknown): `cycle_loop.cpp:638`, `select_inputs.cpp:72`, `:160`.
+- Noted for later: `EqualRefSyncs` compares entry counters with `!=` (equality, outside the
+  check's operand rule); the existing `ANL-03` test cites `ANL-SW-14` and plants `hold_age_s`
+  rather than `ANL-03`'s `step_time` (`R-REQ-9`); new scripts not yet wired into `ci_gate.py`.
+- Orchestrator fix: `IMP-0046` now also writes `SYT-SEL-13` and traces `SYS-0051` (missed in
+  `D24-3`; found by mapping every `SYS` row to `WP-09`).
+- Verdict: accept. Committed vantage `c1` `5ec5a4c` and the `IMP-0046` fix, superproject.
