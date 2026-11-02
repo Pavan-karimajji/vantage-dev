@@ -3084,3 +3084,39 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `topic_provenance`; no bundle block. The retired Python writer wrote `config_bundle` (one YAML
   document per recording) and `plugin_bundles`.
 - To the owner: a `D14` contract change for an optional `config_bundle` block, wording proposed.
+
+### 2026-11-02 · OWNER · decision (D26)
+- `D14` change approved with one change: C6's optional `config_bundle` block is the bundle folder,
+  one key per file, `<stage>/<relative path>` → the file's exact text, `<stage>/bundle.sha256`
+  among the files; no `<stage>.sha256` key and no single YAML document (`bundle.sha256` is
+  computed over relative paths + file text, `bundle_sha256` in `interfaces`
+  `scripts/pack_config_bundle.py`). `RCT:SYS-0044`: `check_recording.py` recomputes each stage's
+  hash with that one function; passes no block or every stage matching; reports a mismatch or a
+  stage with files but no `bundle.sha256`; one planted case each; stage names hold no `/`.
+  `RCT:SYS-0042`: "every metadata block it holds". `VNT:SYS-0052` as proposed, its Accept adding
+  that the embedded `bundle.sha256` equals the run setup's hash for that stage. The engine's
+  missing `manifest` is fixed under `RCT:IMP-0048`'s family. `plugin_bundles` waits for the viewer
+  phase. Recorded as `VANTAGE_DEV_PLAN.md` `D26` (`D25` was already taken).
+- **For the clean-up package:** move `bundle_sha256` into `adas_recording` and retire the lab's
+  copy, once the path file gives every environment `adas_recording`.
+
+### 2026-11-02 · VNT-WP-09a-R1 · prompt
+- Resumes 09a Part A with the owner's answers: (A) 21 exact doc edits — C6 row, `RCT:SYS-0044`,
+  `SYT-REC-05`, `SYS-0042`/`SYT-REC-04` wording, `RCT:IMP-0049`..`0052` (writer argument, bundle
+  check, path file, engine `manifest`), `VNT:SYS-0052`, `SYT-RUN-11` (written in `09b`, row
+  `IMP-0044`), `IMP-0059` (bundle block, new package `WP-12`), `IMP-0060` (call thread, `WP-07`);
+  dry-run PASS 96/42 and 112/52, final-state boxes PASS too; (B) `interfaces` writer and check,
+  package rebuilt; (C) Vantage path file, Python writer retired (`sim record` moves to
+  `adas_recording`), engine `manifest` + `config_bundle`, call thread, `SYT-REC-03` `.c3`,
+  `SYT-REC-04`, `ANL-06` `.c2`; (D) builds, suites, boxes.
+- Orchestrator choices inside the approved contract, stated to the owner: the Python writer gets
+  an optional `config_bundle` argument (so `F-WRITER` plants `SYT-REC-05` with no lab
+  dependency); the engine's `manifest` says `run_kind: resim` and carries `source_kind` and
+  uncomputed topics' origins from the input, refusing `outputs.path` when the input states none;
+  the path file is `conan_workarea/adas_recording.path`; the call thread is one per caller (the
+  orchestrator at 1 thread, each worker above).
+- Also fixed: `VNT` SYS priority split and T count were one row stale since `D24-3` (now 24/28,
+  T 49 after `SYS-0052`).
+- Contract set now over its declared budget (SYS 44/43, IMP 52/48): printed, not an error
+  (`R-REQ-13`); basis left alone for the owner to judge.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
