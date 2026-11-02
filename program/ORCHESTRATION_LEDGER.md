@@ -3174,3 +3174,32 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   crash it. A topic no input holds and no stage computes is labelled `simulated` (it carries no
   messages). Python's `config_bundle_bytes()` reads nothing from the new block (viewer phase).
 - Next: 09b (system test files `IMP-0043`..`0048` of Vantage, `SYT-RUN-11` included), then 09c (G3).
+
+### 2026-11-02 · OWNER · decision (producer keys, foreign_mcap, timeout memory)
+- **Producer keys before the merge, not in 8c:** a regression against `main` (`--pin-builds` and
+  the `R-SIM-24` report work there; the tests that would catch it sit among the 85 skips —
+  `test_e3` "not runnable here"), and `R-SIM-6` requires build hashes in every recording. One small
+  package **after 09b, before 09c**: the engine writes, beside C6's keys, `run_id`, host, process
+  nonce, the run setup's hash and each stage's library hash — **not** the bundle hashes (in the
+  `config_bundle` block; `--pin-builds` and the report read them there); the first divergence read
+  from the event log if the recording holds it, else added to the manifest; re-enable or add the
+  tests that would have caught this. No contract change (C6 allows the producer's own keys).
+- `tests/support/foreign_mcap.py` accepted; its header says legacy shapes for reader tests only,
+  never copied into `src/` (done in `09b-1`, step 6).
+- Timeout crash: in the same package, if small — after a timeout the engine never frees the stuck
+  call's input and output buffers (one leak per process at most, later runs refused); if it needs
+  a buffer-ownership redesign, record a known limit and tell the owner.
+- 09b: go.
+
+### 2026-11-02 · VNT-WP-09b-1 · prompt
+- `09b` split in two: **09b-1** `IMP-0044` (`SYT-RUN-01`..`11`), `IMP-0045` (`SYT-ORC-01`..`12`);
+  **09b-2** `IMP-0046`..`0048` (`SEL`, `STP`, `THR-02`/`03`, `EQO-02`..`04`). Then the
+  producer-keys package, then 09c (G3).
+- Found while writing it: the lab's outputs (gitignored, per machine) hold only `running_example`
+  (`base`, `counter_wrap`), `diamond` and `fan_out`; the test spec cites `late_consumer`,
+  `feedback`, `loop_no_edge`, `data_triggered`, `measured_middle` and seven more
+  `running_example` scenarios. Step 1 generates every topology with the lab's own `car`/`setup`
+  verbs (no lab source change), so a skip can only mean a refusal by design or the supervisor.
+- A failing case is reported, never weakened; an engine fix only inside an existing row's text.
+  Boxes: `IMP-0044`/`0045`, and every `[~]` row whose closing tests now all pass goes `[x]`.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
