@@ -2816,3 +2816,13 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   passed, 18 skipped (13 s) — equal to the last recorded counts. From now on Python suites run in
   the module's own `.venv-<env>-win32`, never on `py -3`. **`ENV-1` is closed.**
 - Verdict: accept. Committed: vantage `c1`, vantage-lab `main`, superproject.
+
+### 2026-11-02 · D24-1 · prompt
+- Worker: vantage-planner (Opus, high), relayed by the owner.
+- Prompt: `D24` in the documents only — `RCT:SYS-0004` Shall/Accept with the wrap step, the RCT
+  wrap paragraph, `SYT-HDR-04.c2`; the VNT reader rule (`SYS-0030` or a new row) and **Vantage as a
+  source** (its clock-started controls are numbered `k + 1`, so they wrap to 1 too — found while
+  scoping); design rows for `identity.cpp` and the control writer in a new package before `WP-09`;
+  the lab's source numbering, a start-near-the-top knob and one lab case crossing the wrap in a new
+  lab package; the three handoff design-row notes. `counterDistance`, `SYS-0005`, `SYT-HDR-05`
+  unchanged.
