@@ -2775,3 +2775,30 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Prompt: `--hold` (current baseline as `-c` constraints, explicit, header names the flags),
   tests, regenerate with `--hold --extras vantage:sim=dev --extras vantage-lab:lab=dev`; stop if
   any kept line changes version. Same PyPI conditions.
+
+### 2026-11-02 · ENV-2a-R1 · verdict
+- Result: done. `--hold` (current baseline as pip `-c`, explicit; refuses with pip's conflict and
+  writes nothing; the header's `# regenerate:` names the flags used), 7 new cases; baseline
+  regenerated (52 s, HTTPS fine). Orchestrator check against `f061dfd`: **added 11** (`pytest`
+  9.2.0, `pytest-cov` 7.1.0, `pandas` 3.1.0, `coverage`, `colorama`, `iniconfig`, `packaging`,
+  `pluggy`, `Pygments`, `python-dateutil`, `tzdata`), **removed 4** (`foxglove-schemas-protobuf`,
+  `foxglove-sdk`, `opencv-python`, `pillow` — `df`/`viz` not checked out), **changed 0** (the
+  report's "14" / "3" are miscounts; its lists are right). Rerun: `test_python_baseline` 30 OK;
+  earlier toolchain 322 / 9 skipped and `test_lock_python_env` 15 stand (files unchanged since).
+  No line-ending churn; reference terms clean.
+- Verdict: accept `ENV-2a` + `R1`. Committed: toolchain `vantage` `850c85f`, vantage-lab `main`
+  `79ed97f`, superproject (scripts, pointers, `.gitmodules` toolchain → `vantage`).
+- **Owner's "newest" check, done:** every `adas-build-tools` pin in 1v (8 components) and
+  vantage-dev (4) is the exact `1.0.47`; every reference is built from the pin
+  (`adas-build-tools/{pin}`: bootstrap stub, `setup_cli.py`, `python_baseline.py`,
+  `check_conan_resolution.py`, `make_offline_bundle.py`); no range, `*` or newest pick. R-BUILD-7's
+  refresh is same-version only. **No upload is planned:** `adas-local` is disabled in this machine's
+  Conan config and `1.0.47` was never uploaded either; `ENV-2b` releases into the local cache only.
+
+### 2026-11-02 · ENV-2b · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+- Prompt: `conan create conan_package` once from `850c85f` (local cache, no upload; stop on
+  failure, never twice); pins `1.0.9001` and `extras: [dev]` in vantage (`c1`) and vantage-lab;
+  locks regenerated (a version change is a stop); environments re-created by the standard build;
+  suites in their own envs; `-t package`; two `IMPORTED.md` rows (back-port; baseline merged with
+  `main`'s at migration).

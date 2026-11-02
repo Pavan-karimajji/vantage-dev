@@ -229,5 +229,166 @@ class GeneratorTests(Tree):
         self.assertEqual(count, 3)
 
 
+class ExtrasTests(Tree):
+    PYPROJECT = ('[project]\nname = "adas-df"\n\n[project.optional-dependencies]\n'
+                 'dev = ["pytest"]\n')
+
+    def _pyproject_comp(self, name="df", extras_line=""):
+        d = self.comp(name, intent="pyproject.toml", intent_text=self.PYPROJECT)
+        if extras_line:
+            yml = d / "conf" / "build.yml"
+            yml.write_text(yml.read_text(encoding="utf-8") + extras_line, encoding="utf-8")
+        return d
+
+    def _gen(self, pip, **kw):
+        return make_python_baseline.generate(self.root, pip_factory=lambda tmp, py: pip,
+                                             today=datetime.date(2026, 9, 28), commit="abc1234",
+                                             **kw)
+
+    def _install_args(self, pip):
+        return next(c for c in pip.calls if c[0] == "install")
+
+    def test_no_extras_resolves_the_plain_folder(self):
+        d = self._pyproject_comp()
+        pip = FakePip(freeze="numpy==2.5.3\n")
+        self._gen(pip)
+        self.assertIn(str(d), self._install_args(pip))
+
+    def test_supplied_extras_are_resolved_with_the_intent_and_named_in_the_header(self):
+        d = self._pyproject_comp()
+        pip = FakePip(freeze="pytest==8.4.2\nnumpy==2.5.3\n")
+        out, _ = self._gen(pip, extras={"df:tool": ["dev"]})
+        self.assertIn(f"{d}[dev]", self._install_args(pip))
+        self.assertIn("# envs: df:tool[dev]", out.read_text(encoding="utf-8"))
+        self.assertIn("pytest==8.4.2", out.read_text(encoding="utf-8"))
+
+    def test_declared_extras_are_resolved_without_being_supplied(self):
+        d = self._pyproject_comp(extras_line="    extras: [dev]\n")
+        pip = FakePip(freeze="numpy==2.5.3\n")
+        self._gen(pip)
+        self.assertIn(f"{d}[dev]", self._install_args(pip))
+
+    def test_supplied_and_declared_extras_are_merged_once(self):
+        d = self._pyproject_comp(extras_line="    extras: [dev]\n")
+        pip = FakePip(freeze="numpy==2.5.3\n")
+        self._gen(pip, extras={"df:tool": ["dev"]})
+        self.assertIn(f"{d}[dev]", self._install_args(pip))
+
+    def test_extras_for_an_undeclared_env_are_refused_and_nothing_is_written(self):
+        self._pyproject_comp()
+        with self.assertRaises(make_python_baseline.Refusal) as ctx:
+            self._gen(FakePip(), extras={"df:nope": ["dev"]})
+        self.assertIn("df:nope", ctx.exception.reason)
+        self.assertIn("df:tool", ctx.exception.reason)
+        self.assertFalse((self.root / python_baseline.SOURCE_BASELINE).exists())
+
+    def test_extra_the_pyproject_does_not_declare_is_refused(self):
+        self._pyproject_comp()
+        with self.assertRaises(make_python_baseline.Refusal) as ctx:
+            self._gen(FakePip(), extras={"df:tool": ["test"]})
+        self.assertIn("df:tool", ctx.exception.reason)
+        self.assertIn("'test' is not declared", ctx.exception.reason)
+
+    def test_extras_on_a_requirements_intent_are_refused(self):
+        self.comp("df")
+        with self.assertRaises(make_python_baseline.Refusal) as ctx:
+            self._gen(FakePip(), extras={"df:tool": ["dev"]})
+        self.assertIn("pyproject.toml intent", ctx.exception.reason)
+
+    def test_command_line_option_parses_repeatable_env_extras(self):
+        self.assertEqual(
+            make_python_baseline.parse_extras(["--extras", "vantage:sim=dev",
+                                               "--extras", "vantage-lab:lab=dev,docs",
+                                               "--extras", "vantage:sim=docs"]),
+            {"vantage:sim": ["dev", "docs"], "vantage-lab:lab": ["dev", "docs"]})
+        self.assertEqual(make_python_baseline.parse_extras([]), {})
+
+    def test_command_line_option_refuses_anything_else(self):
+        for bad in (["dev"], ["--extras"], ["--extras", "vantage=dev"], ["--extras", "a:b="],
+                    ["--extras", "a:b=dev", "--other", "x"]):
+            self.assertIsNone(make_python_baseline.parse_extras(bad), bad)
+        with unittest.mock.patch("sys.stdout"):
+            self.assertEqual(make_python_baseline.main(["--extras", "vantage=dev"]), 2)
+
+
+class ConstraintPip(FakePip):
+    """FakePip that keeps what the `-c` file held when pip was called."""
+
+    def __init__(self, *args, fail_text=None, **kw):
+        super().__init__(*args, **kw)
+        self.constraints, self.fail_text = None, fail_text
+
+    def __call__(self, args):
+        if args[0] == "install" and "-c" in args:
+            self.constraints = Path(args[args.index("-c") + 1]).read_text(encoding="utf-8")
+            if self.fail_text:
+                self.calls.append(args)
+                return subprocess.CompletedProcess(args, 1, "", self.fail_text)
+        return super().__call__(args)
+
+
+class HoldTests(Tree):
+    CURRENT = ("# BASELINE\n# date:   2026-10-05\nmcap==1.5.0\nnumpy==2.5.3\n"
+               "PyYAML==6.0.3\n")
+
+    def setUp(self):
+        super().setUp()
+        self.comp("df")
+        self.current = self.root / python_baseline.SOURCE_BASELINE
+        self.current.write_text(self.CURRENT, encoding="utf-8")
+
+    def _gen(self, pip, **kw):
+        return make_python_baseline.generate(self.root, pip_factory=lambda tmp, py: pip,
+                                             today=datetime.date(2026, 9, 28), commit="abc1234",
+                                             **kw)
+
+    def test_hold_passes_the_current_versions_as_constraints(self):
+        pip = ConstraintPip(freeze="numpy==2.5.3\n")
+        self._gen(pip, hold=True)
+        self.assertEqual(pip.constraints, "PyYAML==6.0.3\nmcap==1.5.0\nnumpy==2.5.3\n")
+
+    def test_no_hold_passes_no_constraints(self):
+        pip = ConstraintPip(freeze="numpy==2.5.3\n")
+        self._gen(pip)
+        self.assertIsNone(pip.constraints)
+        self.assertNotIn("-c", next(c for c in pip.calls if c[0] == "install"))
+
+    def test_resolve_failure_under_hold_writes_nothing_and_carries_pips_conflict(self):
+        pip = ConstraintPip(fail_text="The conflict is caused by:\n    adas-df needs "
+                                      "numpy>=2.6 but numpy==2.5.3 is held\nResolutionImpossible")
+        with self.assertRaises(make_python_baseline.Refusal) as ctx:
+            self._gen(pip, hold=True)
+        self.assertIn("numpy>=2.6 but numpy==2.5.3 is held", ctx.exception.reason)
+        self.assertIn("Nothing was written", ctx.exception.reason)
+        self.assertEqual(self.current.read_text(encoding="utf-8"), self.CURRENT)
+        self.assertFalse(any(c[0] == "freeze" for c in pip.calls))
+
+    def test_hold_without_a_current_baseline_is_refused(self):
+        self.current.unlink()
+        with self.assertRaises(make_python_baseline.Refusal) as ctx:
+            self._gen(ConstraintPip(), hold=True)
+        self.assertIn("--hold needs the current baseline", ctx.exception.reason)
+
+    def test_header_names_the_flags_used(self):
+        out, _ = self._gen(ConstraintPip(freeze="numpy==2.5.3\n"), hold=True)
+        self.assertIn("# regenerate: python scripts/make_python_baseline.py --hold\n",
+                      out.read_text(encoding="utf-8"))
+
+    def test_header_of_a_bare_run_is_unchanged(self):
+        out, _ = self._gen(FakePip(freeze="numpy==2.5.3\n"))
+        self.assertIn("# regenerate: python scripts/make_python_baseline.py\n",
+                      out.read_text(encoding="utf-8"))
+
+    def test_hold_is_off_unless_named(self):
+        with unittest.mock.patch.object(make_python_baseline, "generate",
+                                        return_value=(make_python_baseline.ROOT / "x", 0)) as gen, \
+                unittest.mock.patch("sys.stdout"):
+            make_python_baseline.main([])
+            self.assertFalse(gen.call_args.kwargs["hold"])
+            make_python_baseline.main(["--hold", "--extras", "a:b=dev"])
+            self.assertTrue(gen.call_args.kwargs["hold"])
+            self.assertEqual(gen.call_args.kwargs["extras"], {"a:b": ["dev"]})
+
+
 if __name__ == "__main__":
     unittest.main()

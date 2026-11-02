@@ -10,11 +10,15 @@ third-party Python versions shipped inside adas-build-tools.
 
     py -3 scripts/make_python_baseline.py          (Windows)
     python3 scripts/make_python_baseline.py        (Linux)
+    python3 scripts/make_python_baseline.py --extras vantage:sim=dev --extras vantage-lab:lab=dev
+    python3 scripts/make_python_baseline.py --hold    (keep every version already in the baseline)
 
 Superproject only: it is the one place that sees every component's intent
 files. Collects every NON-exception python_envs: entry across the
 checked-out components (the discover_components() predicate), installs ALL
-their intent files in ONE pip resolve into a scratch venv on the platform
+their intent files (each with its declared `extras:`, plus any `--extras
+<module>:<env>=<a,b>` given on the command line -- for an env that does not
+declare them yet) in ONE pip resolve into a scratch venv on the platform
 Python (bundle_layout.PLATFORM_PYTHON, D18), and writes `pip freeze`
 (minus pip/setuptools/wheel and the components' own projects), sorted, to
 modules/toolchain/adas_build_tools/python_baseline.txt. If the one resolve
@@ -54,9 +58,16 @@ class Intent:
     env: str            # "<component>:<env>"
     path: Path          # the intent file
     project: str | None  # the pyproject's own project name, never in the baseline
+    extras: tuple[str, ...] = ()  # extras of the pyproject intent, resolved with it
 
     def pip_args(self) -> list[str]:
-        return [str(self.path.parent)] if self.path.name == "pyproject.toml" else ["-r", str(self.path)]
+        if self.path.name != "pyproject.toml":
+            return ["-r", str(self.path)]
+        return [f"{self.path.parent}[{','.join(self.extras)}]" if self.extras
+                else str(self.path.parent)]
+
+    def label(self) -> str:
+        return f"{self.env}[{','.join(self.extras)}]" if self.extras else self.env
 
 
 def self_cmd(root: Path = ROOT) -> str:
@@ -78,24 +89,44 @@ def _toolchain(root: Path):
     return config, bundle_layout
 
 
-def collect_intents(root: Path = ROOT) -> list[Intent]:
-    """Every non-exception env's intent file, in component/env order."""
+def collect_intents(root: Path = ROOT,
+                    extras: dict[str, list[str]] | None = None) -> list[Intent]:
+    """Every non-exception env's intent file, in component/env order. `extras`
+    is {"<component>:<env>": [extra, ...]} supplied on top of what the env
+    declares; naming an env that is not a non-exception env here is refused."""
     config, _ = _toolchain(root)
+    extras = extras or {}
     mdir = root / "modules"
     comps = sorted(d.name for d in mdir.iterdir()
                    if (d / "conanfile.py").exists() and (d / "conf" / "build.yml").exists())
     intents = []
     for comp in comps:
-        envs = config.declared_python_envs(config.load_conf(mdir / comp), component=comp)
+        envs = config.declared_python_envs(config.load_conf(mdir / comp), component=comp,
+                                           root=mdir / comp)
         for env, decl in envs.items():
             if decl.get("exception"):
                 continue
+            wanted = list(decl["extras"])
+            for name in extras.get(f"{comp}:{env}", []):
+                if name not in wanted:
+                    wanted.append(name)
+            problem = config.extras_problem(wanted, decl["intent"], mdir / comp) if wanted else None
+            if problem:
+                raise Refusal(f"{comp}:{env}: {problem}.",
+                              "name extras its pyproject.toml declares, on a pyproject.toml env.",
+                              self_cmd(root))
             path = mdir / comp / decl["intent"]
             project = None
             if path.name == "pyproject.toml":
                 m = re.search(r'^name\s*=\s*"([^"]+)"', path.read_text(encoding="utf-8"), re.M)
                 project = m.group(1) if m else None
-            intents.append(Intent(f"{comp}:{env}", path, project))
+            intents.append(Intent(f"{comp}:{env}", path, project, tuple(wanted)))
+    unknown = sorted(set(extras) - {i.env for i in intents})
+    if unknown:
+        raise Refusal(f"--extras names {', '.join(unknown)}, which is not a non-exception "
+                      f"python_envs: entry of a checked-out component "
+                      f"({', '.join(i.env for i in intents)}).",
+                      "name one of those as <module>:<env>, then re-run.", self_cmd(root))
     return intents
 
 
@@ -128,7 +159,7 @@ def find_conflict(intents: list[Intent], pip: PipRun) -> tuple[Intent, Intent, s
 
 
 def render(frozen: str, intents: list[Intent], *, commit: str, platform: str, python: str,
-           today: datetime.date) -> str:
+           today: datetime.date, flags: tuple[str, ...] = ()) -> str:
     skip = _EXCLUDED | {python_baseline.norm(i.project) for i in intents if i.project}
     lines = []
     for line in frozen.splitlines():
@@ -152,19 +183,22 @@ def render(frozen: str, intents: list[Intent], *, commit: str, platform: str, py
         f"# platform: {platform} (one baseline for every platform while the locks agree;",
         "#           if a package ever needs different versions per OS, split it per platform)",
         f"# python: {python}",
-        f"# envs: {', '.join(i.env for i in intents)}",
+        f"# envs: {', '.join(i.label() for i in intents)}",
         f"{DATE_PREFIX}   {today.isoformat()}",
-        f"# regenerate: python scripts/make_python_baseline.py",
+        f"# regenerate: python scripts/make_python_baseline.py{''.join(' ' + f for f in flags)}",
     ]
     return "\n".join(header + lines) + "\n"
 
 
 def generate(root: Path = ROOT, *, pip_factory=None, today: datetime.date | None = None,
-             commit: str | None = None) -> tuple[Path, int]:
+             commit: str | None = None, extras: dict[str, list[str]] | None = None,
+             hold: bool = False) -> tuple[Path, int]:
+    """`hold`: the current baseline's `name==version` lines go to the one
+    resolve as pip constraints, so no version already in it moves."""
     config, bundle_layout = _toolchain(root)
     platform = bundle_layout.host_bundle_platform()
     python = bundle_layout.platform_python(platform)
-    intents = collect_intents(root)
+    intents = collect_intents(root, extras)
     if not intents:
         raise Refusal("no non-exception python_envs: entry is declared anywhere.",
                       "declare an env, then re-run.", self_cmd(root))
@@ -173,11 +207,31 @@ def generate(root: Path = ROOT, *, pip_factory=None, today: datetime.date | None
     with tempfile.TemporaryDirectory(prefix="python-baseline-") as tmp:
         pip = pip_factory(Path(tmp), python) if pip_factory else _venv_pip(Path(tmp), python)
         args = ["install", "--disable-pip-version-check"]
+        if hold:
+            current = root / OUT_REL
+            if not current.is_file():
+                raise Refusal(f"--hold needs the current baseline, and {OUT_REL.as_posix()} "
+                              f"does not exist. Nothing was written.",
+                              "run without --hold to make the first one.", self_cmd(root))
+            held = Path(tmp) / "baseline-constraints.txt"
+            held.write_text("".join(f"{n}=={v}\n" for n, v in
+                                    sorted(python_baseline.parse(
+                                        current.read_text(encoding="utf-8")).values())),
+                            encoding="utf-8")
+            args += ["-c", str(held)]
         for intent in intents:
             args += intent.pip_args()
         proc = pip(args)
         if proc.returncode != 0:
             text = proc.stdout + proc.stderr
+            if hold:
+                cause = text[text.find("The conflict is caused by"):] \
+                    if "The conflict is caused by" in text else text
+                raise Refusal(f"pip could not resolve the intent files while holding every "
+                              f"version in the current baseline (exit {proc.returncode}): "
+                              f"{cause.strip()[-800:]} Nothing was written.",
+                              "move the intent file that needs a newer version, or re-run "
+                              "without --hold and review what moves.", self_cmd(root))
             if "ResolutionImpossible" in text or "conflict" in text.lower():
                 pair = find_conflict(intents, pip)
                 if pair:
@@ -195,8 +249,10 @@ def generate(root: Path = ROOT, *, pip_factory=None, today: datetime.date | None
                           "fix the intent files or the network (PyPI is required), then re-run.",
                           self_cmd(root))
         frozen = pip(["freeze", "--exclude-editable", "--disable-pip-version-check"]).stdout
+    flags = (("--hold",) if hold else ()) + tuple(
+        f"--extras {env}={','.join(names)}" for env, names in (extras or {}).items())
     text = render(frozen, intents, commit=commit, platform=platform, python=python,
-                  today=today or datetime.date.today())
+                  today=today or datetime.date.today(), flags=flags)
     out = root / OUT_REL
     out.write_text(text, encoding="utf-8", newline="\n")
     return out, sum(1 for line in text.splitlines() if line and not line.startswith("#"))
@@ -221,15 +277,32 @@ def _venv_pip(tmp: Path, python: str) -> PipRun:
     return pip
 
 
+def parse_extras(argv: list[str]) -> dict[str, list[str]] | None:
+    """`--extras <module>:<env>=<a,b>` (repeatable) -> {"<module>:<env>": [a, b]},
+    or None when argv holds anything else."""
+    extras: dict[str, list[str]] = {}
+    for i in range(0, len(argv), 2):
+        m = re.fullmatch(r"([^:=\s]+:[^:=\s]+)=([^,\s]+(?:,[^,\s]+)*)",
+                         argv[i + 1]) if argv[i] == "--extras" and i + 1 < len(argv) else None
+        if not m:
+            return None
+        extras.setdefault(m.group(1), []).extend(m.group(2).split(","))
+    return extras
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    if argv:
-        print("Reason: make_python_baseline.py takes no arguments.")
-        print("Fix:    run it bare, from anywhere.")
+    hold = "--hold" in argv
+    extras = parse_extras([a for a in argv if a != "--hold"])
+    if extras is None:
+        print("Reason: make_python_baseline.py takes only `--hold` and `--extras "
+              "<module>:<env>=<a,b>` (repeatable).")
+        print("Fix:    run it bare, or add --hold and/or each env's extras, e.g. "
+              "--hold --extras vantage:sim=dev.")
         print(f"Run:    {self_cmd()}")
         return 2
     try:
-        out, count = generate()
+        out, count = generate(extras=extras, hold=hold)
     except Refusal as exc:
         print(f"Reason: {exc.reason}")
         print(f"Fix:    {exc.fix}")

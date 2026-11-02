@@ -16,7 +16,9 @@ throwaway venv on the declared interpreter (`py -3.N` on Windows,
 `python3.N` elsewhere -- D4, never installed), installs the intent file
 into it (`requirements*.txt` via `-r`, a `pyproject.toml` via its folder),
 and writes every installed distribution as `name==version`, sorted, to the
-declared `lock:` path. D19/PT-31: a non-exception env installs with the
+declared `lock:` path; a `pyproject.toml` env that declares `extras:` installs
+`<folder>[<extras>]`, so the lock holds those extras' packages too (the
+project's own `dependencies` are untouched). D19/PT-31: a non-exception env installs with the
 component's baseline as pip constraints (`-c`, python_baseline.baseline_for:
 the pinned adas-build-tools' baseline; toolchain's own source baseline), so
 its lock is a subset of the baseline by construction. An `exception:` env
@@ -79,7 +81,7 @@ def _load_envs(module: str, env: str) -> dict:
                       _self_cmd("df", "replay"))
     try:
         envs = config.declared_python_envs(config.load_conf(build_yml.parent.parent),
-                                           component=module)
+                                           component=module, root=build_yml.parent.parent)
     except config.PythonEnvsError as exc:
         raise Refusal(str(exc), "correct the declaration in conf/build.yml, then re-run.",
                       _self_cmd(module, env)) from exc
@@ -156,7 +158,8 @@ def build_lock(module: str, env: str, today: datetime.date | None = None) -> tup
                 [py, "-c", "import sys, tomllib; print(tomllib.load(open(sys.argv[1], 'rb'))"
                            "['project']['name'])", str(intent)],
                 capture_output=True, text=True, check=True).stdout.strip()
-            target = [str(intent.parent)]
+            extras = f"[{','.join(decl['extras'])}]" if decl["extras"] else ""
+            target = [f"{intent.parent}{extras}"]
         else:
             target = ["-r", str(intent)]
         constrain = []

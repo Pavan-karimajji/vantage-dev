@@ -166,6 +166,39 @@ class LockTests(unittest.TestCase):
                 if not l.startswith("#")]
         self.assertEqual(body, ["mcap==1.5.0"])
 
+    def test_pyproject_without_extras_installs_the_plain_folder(self):
+        installs = []
+        rc, out = self._main("df", "sim", freeze_out="mcap==1.5.0\n", installs=installs)
+        self.assertEqual(rc, 0, out)
+        (cmd, _), = installs
+        self.assertEqual(cmd[-1], str(self.comp))
+
+    def test_declared_extras_are_installed_with_the_pyproject(self):
+        yml = self.comp / "conf" / "build.yml"
+        yml.write_text(yml.read_text(encoding="utf-8").replace(
+            "    package: .\n", "    package: .\n    extras: [dev, docs]\n"), encoding="utf-8")
+        (self.comp / "pyproject.toml").write_text(
+            "[project]\nname='adas-sim'\n[project.optional-dependencies]\n"
+            "dev=['pytest']\ndocs=['sphinx']\n", encoding="utf-8")
+        installs = []
+        rc, out = self._main("df", "sim", freeze_out="adas-sim==0.1.0\npytest==8.0\nmcap==1.5.0\n",
+                             installs=installs)
+        self.assertEqual(rc, 0, out)
+        (cmd, _), = installs
+        self.assertEqual(cmd[-1], f"{self.comp}[dev,docs]")
+        body = [l for l in (self.comp / "requirements.lock").read_text().splitlines()
+                if not l.startswith("#")]
+        self.assertEqual(body, ["mcap==1.5.0", "pytest==8.0"])
+
+    def test_extra_the_pyproject_does_not_declare_is_refused(self):
+        yml = self.comp / "conf" / "build.yml"
+        yml.write_text(yml.read_text(encoding="utf-8").replace(
+            "    package: .\n", "    package: .\n    extras: [dev]\n"), encoding="utf-8")
+        rc, out = self._main("df", "sim", freeze_out="")
+        self.assertEqual(rc, 1)
+        self.assert_refusal(out)
+        self.assertIn("python_envs.sim.extras", out)
+
     def test_url_requirement_is_refused(self):
         rc, out = self._main("df", "replay", freeze_out="foo @ file:///x/foo.whl\n")
         self.assertEqual(rc, 1)

@@ -5,7 +5,7 @@
 [submodule "modules/toolchain"]
 	path = modules/toolchain
 	url = https://github.com/Pavan-karimajji/toolchain
-	branch = main
+	branch = vantage
 [submodule "modules/shared_config"]
 	path = modules/shared_config
 	url = https://github.com/Pavan-karimajji/shared_config
