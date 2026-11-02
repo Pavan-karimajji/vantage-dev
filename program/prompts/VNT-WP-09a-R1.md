@@ -40,12 +40,11 @@ you cannot resolve, report it with what you did finish.
 ## Part A — doc edits (exact)
 Every edit below is decided. Each anchor and each new text is the exact content of a fenced block
 (the fence lines themselves excluded). Apply each by exact-string replacement or insertion,
-keeping each file's line endings (`RCT_System_Requirements.md` is CRLF in the working tree, the
-rest LF). If an anchor is not found exactly once, stop and report it; never adjust the text to
-make a check pass. The orchestrator has dry-run all 21 edits on a copy: `trace_check` gives PASS,
+keeping each file's line endings (`RCT_System_Requirements.md` and the contract's `layers.yaml`
+are CRLF in the working tree, the rest LF). If an anchor is not found exactly once, stop and report it; never adjust the text to
+make a check pass. The orchestrator has dry-run all 26 edits on a copy: `trace_check` gives PASS,
 96 requirements, 42 tests on `modules/interfaces/docs/resim_contract` and PASS, 112 requirements,
-52 tests on `modules/vantage/docs`, no findings (two budget notes on the contract set, not
-errors). Boxes are set in Part D, not here.
+52 tests on `modules/vantage/docs`, no findings, no budget note. Boxes are set in Part D, not here.
 
 **R1 — `modules/interfaces/docs/resim_contract/RCT_Architecture.md`.** Directly after the line that contains
 
@@ -189,8 +188,8 @@ insert (no blank line):
 ```
 | `[ ]` | `IMP-0049` | `SYS-0044` | `WP-13` | `EXTEND` | `src/adas_recording/writer.py::McapRecorder` — an optional `config_bundle` argument, key `<stage>/<relative path>` → that file's exact text, written as metadata `config_bundle` in sorted key order when given and absent otherwise; a key with an empty stage or path is refused before the file opens. | `SYT-REC-05` |
 | `[ ]` | `IMP-0050` | `SYS-0044` | `WP-13` | `EXTEND` | `scripts/check_recording.py` — when `config_bundle` is present, per stage (a key's part before its first `/`): the stage's files written as they are to a temporary folder and hashed by `pack_config_bundle.bundle_sha256`, the one hash code, then compared with the stage's `bundle.sha256` text; a mismatch, or files without `bundle.sha256`, is one finding naming the stage. | `SYT-REC-04`, `SYT-REC-05` |
-| `[ ]` | `IMP-0051` | `SYS-0043` | `WP-13` | `NEW` | `vantage`: its build writes `conan_workarea/adas_recording.path`, the `python/` folder of the `adas-interfaces` package the build resolved (the one in its lock), and `src/adas_sim/io/recording_writer.py` imports `adas_recording` from that folder. A missing file or folder is an error naming the build to run; no sibling path, no search. | `ANL-06` |
-| `[ ]` | `IMP-0052` | `SYS-0037`, `SYS-0041` | `WP-13` | `EXTEND` | `vantage` engine's writer, its `manifest` (`VANTAGE_Architecture.md` §11 *Recording I/O*) — `run_kind: resim`; `source_kind`, and the origin of every topic the run did not compute, carried from the input recording; `components` the simulated stages with their `build_id`; each port's `record` policy from the run setup. An input that does not state one is refused at load, naming it; no default. | `SYT-REC-04` |
+| `[ ]` | `IMP-0051` | `SYS-0043` | `WP-13` | `NEW` | `vantage`: each target's build writes `adas_recording.path` beside its `simengine`, naming the `python/` folder of the `adas-interfaces` package in that target's own lock; `src/adas_sim/io/recording_writer.py` reads the file beside the `simengine` it runs and imports `adas_recording` from there. A missing file or folder is an error naming the build to run; no sibling path, no search. | `ANL-06` |
+| `[ ]` | `IMP-0052` | `SYS-0037`, `SYS-0041` | `WP-13` | `EXTEND` | `vantage` engine's writer, its `manifest` (`VANTAGE_Architecture.md` §11) — `run_kind: resim`; `source_kind`, and the origin of every topic the run did not compute, from the input recording; `components` the simulated stages with their `build_id`; each port's `record` policy from the run setup; never `created_utc`. An input that does not state one is refused at load, naming it; no default. | `SYT-REC-04` |
 ```
 
 **R12 — `modules/interfaces/docs/resim_contract/RCT_Implementation_Design.md`.** Replace
@@ -319,7 +318,81 @@ insert (no blank line):
 insert (no blank line):
 
 ```
-| `[ ]` | `IMP-0060` | `SYS-0040` | `WP-07` | `EXTEND` | `src/simcore/module_host/exec_timeout.cpp::ExecTimeout`, `include/simcore/module_host.hpp` — under `limits.exec_timeout_ms` each caller (the orchestrator at `threads` 1, each worker above) hands its calls to one long-lived call thread of its own and waits with a timed wait. A timeout ends the engine run with outcome `timeout` (`R-SIM-19`); that call thread is abandoned, never reused. | `SYT-THR-02` |
+| `[ ]` | `IMP-0060` | `SYS-0040` | `WP-07` | `EXTEND` | `src/simcore/module_host/exec_timeout.cpp::ExecTimeout` — under `limits.exec_timeout_ms` each caller (the orchestrator at `threads` 1, each worker above) hands its calls to its own long-lived call thread, with a timed wait. A timeout ends the engine run with outcome `timeout` (`R-SIM-19`) and abandons that thread; the process then refuses every later engine run, saying to restart it. | `SYT-THR-02` |
+```
+
+**R13 — `modules/interfaces/docs/resim_contract/layers.yaml`.** Replace
+
+```
+    budget: 43
+```
+
+with
+
+```
+    budget: 44
+```
+
+**R14 — `modules/interfaces/docs/resim_contract/layers.yaml`.** Replace
+
+```
+    budget: 48
+```
+
+with
+
+```
+    budget: 54
+```
+
+**R15 — `modules/interfaces/docs/resim_contract/layers.yaml`.** Replace
+
+```
+# R-REQ-13. Seven contract areas (HDR, CTL, RSY, CST, LMS, VER, REC) x 13 = 91
+# = 43 (SYS) + 48 (IMP).
+```
+
+with
+
+```
+# R-REQ-13. Seven contract areas (HDR, CTL, RSY, CST, LMS, VER, REC) x 14 = 98
+# = 44 (SYS) + 54 (IMP).
+```
+
+**R16 — `modules/interfaces/docs/resim_contract/layers.yaml`.** Replace
+
+```
+  per_unit: 13
+  total: 91
+```
+
+with
+
+```
+  per_unit: 14
+  total: 98
+```
+
+**R17 — `modules/interfaces/docs/resim_contract/layers.yaml`.** Directly after the line that contains
+
+```
+      its packaging in interfaces; the lab's recorder; Vantage's writing).
+```
+
+insert (no blank line):
+
+```
+  - date: 2026-11-02
+    change: "per_unit 13 -> 14 (total 91 -> 98); SYS 43 -> 44, IMP 48 -> 54"
+    why: >-
+      D26 adds the optional config_bundle block to C6: one SYS row (SYS-0044,
+      the block matches its own bundle.sha256) and two IMP rows (the Python
+      writer's argument, the conformance check). Two D14 fixes found while
+      building WP-13 add two more IMP rows: how Vantage's Python finds the
+      interfaces writer (IMP-0051, the path file), and the engine's writer
+      writing C6's manifest (IMP-0052). The D24 wrap reworded SYS-0004 and
+      added no contract row. Two IMP rows of room are left because the basis
+      moves in steps of seven.
 ```
 
 ## Part B — `interfaces` (`RCT:IMP-0049`, `RCT:IMP-0050`)
@@ -335,12 +408,14 @@ insert (no blank line):
    rebuild `vantage-lab`.
 
 ## Part C — `vantage`
-5. `RCT:IMP-0051`: the build writes `conan_workarea/adas_recording.path` (one line, the folder),
-   from the `adas-interfaces` package folder CMake was given, at configure time, every target;
-   `src/adas_sim/io/recording_writer.py` (new) reads it, puts the folder on `sys.path` and returns
-   the writer; a missing file, or a folder without `adas_recording/writer.py`, raises an error
-   naming `build.bat -t sil -p vs2026`. No sibling path, no candidate list, no environment
-   variable.
+5. `RCT:IMP-0051`: each target's build writes `adas_recording.path` (one line, the folder) into
+   the folder its `simengine` executable is built to, from the `adas-interfaces` package folder
+   that target's CMake was given from its own lock — never one file at `conan_workarea/` root,
+   since each target has its own lock and the last build would win. `src/adas_sim/io/
+   recording_writer.py` (new) reads the file beside the `simengine` the Python side runs (the one
+   `bridge.py` resolves), puts the folder on `sys.path` and returns the writer; a missing file, or
+   a folder without `adas_recording/writer.py`, raises an error naming the build to run. No
+   sibling path, no second candidate list, no environment variable.
 6. `RCT:IMP-0048`, Vantage's Python side: `McapWriter` and the `.mcap` writer registration leave
    `src/adas_sim/io/mcap.py` (the reader stays); `sim convert` no longer writes `.mcap`;
    `bridge.py`'s `overwrite_manifest_meta`, `backfill_schema_bytes` and its merged-write path go
@@ -349,15 +424,19 @@ insert (no blank line):
    the writer requires; a `plugin_bundles` block is no longer written — it waits for the viewer
    phase). Grep for every other user. A function this leaves unused goes too; name each.
 7. `RCT:IMP-0052`: the engine's writer writes `manifest` as the row says, before the first
-   message, no clock read. An input that does not state `source_kind` or a carried topic's origin
+   message, no clock read, and never a `created_utc` (the engine has no logging time, and one
+   would break C6's byte-identical rule, `SYT-REC-03` `.c3`). An input that does not state `source_kind` or a carried topic's origin
    makes `simEngineCreate` refuse `outputs.path` naming the input and the missing item.
 8. `IMP-0059`: the `config_bundle` block as the row says. gtest: an engine run on a stub chain
    with a two-file bundle (one in a subfolder) gives exactly those keys and texts; a `measured`
    stage gives none; no `outputs.path`, no block.
 9. `IMP-0060`: the call thread as the row says; the exit code on a timeout is `kSimExitTimeout`.
-   gtest: with a timeout set and one thread, a test component sees one thread id over many calls;
-   a call that blocks past the timeout ends the run with the timeout outcome, and the next run
-   (new engine) does not reuse that thread. `SYT-THR-02`'s steps stay as written (the lab setups
+   After a timeout, every later `simEngineCreate` or run in that process is refused with an error
+   saying to restart the process: the stuck thread is still inside the component's library, and a
+   second run could load it alongside (batch already runs one process per recording). gtest: with
+   a timeout set and one thread, a test component sees one thread id over many calls; a call that
+   blocks past the timeout ends the run with the timeout outcome; a second engine created in the
+   same process afterwards is refused with that error. `SYT-THR-02`'s steps stay as written (the lab setups
    keep their 250 ms).
 10. Tests in `tests/system/` (name the file), citing the ids verbatim: `SYT-REC-03` `.c3`
     (`simengine` twice on `running_example` `cut_c` with `outputs.path`, files byte-identical) and
@@ -386,7 +465,8 @@ insert (no blank line):
   corrected by name.
 - The new `adas-interfaces` revision, and each lock file that changed.
 - `SYT-REC-03` `.c3`, `SYT-REC-04`, `SYT-REC-05`, `ANL-06` `.c2` results; the `config_bundle` keys
-  of the `cut_c` engine-run recording (`A`, `B`, `D`, `E`, never `C`) and its `manifest` text.
+  of the `cut_c` engine-run recording (`A`, `B`, `D`, `E`, never `C`) and its `manifest` text;
+  where each target's `adas_recording.path` was written, and its line.
 - `check_invariants.py` clean; both `trace_check` PASS, the `RCT WP-13`, `VNT WP-07`, `VNT WP-12`
   lines.
 - `git status --short` in `modules/vantage` and `modules/interfaces`; each `git diff --stat` equal

@@ -3120,3 +3120,21 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Contract set now over its declared budget (SYS 44/43, IMP 52/48): printed, not an error
   (`R-REQ-13`); basis left alone for the owner to judge.
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-02 · OWNER · decision (VNT-WP-09a-R1 amendments)
+- Choices 1 (writer's optional `config_bundle` argument) and 2 (engine `manifest`) accepted; 2
+  adds: the engine never passes `created_utc` (no logging time; one would break C6's
+  byte-identical rule).
+- 3 fixed: the path file goes in each target's build folder beside its `simengine`, never one
+  file at `conan_workarea/` root (each target has its own lock; the last build would win); the
+  Python side reads the file beside the engine it runs.
+- 4 fixed: after a timeout the engine refuses every later run in that process, saying to restart
+  it (the stuck thread is still inside the component's library; a second run could load it
+  alongside). Batch already runs one process per recording.
+- Budget: rows kept; contract basis raised with a dated `budget_history` entry (per_unit 13 → 14,
+  total 98; SYS 44, IMP 54 — the basis moves in steps of seven, so two IMP rows of room). D24
+  added no contract row (it reworded `SYS-0004`), so the entry names D26 and the two D14 fixes.
+- **Record for G5:** 1v's recordings have no C6 `manifest`, so an engine run on one refuses
+  `outputs.path` until an ingest map states their provenance (`R-SIM-23`).
+- Prompt amended (26 edits, dry-run PASS 96/42 and 112/52, no budget note; final-state boxes
+  PASS).
