@@ -2740,3 +2740,14 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `<dir>[<extras>]`, the baseline generator resolves extras, baseline regenerated on `py -3.12`
   (stop if a kept line changes version), version `1.0.9001`, lab `dev` extra; no release, no pin,
   no lock, no env.
+
+### 2026-11-02 · OWNER · decision
+- Result: accepted — `RCT:SYS-0004`'s wrap step goes inside the `D24` package; `1.0.9001` approved.
+  `ENV-2a` may download from PyPI only into a throwaway environment on `py -3.12`; an HTTPS
+  failure (corporate proxy) is a stop and report — no certificate packages, no `--trusted-host`,
+  no proxy settings (added to the prompt before relay). Owner relays `ENV-2a`.
+- To carry: (1) if `df:*` / `viz:*` lines drop out of `python_baseline.txt` on toolchain
+  `vantage`, `.claude/IMPORTED.md` says the baseline is **merged with 1v `main`'s at migration,
+  never taken as-is** (`ENV-2b`'s row); (2) before `ENV-2b` puts `1.0.9001` on `adas-local`, the
+  orchestrator confirms nothing in 1v or vantage-dev picks `adas-build-tools` by "newest" rather
+  than by exact pin — `1.0.9001` sorts above every 1v release.

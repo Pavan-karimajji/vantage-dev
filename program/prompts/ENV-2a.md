@@ -52,7 +52,10 @@ need; the `adas-build-tools` version on `vantage` is `1.0.9001`. Nothing is rele
    the extras declared, but no `conf/build.yml` may change here: run it with the extras supplied
    for `vantage:sim` (`dev`) and `vantage-lab:lab` (`dev`) through the generator's own interface
    if it has one; if it has none, add a command-line option for it (tested), never a hidden
-   default. Regenerate `python_baseline.txt` on `py -3.12`. Lines of envs not checked out here
+   default. Regenerate `python_baseline.txt` on `py -3.12`. **PyPI downloads go only into the
+   generator's own throwaway environment on `py -3.12`.** If pip fails on HTTPS (the corporate
+   proxy), stop and report the error: no certificate packages, no `--trusted-host`, no proxy
+   settings. Lines of envs not checked out here
    (`df:*`, `viz:*`) may drop out. **If any line that stays changes version, stop before keeping
    the new file and report the lines** (restore the file with your own edit, not a git command).
 5. Version `1.0.9001` in `pyproject.toml` and `conan_package/conanfile.py`. Nothing else names it.
