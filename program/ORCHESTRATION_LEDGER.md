@@ -2897,3 +2897,10 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `HeaderOf`'s (k mod `0xFFFFFFFF`) + 1, `tests/support/control_tick`; unit tests planted to fail
   with the old code; `sil`/`gtest`/`package`, Python suites in `.venv-sim-win32`; rows `[~]`
   (closed by the `SYT` tests in `WP-09`).
+
+### 2026-11-02 · D24-3 · verdict
+- Result: done. E1–E8 applied, each anchor found once; vantage docs 4 files +18/−5, equal with
+  `--ignore-cr-at-eol`. Orchestrator: the four files are byte-identical to the orchestrator's own
+  dry run; `trace_check` PASS, 107 requirements, 51 tests, no findings; `WP-11` open, rows 0/4.
+- Verdict: accept. Committed vantage `c1` `41ee85a`, superproject. Next: `VNT-WP-11` (prompt
+  written).
