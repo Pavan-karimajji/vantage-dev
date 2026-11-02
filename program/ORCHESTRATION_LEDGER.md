@@ -2826,3 +2826,34 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   the lab's source numbering, a start-near-the-top knob and one lab case crossing the wrap in a new
   lab package; the three handoff design-row notes. `counterDistance`, `SYS-0005`, `SYT-HDR-05`
   unchanged.
+
+### 2026-11-02 · D24-1 · verdict
+- Result: done. RCT: `SYS-0004` Shall/Accept gain the wrap step, the wrap paragraph two sentences,
+  `SYT-HDR-04.c2`; no `interfaces` code numbers measurements (`cycle_stamp.hpp`,
+  `ref_sync_builder.hpp` copy the control's), so no RCT design row. VNT: `SYS-0049` (reader: the
+  wrap is no gap, no reset, no identity broken; `SYT-SEL-12`, `.c2` planted), `SYS-0050`
+  (clock-started controls (k mod `0xFFFFFFFF`) + 1; `SYT-ORC-12`, fixture `F-TICK`); `WP-11`
+  (`IMP-0053` identity, `IMP-0054` `ControlWriter::HeaderOf`, `IMP-0055` tick probe) between
+  `WP-10` and `WP-06`; `LAB-WP-11` (`LAB-64`..`67`: `wrap_counter`, car verb `counter_start`,
+  scenario `counter_wrap` with `X` from `0xFFFFFFFB`, tests). Notes done (`IMP-0006`, `IMP-0011`
+  "in `WP-05`" — the prompt's "`WP-04`" was wrong, `IMP-0024` and `74608ba` put it in `WP-05`; the
+  stale *Blocked* note retired). Orchestrator rerun: RCT PASS 91/41, VNT PASS 105/50, `WP-11` open
+  0/3, lab design 62/67; diffs 3 files +8/−4 and 5 files +50/−15, no line-ending churn. Orchestrator
+  checked the car's `wrap_counter(k + 1)` equals Vantage's (k mod `0xFFFFFFFF`) + 1 (G3 compares
+  them exactly).
+- Accepted: the wrap recognised through `counterDistance` alone (`ANL-02` holds); the tick probe
+  (the wrap is 2³² ticks away through an engine run); a source's `cycle_counter` stays equal to its
+  counter (lab sources are not scheduled components, `RCT:SYS-0003` does not bind them).
+- Orchestrator's answer: `RCT:IMP-0029` stays as it is — `LAB-64` carries the wrap (one obligation,
+  one place), and `[x]` stays true of what `IMP-0029` says.
+- **To the owner:** should the counter fallback's gap (`fallback_max_gap`, `SYS-0022`/`0023`) also
+  read `0xFFFFFFFF` → 1 as one step? `D24` names only the identity check. Today a fallback across
+  the wrap reads its gap one too large, so at the limit it may switch to the time rule one step
+  early.
+- Verdict: accept. Committed interfaces `vantage`, vantage `c1`, superproject.
+
+### 2026-11-02 · D24-2 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+- Prompt: `LAB-WP-11` on vantage-lab `main` — `wrap_counter`, `counter_start` (refusals planted),
+  `counter_wrap` in the catalogue, `tests/test_car_counter_wrap.py` (`.c2` planted to fail), the
+  real lab build, the suite in the lab's own environment, the lab design's boxes.
