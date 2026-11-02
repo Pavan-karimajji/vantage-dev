@@ -2857,3 +2857,18 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Prompt: `LAB-WP-11` on vantage-lab `main` — `wrap_counter`, `counter_start` (refusals planted),
   `counter_wrap` in the catalogue, `tests/test_car_counter_wrap.py` (`.c2` planted to fail), the
   real lab build, the suite in the lab's own environment, the lab design's boxes.
+
+### 2026-11-02 · D24-2 · verdict
+- Result: done. `wrap_counter(n)` = `((n − 1) mod 0xFFFFFFFF) + 1` numbers source samples (their
+  `cycle_counter` equal) and the car's clock-started controls; car verb `counter_start` (unknown
+  source, out of range, a second entry → `CarError` naming the scenario); scenario `counter_wrap`;
+  `tests/test_car_counter_wrap.py` (7), `.c2` planted (`n & 0xFFFFFFFF`) → 3 failures, restored.
+  Lab build 29 s; suite 268 → 278 passed, 18 skipped. Orchestrator read the car diff and the test:
+  the recorded `source.X` counters are `0xFFFFFFFB` … `0xFFFFFFFF`, 1, 2, 3, `Y`/`Z` equal `base`,
+  the refSync re-run equal; rerun in the lab env 278 / 18 (14 s). Boxes `LAB-64`..`67`,
+  `LAB-WP-11` `[x]`.
+- Accepted: `index.json` never lists scenario recordings (checked by building the recording and
+  its run setup instead); `counter_start` appended as a defaulted field; the control wrap shown by
+  shifting `wrap_counter` in the test (2³² ticks otherwise).
+- Verdict: accept. Committed vantage-lab `main`, vantage `c1` (boxes), superproject.
+- Waiting on the owner before the `WP-11` prompt: the `fallback_max_gap` question (`D24-1` verdict).
