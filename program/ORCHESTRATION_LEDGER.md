@@ -2872,3 +2872,28 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   shifting `wrap_counter` in the test (2³² ticks otherwise).
 - Verdict: accept. Committed vantage-lab `main`, vantage `c1` (boxes), superproject.
 - Waiting on the owner before the `WP-11` prompt: the `fallback_max_gap` question (`D24-1` verdict).
+
+### 2026-11-02 · OWNER · decision
+- `fallback_max_gap` across the wrap: yes. One shared Vantage distance on `measurement_counter`,
+  used by the identity check and the counter fallback; `0xFFFFFFFF` → 1 is one step;
+  `counterDistance` untouched (one distance for one counter, as the reference has, adjusted to a
+  counter whose cycle skips 0). Recorded as `D24 (3)`. No planner session: the orchestrator writes
+  the exact text into a mechanic prompt, then the `WP-11` build prompt.
+
+### 2026-11-02 · D24-3 · prompt
+- Worker: vantage-mechanic (Sonnet, medium), relayed by the owner.
+- Prompt: eight exact edits in vantage `c1` docs — `SYS-0051` (new; the fallback gap by
+  `SYS-0049`'s distance), `SYT-SEL-13` (new; `counter_wrap` with `0xFFFFFFFF`, 1, 2 removed, run at
+  `fallback_max_gap` 1 and 3), `IMP-0053` reworded to define `MeasurementCounterDistance`,
+  `IMP-0056` (new; `SelectInputs` gap), the `WP-11` closing line, three architecture sentences.
+  Orchestrator dry-ran all eight on a copy: PASS, 107 requirements, 51 tests (the first wording of
+  `IMP-0053` was 96 words, over the 60 cap; shortened before the prompt was written).
+- A new `SYS` row rather than a wider `SYS-0049`: the test must cite an Accept (R-REQ-4), and
+  `SYS-0049` has no words left under the cap.
+
+### 2026-11-02 · VNT-WP-11 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner **after `D24-3` is accepted**.
+- Prompt: `IMP-0053`..`IMP-0056` on `c1` — the shared distance, `Observe`, `SelectInputs`'s gap,
+  `HeaderOf`'s (k mod `0xFFFFFFFF`) + 1, `tests/support/control_tick`; unit tests planted to fail
+  with the old code; `sil`/`gtest`/`package`, Python suites in `.venv-sim-win32`; rows `[~]`
+  (closed by the `SYT` tests in `WP-09`).
