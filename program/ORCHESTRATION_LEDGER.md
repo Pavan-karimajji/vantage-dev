@@ -2751,3 +2751,27 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   never taken as-is** (`ENV-2b`'s row); (2) before `ENV-2b` puts `1.0.9001` on `adas-local`, the
   orchestrator confirms nothing in 1v or vantage-dev picks `adas-build-tools` by "newest" rather
   than by exact pin — `1.0.9001` sorts above every 1v release.
+
+### 2026-11-02 · ENV-2a · verdict
+- Result: not done, stopped as told at step 4. Landed (uncommitted): `extras:` in `config.py`
+  (refusals planted: non-pyproject intent, not a plain name, empty list, undeclared extra) with
+  `extras_problem()` shared by the generator; `lock_python_env.py` installs `<dir>[<extras>]`;
+  `make_python_baseline.py` resolves declared extras plus a repeatable `--extras
+  <module>:<env>=<a,b>`; version `1.0.9001`; lab `dev = ["pytest>=8"]`. Orchestrator rerun:
+  toolchain 322 OK / 9 skipped (7 s), `test_lock_python_env` 15 OK, `test_python_baseline` 23 OK
+  (1 s); baseline unchanged vs `f061dfd`. PyPI over HTTPS worked (63 s generator run).
+- Stopped on: the unpinned resolve moved five kept lines (`mcap` 1.5.0 → 1.6.0,
+  `mcap-protobuf-support` 0.5.4 → 0.6.0, `numpy` 2.5.3 → 2.5.4, `playwright` 1.63.0 → 1.64.1,
+  `pyee` 13.0.1 → 14.0.0). Expected otherwise: `df:*` / `viz:*` lines out; test tools in.
+- **Orchestrator's answer: hold them** — an explicit `--hold` flag passes the current baseline as
+  pip constraints; nothing already in the baseline moves (within `D25`; the recording library must
+  not move under Vantage as a side effect).
+- Accepted deviations: `extras_problem()` as the one shared check; on Python 3.10 (no `tomllib`)
+  the "declared in `pyproject.toml`" check is skipped — the platform Python is 3.12.
+- Verdict: rework (1).
+
+### 2026-11-02 · ENV-2a-R1 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+- Prompt: `--hold` (current baseline as `-c` constraints, explicit, header names the flags),
+  tests, regenerate with `--hold --extras vantage:sim=dev --extras vantage-lab:lab=dev`; stop if
+  any kept line changes version. Same PyPI conditions.
