@@ -3063,3 +3063,24 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `sim convert` write, `bridge.py`'s three rewrite helpers) rather than adapting them;
   (3) `SYS-0040` (one thread by default) is false whenever `exec_timeout_ms` > 0: the watchdog
   runs every call on a fresh thread.
+
+### 2026-11-02 · OWNER · decision
+- (1) Vantage finds `adas_recording` through a path file the build writes from the
+  `adas-interfaces` package it resolved (the one in the lock), so Python and C++ use one interfaces
+  revision; never a sibling path; a missing file is an error naming what to run, never a fallback
+  search. (2) Vantage's Python writer is retired; anything in Python that must produce a recording
+  uses the interfaces writer. (3) The per-call timeout runs calls on one long-lived thread with a
+  timed wait; on a timeout the run ends with outcome `timeout` (`R-SIM-19`) and the stuck thread is
+  abandoned, never reused. `SimEngineRunner` accepted as internal, not ABI (its header says so).
+- Known limit, not decided now: with `--threads` > 1 workers start fresh per rank, so one
+  component's calls can land on different threads; revisit with the pooling measurement.
+
+### 2026-11-02 · ORCH · findings before the package prompt
+- The engine's C++ writer embeds **no** config bundle: its `WriteMeta` has no caller. An
+  engine-run recording (`lab/running_example/base.cut_c.out.mcap`) holds only `topic_provenance`
+  — **no `manifest`** either, which C6 requires (`SYT-REC-04` `.c1` would fail); the lab's
+  recording holds `manifest` and `topic_provenance`.
+- C6 (`RCT_Architecture.md` §6a) names exactly two metadata blocks, `manifest` and
+  `topic_provenance`; no bundle block. The retired Python writer wrote `config_bundle` (one YAML
+  document per recording) and `plugin_bundles`.
+- To the owner: a `D14` contract change for an optional `config_bundle` block, wording proposed.
