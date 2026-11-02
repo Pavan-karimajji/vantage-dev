@@ -3023,3 +3023,24 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `IMP-0049`, `IMP-0031` ABI 4, the architecture's run-setup table, new `IMP-0058`), dry-run:
   PASS, 109 requirements, 51 tests. Code as the decision; evidence: the lab's unedited `cut_c` and
   `all_simulated` setups load and run in `simengine`.
+
+### 2026-11-02 · VNT-WP-01-R1 · verdict
+- Result: done. `ImplRef` is `kind` + `path`; `pattern`/`search` on the retired-key list (refused
+  naming the key and `stages[<name>].impl`, the "retired" hint — global list, so a stray `search`
+  anywhere gets it too: accepted); `graph_dump` prints the kind for a pathless stage; `emit.py`,
+  `bridge.py`, the schema write/require `{kind, path}`; 7 C++ fixtures stopped writing the keys
+  (no assert touched them); 3 new loader tests; `SIMCORE_ABI_VERSION` 4. The lab's unedited
+  `running_example` `cut_c` and `all_simulated` setups load and run in `simengine` (exit 0; 478
+  instants each).
+- Orchestrator: docs byte-identical to the dry run (`IMP-0058` inserted `[~]` directly); read the
+  code diff; rerun `-t gtest` 415/415 (52 s), Python 1151/87 (60 s).
+- Verdict: accept. Committed vantage `c1` `667240b`, superproject.
+
+### 2026-11-02 · VNT-WP-09a · prompt
+- `WP-09` split in three (it needs `RCT:WP-13` by the package graph, and is too large for one
+  session): **09a** `RCT:WP-13` (one Python recording writer, `RCT:IMP-0048`, with `ANL-06` `.c2`,
+  `SYT-REC-03` `.c3`, `SYT-REC-04`) + `IMP-0040`..`0042` (`lab_cases.py`, `step_tap`,
+  `exec_probe`); **09b** the system test files `IMP-0044`..`0048`; **09c** gate G3 (`IMP-0043`) —
+  its result and the `c1` → `main` merge plan to the owner before any merge.
+- Worker: vantage-builder (Sonnet, high). Stops Part A if finding `adas_recording` from Vantage's
+  environment needs a choice the row leaves open.
