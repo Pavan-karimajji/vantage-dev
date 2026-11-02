@@ -2802,3 +2802,17 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   locks regenerated (a version change is a stop); environments re-created by the standard build;
   suites in their own envs; `-t package`; two `IMPORTED.md` rows (back-port; baseline merged with
   `main`'s at migration).
+
+### 2026-11-02 · ENV-2b · verdict
+- Result: done. `adas-build-tools/1.0.9001` made once from `850c85f` (`conan create
+  conan_package`, 8 s, revision `ace53b30…`, local cache only, no upload); vantage (`c1`) and
+  vantage-lab pin it with `extras: [dev]`; locks regenerated — **additions only** (vantage 11:
+  `pytest`, `pytest-cov`, `pandas` and dependencies; lab 6: `pytest` and dependencies), no version
+  changed (orchestrator diff); environments re-created by `setup.bat --python-envs-only --remotes
+  on` (the per-run switch: pip reached PyPI, no Conan remote enabled or changed); `-t package`
+  pass (12 s); `check_invariants.py` clean incl. `PYB-1`; two `IMPORTED.md` rows.
+- **Orchestrator rerun in each module's own environment:** `adas_sim` / `lab_tools` import from
+  this checkout; vantage `tests/unit tests/system` 1113 passed, 87 skipped (43 s); lab `tests` 268
+  passed, 18 skipped (13 s) — equal to the last recorded counts. From now on Python suites run in
+  the module's own `.venv-<env>-win32`, never on `py -3`. **`ENV-1` is closed.**
+- Verdict: accept. Committed: vantage `c1`, vantage-lab `main`, superproject.
