@@ -2948,3 +2948,28 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Orchestrator fix: `IMP-0046` now also writes `SYT-SEL-13` and traces `SYS-0051` (missed in
   `D24-3`; found by mapping every `SYS` row to `WP-09`).
 - Verdict: accept. Committed vantage `c1` `5ec5a4c` and the `IMP-0046` fix, superproject.
+
+### 2026-11-02 · OWNER · decision
+- `SYS-0017` as a rule: decisions read only signal headers and the two contract messages that
+  exist to drive them — the recorded `refSync` (RCT C3) for selection, the recorded control
+  (RCT C2) for RESTART; the check allows parsing exactly those two types, no per-line markers;
+  `IMP-0008`'s "the only payload read" corrected the same way.
+- `SYS-0031`: the unknown test is `bus::IsUnknownMeasurementCounter`, beside
+  `MeasurementCounterDistance` (0 = unknown holds for `measurement_counter` only); a bare
+  comparison with 0 on either counter stays a finding.
+- The rework also fixes `ANL-03`'s test id and planted case and wires both scripts into the CI
+  gate; the orchestrator writes the exact text. `WP-07`: go, its prompt first.
+
+### 2026-11-02 · VNT-WP-07 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed by the owner. `IMP-0034`..`0036`:
+  `RunnerOptions::threads` from `--threads` only; per rank, inputs fixed on the orchestrator
+  thread, `Exec` on workers, barrier, commit in declaration order; one library path never twice
+  at once. Planted (finish-order commit, no same-path guard); lab evidence: 1 vs 3 threads on four
+  cases, recordings and event logs compared.
+
+### 2026-11-02 · VNT-WP-08-R1 · prompt
+- Worker: vantage-builder (Sonnet, high), relayed **after `VNT-WP-07` is accepted** (both touch
+  `cycle_loop.cpp`). Exact text D1–D12 (`SYS-0017`, `SYS-0031` reworded; `ANL-01` plant typed,
+  `ANL-02` `.c4`; `IMP-0008`, `IMP-0037`, `IMP-0038` reworded; new `IMP-0057`; `WP-08` closes),
+  dry-run by the orchestrator: PASS, 108 requirements, 51 tests, `WP-08` `[x]` 4/4. Code: the
+  helper at the three sites, both checks to the decided rules, `ANL-03` `.c2` test, `ci_gate.py`.
