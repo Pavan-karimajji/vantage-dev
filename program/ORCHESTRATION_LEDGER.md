@@ -2973,3 +2973,32 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `ANL-02` `.c4`; `IMP-0008`, `IMP-0037`, `IMP-0038` reworded; new `IMP-0057`; `WP-08` closes),
   dry-run by the orchestrator: PASS, 108 requirements, 51 tests, `WP-08` `[x]` 4/4. Code: the
   helper at the three sites, both checks to the decided rules, `ANL-03` `.c2` test, `ci_gate.py`.
+
+### 2026-11-02 · VNT-WP-07 · verdict
+- Result: done. `RunnerOptions::threads` (default 1) set by `simEngineSetThreads` (new ABI call)
+  from `--threads`; `StepOnce` prepares every ticket of a rank on the orchestrator thread,
+  `DispatchRank` (`rank_dispatch.hpp`) runs only `Component::Exec` on workers, then
+  `FinishTicket` in declaration order (event-log order unchanged); `ConflictTable` decided at load:
+  same library file (canonical path) or one reads the other. 10 gtests; planted finish-order commit
+  and no same-path guard → 2 + 2 failures, restored. Lab evidence, `--threads` 1 vs 3: `cut_c`,
+  `all_simulated`, `diamond`, `fan_out` byte-identical recordings (event logs empty).
+- Orchestrator: read the dispatcher and `StepOnce` (no buffer, queue, mutator or writer touched on
+  a worker; no deadlock path: the earliest unstarted ticket is always free once earlier ones end).
+- Rows `IMP-0034`..`0036`, `WP-07` `[~]`, closed by `SYT-THR-01`..`03` (`WP-09`).
+- Verdict: accept.
+
+### 2026-11-02 · VNT-WP-08-R1 · verdict
+- Result: done, relayed by the owner on top of the uncommitted `WP-07` tree (both touch
+  `cycle_loop.cpp`), so the two land as one commit. D1–D12 applied; `SYS-0017`/`SYS-0031`
+  wording byte-identical to the orchestrator's dry run. `IsUnknownMeasurementCounter` at the three
+  sites; `check_engine_decisions` allows parses only of `RefSync`/`CycleControl` (no markers),
+  `check_counter_compare` accepts the helper and still reports a bare `0`; `ANL-03` `.c2` test;
+  both checks in `ci_gate.py`. Both checks clean over the tree, all planted cases caught.
+- Orchestrator rerun: `-t gtest` 412/412 (38 s); the four changed Python test files 49 passed
+  (5 s); both checks clean and `--selftest` PASS; `check_invariants` clean; `trace_check` PASS,
+  108 requirements, 51 tests; `WP-08` `[x]` 4/4. Worker: `sil`, `package`, Python 1151/87.
+- Verdict: accept. Committed vantage `c1` `6e22a08` (both packages), superproject.
+- **To the owner:** (1) `SIMCORE_ABI_VERSION` 3 → 4 for the new `simEngineSetThreads`?
+  (2) the lab's run setups carry `impl` as `{kind, path}` (as `ARCH` §4's table says), but the
+  engine loader requires `pattern` and `search` too, so `simengine` refuses every lab setup — a
+  blocker for `WP-09`/G3.
