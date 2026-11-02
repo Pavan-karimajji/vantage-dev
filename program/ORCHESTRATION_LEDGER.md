@@ -3002,3 +3002,24 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   (2) the lab's run setups carry `impl` as `{kind, path}` (as `ARCH` §4's table says), but the
   engine loader requires `pattern` and `search` too, so `simengine` refuses every lab setup — a
   blocker for `WP-09`/G3.
+
+### 2026-11-02 · OWNER · decision
+- `impl` is `kind` + `path` only: `pattern` and `search` removed completely (load.cpp, `ImplRef`,
+  `emit.py`, `bridge.py`, their tests), retired keys refused by `SYS-0046` with a planted case;
+  `graph_dump` prints the kind when there is no path; the lab unchanged; schema stays 2.0 (`c1`
+  unmerged). `SIMCORE_ABI_VERSION` 3 → 4 in the same package. Then `WP-09` and G3; the G3 result
+  and the `c1` → `main` merge plan go to the owner before any merge.
+- Known limits, accepted by the owner and left as they are:
+  - `WP-07` starts worker threads per rank rather than pooling them; pool only if
+    `diagnostics/cost.cpp` shows it matters (`ARCH §8`: one thread first, measure).
+  - `check_engine_decisions.py` finds a parsed object's type by name anywhere in the same file,
+    not by scope; a scope-aware check needs a C++ parser.
+
+### 2026-11-02 · VNT-WP-01-R1 · prompt
+- Orchestrator's check first: no stored fixture or recording in vantage, vantage-lab or
+  interfaces carries `pattern`/`search` (only `run_spec.schema.json`); eight C++ test files write
+  them inline.
+- Worker: vantage-builder (Sonnet, high). Exact text D1–D7 (`SYS-0046`, `SYT-RUN-09` `.c3`,
+  `IMP-0049`, `IMP-0031` ABI 4, the architecture's run-setup table, new `IMP-0058`), dry-run:
+  PASS, 109 requirements, 51 tests. Code as the decision; evidence: the lab's unedited `cut_c` and
+  `all_simulated` setups load and run in `simengine`.
