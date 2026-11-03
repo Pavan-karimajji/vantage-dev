@@ -3266,3 +3266,28 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Test-spec fixes: `SYT-ORC-02` builds `loop_no_edge`'s setup from `feedback`'s (same stages,
   inputs, periods) pointed at `loop_no_edge`'s libraries; `SYT-ORC-08` keeps that run's own refSync.
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09b-1-R1 · verdict
+- Worker report: Parts A–C done; all 21 anchors once; `SYT-RUN-06.c1`, `SYT-ORC-07.c3`,
+  `SYT-ORC-11.c1` pass unchanged; `test_vnt_run_setup.py` 19/0/0, `test_vnt_orchestrator.py`
+  106/0/0. Missing runs: `Runner::WriteStep` kept one message per topic per step; an `exec_probe`
+  in `B`'s place was called 74 times while the recording held 61, `compState` `cycle_counter` gaps
+  at exactly the 13 lost runs — `IMP-0061`'s cause, fixed as it says. Engine: evicted sample →
+  fallback at once; `ReadAhead::SearchRefSync` (`D27`), `Find`/`OnPort` held to the readiness
+  limit; `stalled_trigger` names the stage's trigger port; the control-trigger refusal names
+  `T.control`. Five new gtests. Corrected tests of old behaviour: `test_orc_steps.cpp`
+  (`port=in_x`), `test_orc_graph.cpp` (`A.control`), `test_vnt_wp13_recordings.py`
+  `SYT-REC-04.c2` (the per-run order of `IMP-0061`).
+- Orchestrator: docs identical to the dry run's final state, all five files; read the whole
+  `src`/`include` diff and the corrected tests. Reran vantage gtest 428/428 (43 s), Python 1295
+  passed / 85 skipped (63 s), `check_invariants` clean (10 s), `trace_check` PASS (114, 52).
+  Reference-term grep clean; diff-stat equal with and without `--ignore-cr-at-eol` (vantage, plan).
+- Verdict: accept. Committed vantage `c1`, superproject (`D27`, pointer, ledger).
+- **Known limits, to the owner:** (1) `D27`'s stop is enforced only on what is still in the
+  read-ahead: a run first selected after its stage's next control has already been read (held
+  behind an earlier parked run, rule 5) can still match its own refSync that arrived after that
+  control (`RecordedRefSync` searches the arrived refSyncs with no bound), where `D27` says
+  fallback. Never another run's record — counter matching holds. (2) A stage that runs twice in
+  one step: `MeasCycle` and a post-mutation input topic carry only the later run (the recording
+  carries both). (3) A run's outputs are written in its port map's name order. Recommended: one
+  small package for (1) and (2) before 09c; (3) unchanged unless the owner wants setup order.
