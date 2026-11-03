@@ -3291,3 +3291,31 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   one step: `MeasCycle` and a post-mutation input topic carry only the later run (the recording
   carries both). (3) A run's outputs are written in its port map's name order. Recommended: one
   small package for (1) and (2) before 09c; (3) unchanged unless the owner wants setup order.
+
+### 2026-11-03 · OWNER · decision (the three known limits; 09b-2)
+- Limits 1 and 2 are fixed in the producer-keys package, before 09c. (1) Bound the search of
+  refSyncs already received too; plant a run held behind an earlier waiting run, which must fall
+  back, never match. (2) An overridden input that keeps only the later run is the same loss as the
+  13 runs (`R-SIM-6`, `R-SIM-15`): record both. Live measurement: if two runs of one stage per
+  step need a C5 layout change, that is `D14` — bring it to the owner first; if the layout allows
+  it, fix it. (3) Outputs stay in port-name order.
+- 09b-2: go, with one addition — confirm `EqualOutputs` pairs simulated and recorded runs by
+  `measurement_counter`, not by step; plant two runs of one stage in one step: a divergence in
+  either is reported, a correct pair never is.
+
+### 2026-11-03 · VNT-WP-09b-2 · prompt
+- Checking the addition: the engine does **not** pair by counter. `Runner::FinishTicket` compares
+  each output with `impl.reference.AtTime(output.port, now_ns)` — the recorded output at the
+  run's own instant — so a run that waited compares with nothing or another run's output, and two
+  runs in one step share one recorded output. So the prompt carries the fix (Part B):
+  `ARCH §7` *Where equal outputs apply* states the pairing, `IMP-0033` drops "keyed by step";
+  pairing by the output's own `measurement_counter`, arrived recorded messages then the
+  read-ahead (held to the readiness limit); four planted gtests (two runs in a step, either
+  diverging, both equal; a run that waited).
+- Orchestrator choice, flagged to the owner: no recorded counterpart → not compared (as today for
+  a port the recording lacks), not a divergence — a slice or a cut recording ends with runs whose
+  car outputs fall after the end, and calling those divergent would be a false report at every
+  slice end.
+- Dry run of both doc edits: `trace_check` PASS (114, 52); final state with every case passing
+  (22 rows, `WP-01`/`05`/`06` by rollup) PASS.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
