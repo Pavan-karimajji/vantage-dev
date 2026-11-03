@@ -3578,3 +3578,17 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   pointer with a ledger entry. `c1` stays on the remote, frozen; the next phase works on `c2`, cut
   from `main`, under `c1`'s conditions (every commit builds vantage and passes its full unit suite;
   pushed normally; its merge into `main` goes to the owner first).
+
+### 2026-11-03 · MERGE · `c1` → vantage `main` at G3
+- vantage `main` `959ca11` = `git merge --no-ff c1` (`fa73488`), message "merge: C1 orchestrator into
+  main at gate G3 (WP-01..WP-13)"; `main` had no commit since `7fd0eb8`, so the merged tree equals
+  `c1`'s (checked: same tree object) — the tree gate G3 passed on; nothing rebuilt (R-TEST-5).
+  Pushed normally (pre-push hook clean). `c1` kept on the remote, frozen; the next phase on `c2`
+  from `main`.
+- Superproject pointer to `959ca11` with this entry (`.gitmodules` already tracks vantage `main`).
+- **Lab check (owner):** G3 did not close the lab's last item. It is `LAB-53`
+  (`lab_tools/supervise.py::run_under_supervisor`, `simengine --supervise`), package `LAB-WP-08`,
+  closed by `LAB-53` and the supervised `hang` and `crash` cases passing. It needs Vantage's
+  supervisor, which is C2 (part 8b, gate G4); G3's exact cases leave `hang`/`crash` out for that
+  reason (`F-CAT`). It closes in C2, once the supervisor lands, before G4. The 2026-11-03 status
+  snapshot's "closes with C1" is wrong — C2.
