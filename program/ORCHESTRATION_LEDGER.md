@@ -3738,3 +3738,32 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `IMP-0103` `[~]` closed by `IMP-0112`; `WP-17` closes with it. `--supervise` alone starts
   supervision; either supervisor option without it exits 2.
 - Worker: vantage-builder (Sonnet; the owner runs it at medium), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-16-17 · verdict
+- Worker report: A–G done. `vantage-inspect` (attach, dump, follow, five checks, `inspector_core`
+  library under the executable), supervisor (`--supervise`, required deadline, worker flag with the
+  cell name, `ClassifyWorkerEnd`, `HoldLiveMeas`, `SealAfterWorker`, `attempts.jsonl`, reproducer),
+  supervision cell, `poll` in `RunIsolatedStage`, the two review fixes, ANL-05/06. gtest 442 → 478,
+  pytest 1572 passed / 62 skipped, `check_invariants` clean; `test_ut_exe_04` (3 cases) and `_05`
+  (2) corrected to the new flags and file. Deviations accepted: the stage byte set in
+  `Runner::ExecTicket` (the engine's call path; `IMP-0124`'s text corrected in WP-18), the worker
+  still gets `--config`/`--timeout-ms` (the 8c scope call), `CanonicalTopic` for recorded topics, a
+  reproducer named `no_step`, a starting attach exits 6, the seal waits up to 2 s for the pid.
+- Orchestrator: reran gtest inspector/supervisor/cell/exe tests 49/49 (8 s), 478 listed, the two ANL
+  pytests 12 passed, `trace_check` PASS (13 done / 4 started). **Finding carried to WP-18:**
+  `checkRuns` lets a value carried from an earlier step satisfy every run (deviation 7), which hides
+  a run that published no `refSync`/`compState`; WP-18 makes it strict and reports any lab case it
+  then flags. Open questions: (1) as that finding; (2) `--follow`'s last-read skips printed at exit,
+  in WP-18; (3) Windows name lives until the last handle — accepted.
+- Verdict: accept. Committed under the owner's latitude: vantage `c2` `59484f5`, pushed.
+
+### 2026-11-03 · VNT-WP-18 · prompt (gate G4)
+- All of `WP-18` in one prompt: the test tools (`lm_reader` gains `--until-finished`, `lm_flawed`
+  copies a held source and holds its target before close, `lm_stress`, `isolate_stage`,
+  `livemeas_runs.py`), `LAB-53` in vantage-lab (`run_under_supervisor`, the sealed outcome read by an
+  `F-READER` started first), the four system-test files and the G4 file; three fixes (strict
+  `checkRuns`, `--follow` final skips, the comment). G4 green = the five files pass, none skipped.
+  C2 code may be fixed when a case finds a defect (named); C1 behaviour, requirements and pass
+  criteria never. Boxes across the three sets, dry-run: vantage 17 done / 1 started (`WP-17`), lab
+  design 67/67, RCT 10 done / 3 started, all PASS.
+- Worker: vantage-builder (Sonnet; the owner runs it at medium), relayed by the owner.
