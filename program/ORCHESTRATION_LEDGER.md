@@ -3510,3 +3510,71 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Live measurement, two runs of one stage in one step: does not block G3 (it is C2/G4). Brought to
   the owner when C2 starts; owner's leaning "one value per port per run", matching `D29 (4)`.
 - Next: the 09c (G3) prompt.
+
+### 2026-11-03 · VNT-WP-09c · prompt (gate G3)
+- Superproject `df1922d` (D29, WP-13 and -R1, vantage `e58340f`), both pushed under the standing yes.
+- Checks before writing: the lab on this machine holds all 25 exact cases with their setups;
+  `running_example` `base` `jump` is the only jump case (`jump_to_ms: 1500`); simulated stages per
+  case 1 to 5, so `SYT-THR-01` has 40 (case, N) pairs. `SYT-EQO-02.c2` already passes (no exact case
+  without a jump reports a first divergence), so `SYT-EQO-01` adds the jump case. The rows still
+  `[~]` whose closing tests are all written: `IMP-0006`, `0008`, `0053`, `0056` (selection, `ANL`),
+  and `IMP-0016`, `0019`, `0034`, `0035`, `0040` (closed by the gate).
+- Orchestrator choices in the prompt: `SYT-EQO-01` pairs by output `measurement_counter` (as
+  `IMP-0033`, `SYT-EQO-02`), a reproduced message with no recorded counterpart is a difference,
+  non-jump cases also need the recorded counters reproduced in order, the jump case needs a
+  compared message per stage after the jump; `SYT-THR-01` may share one `--threads 1` run per case.
+  **No engine change**: a failing case is reported to the owner, never fixed in the package.
+- No doc edits beyond boxes. Dry run of the final box state: `trace_check` PASS (127, 56), 13 of 13
+  packages.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09c · verdict
+- Worker report: `test_vnt_gate_g3.py` written, 65 of 66 pass (22 s); full suite 1553 passed /
+  1 failed / 62 skipped (175 s); `check_invariants` clean; no box flipped (step 13). The failure:
+  `SYT-EQO-01.c1` on `running_example/base/jump`, "a simulated stage with no compared message"
+  `{A: 148, B: 0, D: 0, E: 98}` — no output differed. After the jump every run of `B` (38) and `D`
+  (75) is badged `KIND_WARMING_UP`. `SYT-THR-01` 40/40 and `SYT-EQO-01.c2` pass. Deviation
+  accepted: an event-log-not-empty assertion of its own, removed (an exact case legitimately logs
+  nothing).
+- Orchestrator: read the file whole. The failing check is the orchestrator's own addition to the
+  prompt, not the spec: `B` and `D` have memory, so after a jump they stay warming up to the end
+  (`D28 (4)`, accepted in `SYT-STP-05.c1`), and `SYS-0042`'s Accept leaves badged outputs out.
+  Corrected check: every simulated stage has a compared message (before the jump counts) and some
+  stage one at or after it. Eight exact edits dry-run on a copy: `SYT-EQO-01` 26 passed (15 s);
+  the prompt's blocks reproduce that copy byte for byte.
+- Verdict: **rework** (`VNT-WP-09c-R1`, first rework). Nothing committed.
+
+### 2026-11-03 · VNT-WP-09c-R1 · prompt
+- G1–G8 to `test_vnt_gate_g3.py` (the jump case's check and docstring); the gate file, the full
+  suite, `check_invariants`, `trace_check`; then 09c's Part C boxes as fixed steps (10 rows, 5
+  packages, no closing test among the skips), expected 13 of 13 packages.
+- Amended before relay, after a second review (owner's prompt to review deeper): G9–G14 close three
+  ways the gate could pass while wrong — no completeness check in the jump case (a dropped run
+  passed); pairing by counter keeps the first recorded message, so a repeated counter is now a
+  difference (none repeats in the 25 exact cases, probed); `SYT-THR-01` never compared logging
+  times though `SYS-0039` says "every port of every step" (probed on three cases at N = 4, 5:
+  order, times and bytes equal). All fourteen dry-run on a copy: 66 passed (31 s); a dropped
+  `A.out` run after the jump and a dropped `E.out` run before it, planted, each reported.
+- Worker: vantage-mechanic (Sonnet, medium), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09c-R1 · verdict — **gate G3 green**
+- Worker report: G1–G14 applied (each anchor once, LF kept); `test_vnt_gate_g3.py` 66 passed
+  (24 s); full suite 1554 passed / 0 failed / 62 skipped (160 s); `check_invariants` clean (9 s);
+  `trace_check` PASS (127, 56), 8 → 13 of 13 packages; boxes `IMP-0006`, `0008`, `0016`, `0019`,
+  `0034`, `0035`, `0040`, `0043`, `0053`, `0056` and `WP-02`, `04`, `07`, `09`, `11`; no closing
+  test among the 62 skips. Ran the commands from WSL through `cmd.exe` (Windows Python) — accepted,
+  the same interpreters.
+- Orchestrator: the gate file equals the dry-run copy (content; the copy's CRs were the dry run's
+  own); the design doc equals the dry-run final box state; reran the gate file 66 passed (25 s);
+  `trace_check` PASS, 13 of 13. Diff-stat equal with and without `--ignore-cr-at-eol`.
+- Verdict: accept. **G3 green:** every exact lab case (25) equals the fake car, the jump case up
+  to the jump for stages with memory (`D28 (4)`) and after it for the others; `--threads N` equals
+  `--threads 1` on all 40 (case, N) pairs, logging times and event logs included. Commit and the
+  `c1` → `main` merge brought to the owner first (standing rule).
+
+### 2026-11-03 · OWNER · decision (G3 commit; the `c1` → `main` merge)
+- Commit approved: vantage `c1` `fa73488` (gate G3), pushed; superproject with this entry.
+- Merge approved: `git merge --no-ff c1` into vantage `main`, pushed normally, then the superproject
+  pointer with a ledger entry. `c1` stays on the remote, frozen; the next phase works on `c2`, cut
+  from `main`, under `c1`'s conditions (every commit builds vantage and passes its full unit suite;
+  pushed normally; its merge into `main` goes to the owner first).
