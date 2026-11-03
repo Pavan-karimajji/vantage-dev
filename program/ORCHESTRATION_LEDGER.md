@@ -3793,3 +3793,15 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - A1–A5 exact; B the step-report rule and `PROBE_FAIL_AT_CALL`, each with its test; C the five G4
   files (no skip), full suites; D the last boxes (`IMP-0071`/`74`/`83`/`98`/`120`/`121`, `WP-14`..`16`,
   `WP-18`). Worker: vantage-builder (Sonnet, medium), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-18-R1 · verdict
+- Worker report (truncated in relay): A–D done, "G4 green: yes". Orchestrator: docs at the expected
+  end state (vantage 17 done / 1 started, 122 / 1 / 1 rows, lab 67/67; RCT 10 / 3 / 0, both PASS);
+  reran the five G4 files: 167 passed, **1 failed** — `SYT-SUP-07.c1`, exit 8 with
+  `sealed_outcome=None`; that test and its neighbours alone failed 1 in 5 runs. Cause: the reader
+  and the supervisor start together, and a `crash` can be sealed (name removed) before the reader
+  maps it. The spec's `F-SUPERVISED` already says the run is held (`F-LM-HELD`) for the reader.
+- Verdict: **rework** (`VNT-WP-18-R2`). This is the package's second rework — the §6 escalation
+  point; the fix is test-harness only (a gate file released after the reader prints `attached`), so
+  the orchestrator proceeds under the owner's latitude and tells the owner. Nothing committed.
+- Worker: vantage-builder (Sonnet, medium), relayed by the owner.
