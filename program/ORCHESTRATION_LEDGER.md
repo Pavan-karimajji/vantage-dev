@@ -3767,3 +3767,29 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   criteria never. Boxes across the three sets, dry-run: vantage 17 done / 1 started (`WP-17`), lab
   design 67/67, RCT 10 done / 3 started, all PASS.
 - Worker: vantage-builder (Sonnet; the owner runs it at medium), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-18 · verdict
+- Worker report: tools, `LAB-53`, the five G4 files (≈168 tests) written; strict `checkRuns`;
+  `--follow` final skips; one C2 fix found by a case (an engine-made `control` held between runs,
+  origin `simulated`). gtest 478/478, pytest 1738 passed / **2 failed** / 62 skipped (none of the
+  skips in a G4 file), lab unit tests pass, `check_invariants` clean. **G4 not green:**
+  `SYT-LMW-12.c1` (a recording cut mid-message is read to its last whole message and passes, so no
+  `fail`) and `SYT-INS-09.c2` on `late_consumer` `all_simulated` (strict `checkRuns` flags steps where
+  `Q`'s recorded control arrives a step before its deferred run). Neither relaxed. Boxes ticked only
+  for passing rows: vantage 13 done / 5 started, lab 67/67, RCT 10 done / 3 started.
+- Orchestrator's calls (owner's latitude): (1) the live measurement showed the *recorded* control
+  arrival on `Q.control` — bytes the function never got (the run gets the engine's own control,
+  `D17 (1)`), against `R-SIM-26`; a simulated stage's `control`/`refSync`/outputs show only what its
+  runs wrote, held between runs; `checkRuns` stays strict. (2) `SYT-LMW-12`'s `fail` comes from a
+  component call error (`held_probe` `PROBE_FAIL_AT_CALL`); `SYS-0070`'s Accept, `SYT-LMW-12`'s Steps,
+  `IMP-0080`, `IMP-0088` amended. **For the clean-up package:** a recording cut mid-message passes
+  silently (read to its last whole message). Accepted as stated: Windows kill with exit 1 classifies
+  `fail` (tests use an access-violation status); a larger replacement geometry over a dead region a
+  reader still holds fails the open (same geometry reuses).
+- Verdict: **rework** (`VNT-WP-18-R1`, first rework). Nothing committed. Dry run of A1–A5 with the
+  final boxes: `trace_check` PASS, 17 done / 1 started (`WP-17`, waiting on `IMP-0112`).
+
+### 2026-11-03 · VNT-WP-18-R1 · prompt
+- A1–A5 exact; B the step-report rule and `PROBE_FAIL_AT_CALL`, each with its test; C the five G4
+  files (no skip), full suites; D the last boxes (`IMP-0071`/`74`/`83`/`98`/`120`/`121`, `WP-14`..`16`,
+  `WP-18`). Worker: vantage-builder (Sonnet, medium), relayed by the owner.
