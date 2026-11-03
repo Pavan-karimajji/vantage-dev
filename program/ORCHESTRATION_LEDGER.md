@@ -3402,3 +3402,25 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `--ignore-cr-at-eol` (vantage, lab, plan).
 - Verdict: accept. Committed vantage-lab `main` `7e1926e`, vantage `c1` `ccc7826`, superproject
   (`D28`, both pointers, ledger).
+
+### 2026-11-03 · VNT-WP-13 · prompt (producer keys and the `09b` known limits)
+- Housekeeping: `program/prompts/VNT-WP-08-R1.md` was identical to `HEAD` (stale index stat only);
+  staging it cleared the entry, nothing to commit. `program/status/2026-11-03_status.md` (the
+  owner's dated snapshot) committed with this entry after the reference grep.
+- Found while writing it: (1) no Python reader takes a bundle hash from the `config_bundle` block
+  (`derive_axis`, the evidence chain and `sim doctor` read `manifest` `components[]`), so with
+  `D29 (1)`'s "never in manifest" the determinism report would miss a bundle change — new row
+  `IMP-0068` makes the reader fill it from the block. (2) `RCT:SYT-REC-03.c3` is implemented as
+  two engine runs compared byte for byte, which a per-process `process_nonce` breaks; the
+  contract's steps hand the engine's writer the same input twice — new support tool `IMP-0069`.
+  (3) 15 skips are a stale echo-stub path (`build-gtest-vs2026` moved under `conan_workarea/`);
+  with the stub in place 7 fail on `09a` changes (`source_kind` stated, port-named topics).
+- Package `WP-13` (rows `IMP-0063`..`IMP-0070`), `D29` (the 2026-11-02 and 2026-11-03 owner
+  decisions, not yet in §2), `SYS-0055` keys, `SYS-0056` divergence in `manifest` (written at
+  close), `SYS-0057` both runs' overridden inputs; tests `SYT-RUN-12`, `SYT-ORC-13`, `SYT-EQO-06`
+  in a new file. `IMP-0067` (timeout ownership) serves `SYS-0040` as its sibling `IMP-0060` does.
+  Dry run PASS (127, 56); final state with every row `[x]` PASS, 8 of 13 packages.
+- Held back for the owner: two runs of one stage in one step in the live measurement. The
+  `MeasCycle` bytes allow it (`values` is repeated, keyed by port index), but `RCT:SYS-0024` and
+  the `MeasPortValue` design say one value per port per step — a contract wording change (`D14`).
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
