@@ -3424,3 +3424,89 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `MeasCycle` bytes allow it (`values` is repeated, keyed by port index), but `RCT:SYS-0024` and
   the `MeasPortValue` design say one value per port per step — a contract wording change (`D14`).
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-13 · verdict
+- Worker report (relayed; the worker ran at Sonnet medium, the agent file says high): Parts A–E
+  done but 4 tests failing. Producer keys and `divergence` in `manifest`, written once at close
+  (`IMP-0063`/`0064`, a self-contained SHA-256: the engine links no hash library); the refSync bound
+  (`IMP-0065`); both runs' overridden inputs (`IMP-0066`); the timed-out call's state shared with its
+  task, the library never unloaded or shut down (`IMP-0067`); the reader fills a bundle hash from
+  `config_bundle` (`IMP-0068`); `rewrite_recording` (`IMP-0069`); `test_vnt_producer_keys.py`
+  5/5 (`IMP-0070`). 15 skips re-enabled through one echo-stub path; corrected, named:
+  `test_c3_check.py` x2 (no `source_kind`), `test_d15b_cli_resim.py` (`sut.outputs`),
+  `Wp13Manifest` (entry now carries `library_sha256`), `SYT-REC-03.c3` rewritten per `IMP-0069`.
+  gtest 443/443 (42 s), `-t package` pass, Python 1484 passed / 4 failed / 62 skipped (139 s),
+  `check_invariants` clean, `trace_check` PASS (127, 56), 8 of 13 packages.
+- Orchestrator: docs equal to the prompt's Part A; read the whole `src`/`include` diff, the new and
+  corrected tests; diff-stat equal with and without `--ignore-cr-at-eol`. Reran the new and batch
+  files: 4 failed, 22 passed, 1 skipped (31 s); filtered gtests `IMP_006*`, `Wp13Manifest` 15/15.
+  - The 4 failures (`test_d7_batch.py` x2, `test_d7_batch_isolation.py` x2): echo pipelines with no
+    run setup, refused by `SYS-0048` — the owner approved the correction (R1).
+  - **Found in review:** `IMP-0065`'s bound reads the next control from the stage's `control` sample
+    buffer, which keeps `buffer_depth` samples; at depth 1 (or once `buffer_depth` later controls
+    arrived) the run's own control is evicted, `NextControlNs` returns nothing and the late refSync
+    matches — the owner's held-run case and `SYT-ORC-13`'s depth-1 setup. Both `IMP_0065` gtests use
+    depth 8. Fix in R1, never by deepening a buffer (`SYT-RUN-06`).
+  - Deviations: "at or before" (owner accepted, `D29 (3)` amended); output buffers in the shared
+    call state (owner accepted within `D29 (2)`; the row now names them); `SYT-ORC-13`'s
+    `F-REC-EDIT` pairing edit (owner: spec amended to name it).
+  - Noted, no action: with no timeout `Exec` still copies its inputs into the call state each call.
+- Verdict: **rework** (`VNT-WP-13-R1`, first rework). Nothing committed.
+
+### 2026-11-03 · OWNER · decision (the `VNT-WP-13` report)
+- (1) The 4 batch tests: give their echo pipelines a `run_setup` block, `trigger` and
+  `buffer_depth`, as `test_vnt_run_config.py` does; in the rework, nothing committed until the full
+  gate is green. (2) `IMP-0065` "at or before" accepted; `D29 (3)` amended: the match is by
+  `measurement_counter`, so a refSync logged at the next control's instant can only be this run's,
+  and strict "before" would drop it when two controls fall in one step. (3) `SYT-ORC-13` Steps and
+  the fixture catalogue name the `F-REC-EDIT` pairing edit; folded into R1 (exact doc edits, as in
+  every builder rework). (4) `IMP-0067`'s output buffers in the shared call state: accepted,
+  within `D29 (2)`.
+
+### 2026-11-03 · VNT-WP-13-R1 · prompt
+- Part A, 6 exact edits: `D29 (3)` "at or before" with the owner's reason; `IMP-0065` (at or
+  before, whatever the `control` port's `buffer_depth`); `IMP-0067` (output buffers); `F-REC-EDIT`
+  (an `F-RUN-CONFIG` recording, a logging time moved, a `manifest` key changed — what `SYT-RUN-12.c3`
+  and `SYT-ORC-13` already do); `SYT-ORC-13` fixture and Steps. Dry run on a copy of the working
+  tree: `trace_check` PASS (127, 56), 8 of 13 packages.
+- Part B: two depth-1 `IMP_0065` gtests first (late refSync → time rule, must fail on the current
+  code; one at the next control's instant → matched), then the fix; where the next control's
+  reception time is kept is the worker's choice, never a deeper buffer.
+- Part C: the batch pipelines' run setup (`unresolvable.yaml` too, so it fails for its library);
+  every non-`ok` outcome checked for its intended cause. Part D the full gate once.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-13-R1 · verdict
+- Worker report: Parts A–E done. E1–E6 applied once. `IMP-0065`: the runner keeps per stage the
+  recorded controls' counter and reception time (`Impl::control_arrivals`, appended where the
+  recorded instant enters the buffers in `StepOnce`, pruned before a dispatched run's own control in
+  `PrepareTicket`, cleared by `Seek`); `NextControlNs` reads it, not the sample buffer; buffers and
+  `PortBus` untouched. Two depth-1 gtests: (a) failed on the old `NextControlNs`, (b) passed; all
+  four `IMP_0065` pass. Batch pipelines given a run setup (`unresolvable.yaml` too); each non-`ok`
+  outcome read and its own cause (exit 139, timeout, missing file, missing library). gtest 445/445
+  (57 s), `-t sil`, `-t package` pass, Python 1488 passed / 0 failed / 62 skipped (150 s),
+  `check_invariants` clean (10 s), `trace_check` PASS (127, 56), 8 of 13 packages. No box changed.
+- Orchestrator: read the runner diff; `StepOnce` is the only place a recorded instant enters the
+  buffers (`TopUp` only queues), so the record cannot miss a control. Reran gtest `RunSelectInputs`,
+  `RunStep`, `MhComponent` 59/59; `test_vnt_producer_keys.py`, both batch files and
+  `test_vnt_orchestrator.py` 118 passed / 1 skipped (55 s); `trace_check` PASS; diff-stat equal with
+  and without `--ignore-cr-at-eol` (vantage, root).
+- Open questions, accepted as the worker recommends: a stage mixing recorded and clock-started runs
+  holds a few extra entries until its next recorded run (bounded); no runner-level depth-1 gtest
+  (`SYT-ORC-13` covers that path end to end at depth 1).
+- Verdict: accept. Commit proposed to the owner (vantage `c1`, then superproject).
+
+### 2026-11-03 · OWNER · decision (WP-13 commit; `control_arrivals`; two runs per step)
+- Commit approved as proposed. Reference-term grep clean (staged added lines, file names, message);
+  vantage `c1` `e58340f`, pushed under the standing C1 yes; superproject with this entry.
+- **`control_arrivals` (owner's check), answered: not bounded, and a scan.** A stage the recording
+  holds a `control` topic of is in `controls_recorded` whatever its trigger, so every recorded
+  control is appended; the list is trimmed only in `PrepareTicket`, when a dispatched run's counter
+  matches an entry. A clock-started run's counter is the engine's own tick count, so a match is
+  coincidence, not a bound: the list can grow for the whole recording. `NextControlNs` scans the
+  whole deque per refSync lookup. **For the clean-up package:** trim it by time too (nothing a
+  waiting run can still need), and find the run's own control without a full scan; a gtest with a
+  clock-triggered stage whose recording holds its controls shows the list stays small.
+- Live measurement, two runs of one stage in one step: does not block G3 (it is C2/G4). Brought to
+  the owner when C2 starts; owner's leaning "one value per port per run", matching `D29 (4)`.
+- Next: the 09c (G3) prompt.
