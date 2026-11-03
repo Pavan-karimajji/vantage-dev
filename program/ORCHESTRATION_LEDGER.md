@@ -3203,3 +3203,66 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - A failing case is reported, never weakened; an engine fix only inside an existing row's text.
   Boxes: `IMP-0044`/`0045`, and every `[~]` row whose closing tests now all pass goes `[x]`.
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09b-1 · verdict
+- Worker report: two test files, 93 of 97 cases pass; `SYT-RUN-06.c1`, `SYT-ORC-07.c3`,
+  `SYT-ORC-11.c1` fail, `SYT-ORC-02.c1` skips (`loop_no_edge` has no setup: the lab refuses the
+  topology by design). No engine change. Lab: 10 topologies generated, `loop_no_edge` refused
+  ("expects refusal at load; the car does not run it"). Python 1263 passed / 3 failed / 86
+  skipped; gtest 423/423; `check_invariants` clean; `trace_check` PASS. 16 `[~]` rows and `WP-12`
+  flipped to `[x]` — each one's "Closed by" names only passing tests (checked).
+- Orchestrator: reran both files (3 failed, 93 passed, 1 skipped, 12 s); read the four findings
+  against the engine:
+  - `RUN-06.c1`: `select_inputs.cpp` computes `eviction_miss` but parks a ticket on a simulated
+    producer whatever it is, so an evicted sample waits instead of giving `KIND_FALLBACK`.
+    `ARCH §6`'s table already decides it ("not in the recording, evicted, or never made" →
+    `KIND_FALLBACK`). 13 of `B`'s 74 runs are missing from the engine-run recording, not yet
+    explained: likely two runs of one stage in one step after a wait, with `WriteStep` keeping
+    one message per topic per step.
+  - `ORC-11.c1`: `stalled_trigger` names the producer port (`source.X`); `eviction_miss` and
+    `fallback_beyond_gap` name the stage's own (`input.port`); the accepted spec says `in_X`.
+    Code goes to the spec; the unit test pinning `source.in_x` is corrected.
+  - `ORC-07.c3`: the lab car logs a run's `refSync` after its `control` (jitter, `late_consumer`),
+    and the read-ahead equals the readiness limit (`ARCH` open question 11), so limit 0 hides every
+    `Q` refSync and the time rule runs: `SYS-0015`'s Accept cannot pass as the architecture stands.
+    A one-instant minimum (the worker's idea) does not cover an 8 ms jitter. **Escalated.**
+  - `ORC-02.c1`: `loop_no_edge` is `feedback` without `A`'s `previous_cycle` mark (same stages,
+    inputs, periods); the test makes that setup with `F-SETUP-EDIT` and points it at
+    `loop_no_edge`'s built libraries. Test-spec fixture note, no lab change, `SYS-0010` unchanged.
+- Two deviations rejected as weakened checks: `ORC-06.c1` checks only that a control follows the
+  previous run's outputs, not `SYS-0014`'s "each followed by its own outputs" — the engine writes
+  every `pro` topic before every `req` topic in a step (`cycle_loop.cpp` topic list), so a
+  control lands after its own outputs; `ORC-03.c1` accepts `/T/control` as well as `T.control`.
+  Accepted: `RUN-10` left in `test_vnt_run_config.py`; `engine_runs.py`; `ORC-08.c1`'s cut keeps
+  that run's own refSync (wording to the spec); `ORC-05.c1`'s library copy; `ORC-10.c1`'s paths.
+- Verdict: **rework** (`09b-1-R1`), after the owner answers `ORC-07.c3`. Nothing committed; the
+  working tree carries the files into R1.
+
+### 2026-11-03 · OWNER · decision (D27, the 09b-1 rework)
+- `SYT-ORC-07.c3`: option A, recorded as **`D27`** — the engine takes the recorded refSync whose
+  `measurement_counter` equals the run's control's, never the first one after the control (an
+  overrunning car run logs its refSync after the next control; position matching would hand run
+  k+1's record to run k unnoticed). The stage's next control is only where the search stops; not
+  found by then, the time rule with `KIND_FALLBACK`. A unit test plants the overrun. The readiness
+  limit only bounds waiting for a sample; `SYS-0015` unchanged.
+- The rework list accepted as written (both rejections, the three accepted deviations), one item
+  strengthened: the 13 missing runs of 74 are a defect to fix, not only explain (`R-SIM-6`), with
+  a test that each stage's runs equal its output messages in the recording.
+
+### 2026-11-03 · VNT-WP-09b-1-R1 · prompt
+- 21 doc edits, dry-run on a copy of the current working tree (09b-1's uncommitted boxes
+  included): `trace_check` PASS, 114 requirements, 52 tests, and PASS in the simulated final box
+  state (`WP-03` `[x]` 5/5, `WP-09` 2/9). `D27` in the plan; `ARCH` glossary, §6 step 1 and 4,
+  the outcome table and open question 11; `IMP-0026` (`D27`), `IMP-0050` (the stage's own trigger
+  port), `IMP-0044` (`SYT-RUN-10` is `IMP-0052`'s; `engine_runs.py` named), `IMP-0045`.
+- The owner's new test needed a requirement to serve (`R-REQ-4`), and `SYS-0012` had no room under
+  `C-WORDS`: new **`SYS-0053`** (`P0`) — every run's control and outputs recorded, none dropped
+  or overwritten; observed as consecutive `compState` `cycle_counter`s (the component's own count
+  of its runs) equal in number to its controls, in every exact case and in `RUN-06`'s depth-1 run;
+  verified by new case `SYT-ORC-04.c3`. New row **`IMP-0061`** (`WP-05`): `Runner::WriteStep`
+  writes per committed run, `control` first, then that run's outputs.
+- Orchestrator choice inside `D27`, flagged to the owner: a stage whose recording holds no
+  `control` topic stops the refSync search at the readiness limit (else the search is unbounded).
+- Test-spec fixes: `SYT-ORC-02` builds `loop_no_edge`'s setup from `feedback`'s (same stages,
+  inputs, periods) pointed at `loop_no_edge`'s libraries; `SYT-ORC-08` keeps that run's own refSync.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
