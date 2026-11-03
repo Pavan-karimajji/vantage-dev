@@ -3690,3 +3690,51 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - `c2` cut from vantage `main` at `5b411ea`, pushed, checked out; C2 works on it under `c1`'s
   conditions (every commit builds vantage and passes its full unit suite; its merge into `main`
   goes to the owner first).
+
+### 2026-11-03 · VNT-WP-14-15 · prompt (first C2 build package, vantage `c2`)
+- Two packages in one prompt (owner: wider build packages): `WP-14` the writer library `livemeas`
+  (C API, `SharedRegion`, encoder, bulk, oversize, close, `sealAbandoned`; lands `RCT:IMP-0034`..`0037`)
+  and `WP-15` the engine writes it (description, per-run step values `D30`, writer sink chained with
+  the step tap, open/close outcomes, transport publisher retired, `SIMCORE_ABI_VERSION` 5,
+  `held_probe`, `check_single_carrier.py`).
+- Orchestrator's calls in the prompt: E1 `IMP-0087` also names `test_it_trn05_crash.cpp` and
+  `It11EmbedHost.AttachTransport…` (both on the retired carrier, missed by 8b); E2 `IMP-0089`
+  corrected — `simEngineCreate` is in `simcore` and calls `liveMeasOpen`, so `simcore` links
+  `livemeas` and only the reverse is forbidden (`ARCH §10.2`). Decided for the worker: result codes,
+  oversize order (in order, omit what does not fit, drop the step only if nothing fits; heartbeat on
+  every call), Windows reuse of a dead writer's region still held by a reader, the close outcome at
+  `simEngineRun`/`simEngineDestroy`, `Runner::LiveMeasurement()` and `SetNext` for the tap.
+  Boxes: six rows closed by `ANL-04` to `[x]`, thirteen `[~]` "Closed by `WP-18`." (the short form
+  keeps `IMP-0071` under the word cap); dry-run `trace_check` PASS (229/102), 13 done / 2 started.
+- Worker: vantage-builder (Sonnet; the owner runs it at medium), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-14-15 · verdict
+- Worker report: A–F done. `livemeas` library (C API, `SharedRegion` POSIX/Windows, encoder, bulk,
+  oversize, close, `sealAbandoned` returning `SealResult`), description builder, per-run step values,
+  writer sink chained with the step tap, open/close outcomes, transport deleted (24 gtests: 23 in
+  four files and `It11EmbedHost.AttachTransport…`), ABI 5, `held_probe`, `check_single_carrier.py`.
+  gtest 445 → 442 (−24, +21), pytest 1560 passed / 62 skipped, `check_invariants` clean, `trace_check`
+  PASS, 13 done / 2 started. Deviations accepted: `-t package` only exports (vantage editable here) —
+  install tree and a consumer resolving `AdasVantage::livemeas` checked instead; geometry not a
+  multiple of 8 refused; the description also lists wired `source.<port>`s; WSL driving `cmd.exe`.
+- Orchestrator: read `writer.cpp`, `seal.cpp`, `shared_region_windows.cpp`, the engine and
+  `cycle_loop.cpp` diffs, `engine_sink.cpp`, `build.yml`; reran gtest `*LiveMeas*:It11*` 28/28, 442
+  listed, the ANL-04 and run-config pytests 15 passed, `check_single_carrier` clean, `trace_check`
+  PASS. Two findings carried into the next package, not a rework: `HeldByLiveWriter` ignores
+  `status` finished (on Windows a reader of a closed run blocks a second run by the same live
+  process); the step report rescans stages and recorded topics each step for bulk and overridden.
+- Open questions: (1) `checkPorts` vs `SYS-0062` — resolved by amending `SYS-0080`/`IMP-0095` to
+  "every step after that port's first value" (a port never given a value gives no finding);
+  (2) inspector sizes from `MeasStatus`, never the mapping. Both in `VNT-WP-16-17`.
+- Verdict: accept. Committed under the owner's latitude: vantage `c2` `1c2a623`, pushed.
+
+### 2026-11-03 · VNT-WP-16-17 · prompt
+- `WP-16` inspector and `WP-17` supervisor in one prompt; Part B the two review fixes; A1–A3 doc
+  edits (`SYS-0080`, `IMP-0095`, `IMP-0109` two words shorter), dry-run with the final boxes:
+  `trace_check` PASS (229/102), 13 done / 4 started / 1 open.
+- **Scope call:** `IMP-0112` (`bridge.py`) and dropping `--config`/`--timeout-ms` move to 8c — all
+  seven Python callers of `run_engine` pass `config_path`/`exec_timeout_ms`, and the Python run
+  path's fate is 8c's. `simengine` keeps both options meanwhile (a known gap against `SYS-0001`);
+  `IMP-0103` `[~]` closed by `IMP-0112`; `WP-17` closes with it. `--supervise` alone starts
+  supervision; either supervisor option without it exits 2.
+- Worker: vantage-builder (Sonnet; the owner runs it at medium), relayed by the owner.
