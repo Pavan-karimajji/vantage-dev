@@ -3380,3 +3380,25 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   case passing (15 rows, `WP-05`, `WP-06` by rollup) PASS. Lab: two `expect` lines, one lab test
   corrected. First rework of 09b-2.
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09b-2-R1 · verdict
+- Worker report: Parts A–F done. 22 doc edits; lab `expect: diverges` on both drills (no lab
+  output carries `expect`, nothing regenerated), `test_lab52_…` corrected. `NextRunnable` judges
+  warming up by `RecordedRestart` (clock: never fresh; control: the replayed payload's `op_mode`;
+  trigger sample: the stage's buffered `control` of the same counter, else the read-ahead through
+  a new `OrchestratorOptions::ahead_control_restart` the runner sets). Seven `IMP-0062` gtests;
+  the old-rule `OrcJump` test replaced; two `test_run_step.cpp` fixtures now start with a RESTART
+  control as the lab car does. 15 rows and `WP-05`, `WP-06` flipped.
+- Accepted deviations: E1 and E19 first landed mid-line and were repaired (the docs equal the
+  dry run's final state byte for byte, ignoring my copy's CRs); the read-ahead hook is plumbing
+  inside `IMP-0062`'s "arrived or read ahead", not a new decision; `IMP-0041` was in the flip list
+  rightly (it names `STP-01`, `STP-04`).
+- Orchestrator: read the orchestrator diff and the corrected fixtures (the warming-up test still
+  jumps onto a RUN control, so it can fail). Reran gtest 439/439, 2 skipped as before (40 s);
+  Python 1457 passed / 85 skipped (88 s); lab 278 passed / 18 skipped (15 s);
+  `check_invariants` clean (11 s); `trace_check` PASS (116, 53), 7 of 12 packages done.
+  `SYT-EQO-05` indexes steps by the engine-run recording's instants; checked equal to the tap's
+  step times on both drills (475, 468). Reference-term grep clean; diff-stat equal with and without
+  `--ignore-cr-at-eol` (vantage, lab, plan).
+- Verdict: accept. Committed vantage-lab `main` `7e1926e`, vantage `c1` `ccc7826`, superproject
+  (`D28`, both pointers, ledger).
