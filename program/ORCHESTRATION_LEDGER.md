@@ -3592,3 +3592,101 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   supervisor, which is C2 (part 8b, gate G4); G3's exact cases leave `hang`/`crash` out for that
   reason (`F-CAT`). It closes in C2, once the supervisor lands, before G4. The 2026-11-03 status
   snapshot's "closes with C1" is wrong — C2.
+
+### 2026-11-03 · 8b · prompt (C2 requirements; held for the owner's `D30` answer)
+- Step check after the merge: vantage `origin/main` `959ca11` = superproject pointer (`53900b9`);
+  `c1` `fa73488` frozen; both trees clean.
+- One wide planner package: Part A the contract amendment `D30` (two runs of one stage in one step
+  → one value per port per run in a `MeasCycle`, layout and schema unchanged; `RCT:SYS-0024`, the
+  `MeasCycle.values` text, `RCT_Architecture` §6's row, `SYT-LMS-02.c2`) and RCT `WP-09`/`WP-10`
+  "Blocked on" → "Lands with `VNT:WP-nn`"; Part B the VNT areas `LMW`, `INS`, `SUP`, packages
+  `WP-14`.., the G4 test group (seven `ARCH §10.3` drills, supervised `hang`/`crash`, `LAB-53`),
+  register Targets, budget entry if over. Open for recommendation: the four `simengine` options,
+  `ARCH §14` 5/6/8, the attempt manifest and reproducer, missing drills, the lab's leftover
+  contract rows (`RCT:IMP-0023`; `RCT:WP-08`, where no test cites `SYT-CTL-06`).
+- Docs land on vantage `main` and interfaces `vantage`, as 8a did; `c2` is cut after 8b freezes.
+- Worker: vantage-planner (Opus, high), relayed by the owner, after the `D30` answer.
+
+### 2026-11-03 · OWNER · decision (the 8b report)
+- (1) `simengine` keeps `--restart-on-crash` and `--attempt-timeout-ms`, drops `--config` and
+  `--timeout-ms`; the frozen `SYS-0001` and the register's `main.cpp` row amended to name them.
+  (2) A supervised start with no deadline is refused (`SYS-0090`); no 24 h default. (3) `IMP-0109`'s
+  file write per component call is against `R-SIM-19`: no file I/O per call, e.g. the stage in the
+  live measurement; a layout field comes to the owner first (`D14`). (4) `holdForSeal`: checked
+  against `ARCH §9`/`§10.1`; a new public name comes to the owner. (5) Q5, Q6 (margin and sizes `⊘`
+  until measured), Q8, `<run_setup>.attempts.jsonl`, `reproducers/`: as recommended.
+  (6) `stages[].isolated`: yes in principle; a run-setup schema version change to the owner first.
+  (7) `RCT:IMP-0023`, `RCT:WP-08` and the unplaced register rows: clean-up package and 8c; the RCT
+  design preamble line fixed in this package. (8) IMP 123/120 accepted with its budget entry.
+
+### 2026-11-03 · 8b · verdict
+- Worker report (vantage-planner): Part A `D30` done (the row; `RCT:SYS-0024`, the `MeasCycle.values`
+  text, RCT ARCH §6's row, `SYT-LMS-02.c2` with `F-LM-TWICE`; RCT `WP-09`/`WP-10` "Lands with
+  `VNT:WP-14`/`WP-16`"). Part B: 48 SYS (`LMW`, `INS`, `SUP`), 53 IMP in `WP-14`..`WP-18`, 46 SYT and
+  3 ANL, the G4 group §1a, 26 register Targets, a budget entry. `trace_check` PASS (228/102; 96/42),
+  register check 0 findings.
+- Orchestrator: read every new row against `ARCH §3.7`, §9, §10, §11, §14 and the RCT live
+  measurement rows, and the supervisor code it extends (`main.cpp`, `isolate.cpp`, `checkpoint.cpp`);
+  reran the three checks (same). Part A correct as written. Findings: (a) `IMP-0109` writes
+  `progress.json` per component call; (b) `IMP-0075` puts `SealHold`/`holdForSeal` in
+  `livemeas_seal.hpp`, which `ARCH §10.1` declares with `sealAbandoned` only, and `IMP-0076`'s "uses
+  the `SealHold` of that name" implies a hidden registry; (c) `F-LM-HELD` puts the exec probe *in
+  place of* the first stage: every output downstream changes and `check` meets a stage with no
+  `control`/`refSync`/`compState`, so `SYT-INS-06.c1` and `SYT-INS-09.c2` could never pass;
+  (d) `SYS-0083`/`IMP-0098` compare every value with the recording, `ARCH §10.3` measured values
+  only; (e) `SYT-SUP-08` copies "just before the worker's end" of a crash, a moment no test can hold;
+  (f) `IMP-0088`'s `GATE_FILE` breaks the probe's `PROBE_*` keys; (g) `IMP-0108` still
+  `manifest.json`, `IMP-0112` no source for the deadline, `SIM:SYS-0188`'s register text "from the
+  worker's checkpoint".
+- Owner's (3): the stage in the live measurement needs a `MeasStatus` field (`D14`), a fourth writer
+  call (`ARCH §10.1` has three), and says nothing for a setup without `outputs.livemeas`
+  (`SYS-0098`). Proposed instead: the *supervision cell* (`D31 (3)`), one memory store per call, no
+  file, no contract change; `IMP-0124` the runner's side. Owner's (4): no new public name — the
+  supervisor keeps the mapping through the package's `SharedRegion` (`HoldLiveMeas`, `WP-17`,
+  `D31 (4)`). Owner's (6): no schema version change (an optional key, the loader strict), but the key
+  needs a per-call child host and an asking engine that writes `crash` itself, which `ARCH §9`'s
+  table gives only to the seal: brought to the owner.
+- Verdict: **rework** (`8b-R1`, first rework). Nothing committed.
+
+### 2026-11-03 · 8b-R1 · prompt
+- 28 exact edits: E1 `D31`; E2–E3 the RCT `WP-08` line and preamble; E4 `SYS-0001`; E5/E11 measured
+  ports only; E6/E22 the seal drill on a held worker the test kills; E7 `SYS-0100` each stage in a
+  call; E8–E9, E19 `HoldLiveMeas`, the seal removes the name; E10/E21 `held_probe` added beside the
+  case, read by nobody; E12–E18, E20, E24 the supervision cell, `attempts.jsonl`, the reproducer,
+  the bridge's required deadline; E23 the register's `main.cpp` row; E25–E28 the budget entry.
+- Dry run on a copy of the working tree: `trace_check` PASS (229/102; 96/42), 13 of 18 packages,
+  124 design rows, `VANTAGE_DEV_PLAN.md` all CRLF.
+- Held for the owner: `D31 (3)` and `(4)` are the orchestrator's proposals; the isolated stage.
+- Worker: vantage-mechanic (Sonnet, medium), relayed by the owner.
+
+### 2026-11-03 · OWNER · decision (`D31 (3)`, `(4)`; the isolated stage)
+- `D31 (3)` and `(4)` confirmed as proposed (the supervision cell, one byte per stage, so threads
+  are covered; `HoldLiveMeas` in `simengine`, `livemeas_seal.hpp` unchanged). Isolated stage: (a),
+  deferred to 8c; `SYS-0102` tests the real `RunIsolatedStage`.
+- Owner's check, `progress.json` readers: none in the supervised C++ path after 8b-R1 (`main.cpp`'s
+  supervisor, attempt record and reproducer read the cell only; `Checkpoint::Read` is called only by
+  unit tests). The legacy Python batch path still reads it: `orchestrate/batch.py::read_checkpoint_tick`
+  (`run_manifest.json`'s `last_completed_cycle`), `orchestrate/worker.py` (its own result) and
+  `orchestrate/reopen.py` through it; `progress.py` only names it; `engine/bridge.py` still passes
+  `checkpoint_path`, so a setup with `checkpoint.path` writes the file once per step. **For the
+  clean-up package:** retire those readers with the Python run path, or move them to the cell.
+  8b-R1 relayed as is.
+
+### 2026-11-03 · 8b-R1 · verdict — **8b frozen**
+- Worker report: E1–E28 applied, each anchor once; `trace_check` PASS (229/102; 96/42), 13 of 18
+  packages, 124 design rows, SYS 105/120, IMP 124/120; register check 0 findings;
+  `VANTAGE_DEV_PLAN.md` 242/242 CRLF; diff-stat equal with and without `--ignore-cr-at-eol`. No box
+  changed. Deviation accepted: run under WSL with `python3.12` (same scripts, same results).
+- Orchestrator: all seven edited files are byte-identical to the dry-run copy; reran both
+  `trace_check` (PASS) and the register check (0 findings); reference-term grep over every added line
+  and both prompts clean.
+- Verdict: accept. Commit proposed to the owner: interfaces `vantage`, vantage `main`, then the
+  superproject; then `c2` cut from vantage `main` and the first C2 build package.
+
+### 2026-11-03 · OWNER · decision (latitude; 8b commit; `c2`)
+- Owner: decide what is not really important without asking, and go on to the next prompt.
+- 8b committed and pushed (pre-push hook clean): interfaces `vantage` `6a3cbf5`, vantage `main`
+  `5b411ea`; superproject with this entry. `check_invariants` clean (9 s).
+- `c2` cut from vantage `main` at `5b411ea`, pushed, checked out; C2 works on it under `c1`'s
+  conditions (every commit builds vantage and passes its full unit suite; its merge into `main`
+  goes to the owner first).
