@@ -3319,3 +3319,64 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Dry run of both doc edits: `trace_check` PASS (114, 52); final state with every case passing
   (22 rows, `WP-01`/`05`/`06` by rollup) PASS.
 - Worker: vantage-builder (Sonnet, high), relayed by the owner.
+
+### 2026-11-03 · VNT-WP-09b-2 · verdict
+- Worker report: Parts A, B, D done; Part C written, 170 cases, 161 pass, 9 fail, 0 skip, left
+  failing as findings. Pairing by `measurement_counter` in `Runner::FinishTicket`;
+  `RecordedReference::AtTime` removed (no caller); four `IMP-0033` gtests; gtest 432/432 (47 s),
+  Python 1456 passed / 9 failed / 85 skipped (93 s). Old tests of by-instant pairing corrected and
+  named; `UtRun05`..`07` moved from `test_ut_run_core.cpp` to `test_run_step.cpp` on the echo
+  stage (a header-less stub output is never compared now).
+- Orchestrator: read the whole `src`/`include` diff (minimal; the output's own counter, then the
+  read-ahead); diff-stat equal with and without `--ignore-cr-at-eol`; headers on the new files.
+  Reran the three new files: the same 9 failures (29 s). Each is the spec, not the engine:
+  - `SEL-01.c1`, `EQO-02.c2` on `missing_sample`, `missing_run`: the drills default to
+    `expect: exact`, but the car used samples the recording lacks, so the data outputs differ
+    (`first_divergence` on `B.out` step 77, `E.out` step 117). `EQO-01` (G3) would fail too.
+  - `STP-01.c1`/`.c2`, `EQO-04.c1`: the engine drops instants carrying only reference messages
+    (`Runner::TopUp`), as `ARCH §7` says ("any event processed"); `SYS-0032`'s Accept counts every
+    reception time (949 against 478 steps).
+  - `STP-05.c2`: the engine applies the `ARCH §6` row literally (first run not at the
+    recording's first reception time); on `cut_c` every stage's first control comes later, so the
+    row contradicts `D17 (4)` and `SYS-0036`.
+  - `SEL-10.c1`: the car's `renumber` writes `T`'s run count, which never goes back, so it is a
+    `SYS-0001` break (event log, `SYT-ORC-05`), never identity broken as `D17 (3)` defines it.
+- Deviations accepted: `SEL-08.c1` (a run naming a removed sample), `STP-05.c1` (stages with
+  memory badged to the end), `SEL-09` limit 0 as its own test.
+- Verdict: escalate (§7: the exact-case set behind G3, and two `SYS` Accepts). Nothing committed;
+  the worktree stays as the worker left it for the rework.
+
+### 2026-11-03 · OWNER · decision (the 09b-2 findings) → `D28`
+- (1) `missing_sample`, `missing_run`: `expect: diverges`; the expectation says where — the first
+  divergence not before the first run that lost an input, which carries its badge; check
+  `B.out`@77 and `E.out`@117 line up with the drops. (2) Amend `SYS-0032`, `SYT-STP-01`,
+  `SYT-EQO-04` with a closed list of step-starting messages from the engine's code; say whether a
+  recorded refSync's arrival is a step. (3) Plant the counter going back in a copy of
+  `running_example` `base`; re-describe `renumber` as what it proves (`SYT-ORC-05`); assert the
+  badge on `source.X` and no second identity badge downstream. Warm-up: the rule is "was the
+  car's copy fresh at this point", badged where the recording cannot say (clock-started runs);
+  square it with `D17 (4)`, unit test for the clock-started case. `SYT-SEL-08` reworded only if
+  its steps still test the Accept as written.
+
+### 2026-11-03 · VNT-WP-09b-2-R1 · prompt
+- Checks before writing: `missing_sample`'s divergence (`B.out`, step 77, 500 ms) is the step of
+  `B`'s run 12, the first naming a dropped `Y`, badged `KIND_FALLBACK` on `B.in_Y`;
+  `missing_run`'s (`E.out`, step 117) is `E`'s run 25, `KIND_FALLBACK` on `E.in_Y` — both line
+  up. Planted `source.X` −5 from its 100th sample: `KIND_IDENTITY_BROKEN` `{source.X: 1}` at the
+  1000 ms step, nothing else. Step-starting list read from `Runner::Construct`/`TopUp`: a source
+  port some stage reads, a `measured` stage's `pro` ports, a `simulate` stage's `control`;
+  refSync looked up, never waited for → not a step.
+- The `SYT-SEL-08` condition does not hold as written: `E`'s run 5 (150 ms) is handed `Y` 6,
+  logged at 151.51 ms, correctly — so "every run before the first remaining one" fails by time.
+  The prompt amends `SYS-0027`'s Accept to "every run whose recorded entry names a removed
+  sample" (`D28 (5)`), flagged to the owner before pasting.
+- The drill expectation needs an obligation of its own (`SYS-0043` is at the 60-word cap):
+  new `SYS-0054` (`P1`), verified by new `SYT-EQO-05`, landed by `IMP-0033`, `IMP-0048`. New row
+  `IMP-0062` (`WP-04`): warming up judged by the car's recorded control (`D28 (4)`); the
+  trigger-sample case looks up the stage's recorded control of the same counter.
+- 22 doc edits (`D28`; `ARCH` §6 row, §7 step list, *Jump*; `SYS-0027`, `0029`, `0032`, `0054`,
+  priority split; Test Spec `SEL-08`, `SEL-10`, `STP-01`, `EQO-04`, `EQO-05`; Lab Design three
+  drill rows; `IMP-0021`, `0033`, `0048`, `0062`). Dry run PASS (116, 53); final state with every
+  case passing (15 rows, `WP-05`, `WP-06` by rollup) PASS. Lab: two `expect` lines, one lab test
+  corrected. First rework of 09b-2.
+- Worker: vantage-builder (Sonnet, high), relayed by the owner.
