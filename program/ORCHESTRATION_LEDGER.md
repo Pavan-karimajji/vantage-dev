@@ -3846,3 +3846,12 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   resim of a cut recording needs an explicit opt-in later if ever wanted.
 - Verdict: **rework** (`VNT-CLEAN-1-R1`). Nothing committed. The `c2` → `main` merge at G4 is still
   with the owner.
+
+### 2026-11-04 · VNT-CLEAN-1-R1 · prompt (widened)
+- Owner: tests take too long; cut the time without compromising them. Measured: 1772 Python tests in
+  352 s natively (1713 s from WSL), a tail of 1–3 s engine runs, nothing slow alone but
+  `RCT:SYT-LMS-03`'s contract 60 s; 24 cores, all suites single-process. Added Part B:
+  `scripts/run_tests.py` (no new package: node ids dealt to N pytest processes longest-first, gtest
+  by shards), per-worker isolation (live measurement names `_w<n>` where helpers copy a setup, temp
+  paths), a reported serial tail instead of any skip, and proof — equal counts to serial, three
+  parallel runs green. Workers told to run natively, not from WSL.
