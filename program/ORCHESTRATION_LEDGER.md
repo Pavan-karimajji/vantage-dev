@@ -3902,3 +3902,36 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Open: (1) ≈8 s collection and start — left. (2) **Two `adas_recording` builds are a hazard beyond
   tests**: the lab's `index.json` should name the engine-linked folder. Carried to the first 8c build
   prompt as a lab item (vantage-lab `setup_writer`/index), with a check that one build is in use.
+
+### 2026-11-04 · 8c · verdict
+- Worker report: 94 SYS (`SYS-0106`..`0199`; areas `LCH`, `WIN`, `SCN`, `BAT`, `CFG`, `DIA`, `DLV`,
+  `DET`, `PYR`) and a safety-evidence paragraph; 98 IMP (`IMP-0125`..`0222`) in `WP-19`..`WP-28`
+  (`WP-20` lands `IMP-0112`; `WP-28` one `DROP` row per retired path); 9 fixtures, 47 SYT,
+  `ANL-07`..`13`; 290 register lines (409 rows) re-pointed; budget entry (SYS 199, IMP 222).
+  `trace_check` PASS 421/156; register 0 findings, `--require-placed` 277 findings = the unplaced
+  lines exactly (360 rows: viewer 15, contract 8, obsolete 22, waiting on an answer 7, recording I/O
+  43, preparation tools 41, component host/ABI/manifest 87, ingest 22, extension/versioning/docs 17,
+  scope and principles 40, engine properties no ARCH part states 58).
+- Orchestrator: `trace_check` and the register check rerun (same); diffs read — no C1/C2 row changed
+  (only the preambles, area list, counts and section numbers), register lines changed Targets only;
+  spot-read `LCH`/`DET`/`PYR` rows and the package order. Verdict: **accept**; committed and pushed
+  under the owner's latitude: vantage `c2` `7e2d12d`.
+- **Orchestrator's answers (D32 when written into §2):** (2) the setup carries each stage's resolved
+  bundle folder, a hash mismatch refused — an additive key, no schema version change; (3)
+  `divergence_grace_steps`, a run-setup key, value `⊘`, additive; (4) yes, the first divergence names
+  the first differing field; (5) fault windows in steps; (6) the supervised deadline is a required
+  key of the batch configuration and a required launcher argument, never a default; (7) **changed
+  from the recommendation:** the Python batch stops reading `progress.json` (attempt record and the
+  cell), but the C++ `Checkpoint` and `checkpoint.path` **stay** as an optional, off-by-default
+  developer aid — removing a setup key would change the schema version, which comes to the owner
+  first; (8) no gate before migration; (9) `simengine --plan-only` accepted (`SYS-0001` amended),
+  landed with `WP-25`. These go into the docs with 8c-R1 (planner), after the owner's register
+  answer; none blocks `WP-19`..`WP-22`.
+- To the owner: the 300-odd unplaced carried rows (one decision, options and a recommendation).
+
+### 2026-11-04 · VNT-WP-19-22 · prompt
+- First 8c build session: `WP-19` scenario script, `WP-20` one engine start (lands `IMP-0112`, drops
+  `--config`/`--timeout-ms`, closes `WP-17`), `WP-21` launcher, `WP-22` window; Part E the lab's stale
+  `adas_recording` (rebuild against the current `adas-interfaces`, a test that both folders hold the
+  same writer). Fix-yourself vs stop rule stated. Box dry run: 22 done / 0 started / 6 open of 28.
+- Worker: vantage-builder (Sonnet, medium), relayed by the owner.
