@@ -3867,3 +3867,17 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
 - Verdict: accept. Committed under the owner's latitude: interfaces `vantage` `9e24dbc` (RCT 13 of 13),
   vantage `c2` `556ea45` (CLEAN-1 + R1 Part A). The G4 merge, when approved, takes `9e9234b`. Part B
   (the parallel runner) is the same prompt run again: it finds Part A done.
+
+### 2026-11-04 · VNT-TEST-1 · verdict
+- Worker report (truncated in relay): `scripts/run_tests.py` (pytest node ids dealt longest first from
+  a git-ignored `conan_workarea/test_durations.json`, one pytest process per worker with its own
+  `--basetemp`, `--junitxml`, `TMP`/`TEMP` and `VANTAGE_TEST_WORKER`; gtest as shards; exit 1 on any
+  failure or a collected/run mismatch); `lab_cases.py`'s `LabCase.setup` reads with `_w<n>` on the
+  live measurement name and the output in the worker's temp; one `adas_recording` per process.
+- Orchestrator: ran it — Python **1772 passed / 62 skipped, collected 1834 = run 1834, wall 66.5 s**
+  (16 workers; serial 349 s); gtest **482 passed / 2 skipped of 484, wall 2.1 s**. Read the diff.
+  **Known limit:** the worker's setup is the lab's path read differently (`read_text`), so a test that
+  hands `case.setup` straight to the engine without `edit_setup` would run under the lab's name and
+  could collide in parallel; every test today goes through a written copy. Future prompts say so.
+- Verdict: accept. Committed under the owner's latitude: vantage `c2`. Every later prompt's full gate
+  runs through the runner, natively.
