@@ -3893,3 +3893,12 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   source, `progress.json`/`Checkpoint`, a pre-migration gate, the leftover groups.
 - Facts: 105 SYS / 124 IMP / 102 tests; 501 bare-`VNT` carried rows.
 - Worker: vantage-planner (Opus, high), relayed by the owner.
+
+### 2026-11-04 · VNT-TEST-1 · full report (relayed after the verdict)
+- Adds to the verdict: 8 runner runs in a row green (64–67 s each), serial tail empty; two first-run
+  failures were the package's own (a setup copy breaking sibling-file reads; order dependence on two
+  builds of `adas_recording` — the engine-linked one and the lab index's older one without
+  `config_bundle`, whichever a process imported first). Wall time bounded by `RCT:SYT-LMS-03`'s 60 s.
+- Open: (1) ≈8 s collection and start — left. (2) **Two `adas_recording` builds are a hazard beyond
+  tests**: the lab's `index.json` should name the engine-linked folder. Carried to the first 8c build
+  prompt as a lab item (vantage-lab `setup_writer`/index), with a check that one build is in use.
