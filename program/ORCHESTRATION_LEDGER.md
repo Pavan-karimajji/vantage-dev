@@ -3935,3 +3935,38 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   `adas_recording` (rebuild against the current `adas-interfaces`, a test that both folders hold the
   same writer). Fix-yourself vs stop rule stated. Box dry run: 22 done / 0 started / 6 open of 28.
 - Worker: vantage-builder (Sonnet, medium), relayed by the owner.
+
+### 2026-11-04 · VNT-WP-19-22 · report
+- Worker: all of A..F done. `WP-19` scenario script (`scenario/`, `sim record`; `cli/record.py`
+  deleted); `WP-20` one engine start (`run_engine` supervised with a required deadline via
+  `launcher/command.py::command_line`, callers moved, `simengine` loses `--config`/`--timeout-ms`
+  incl. `BuildChildArgs`, `ANL-07`); `WP-21` launcher (`write_run_setup`, `launch`, dry run,
+  `warn_orphans`, `exit_code_meaning`); `WP-22` window (`tkinter` only, `ANL-08`); Part E lab rebuilt,
+  `lock:` refresh `adas-interfaces/1.1.0 3b632cf9 -> fd5a546d`, `test_vnt_one_recording_writer.py`
+  passes. Corrected tests named (`test_wp17_supervisor.cpp`, `test_vnt_supervisor.py` SYT-SUP-03
+  no-start now a one-process Windows job, `test_d3_run_manifest_cli.py`, `test_a1_package.py`,
+  `test_si15_orchestrate.py`, `test_lnc_launch.py`). Python 1819/62 skipped of 1881, gtest 482/2.
+- Deviations accepted: `graph/pipeline.py` (`IMP-0162`'s file) — `control` never wired, a
+  previous-cycle input closes no zero-delay loop (without them no lab library loads); `--config` stays
+  on `sim resim`/`check`, staging the bundle beside a copy of each library (`_stage_bundles`, replaced
+  by the `D32 (2)` key in `WP-23`); `sources[]` takes every added recording (`SYS-0126` Accept);
+  `IMP-0145`/`0146` needed no code; window tests in the serial tail (tkinter under load).
+- Gap → 8c-R1: the Python declaration-order check refuses `feedback` (B before the A it reads
+  previous-cycle), so `SYT-LCH-06` left it out (`_LAUNCHABLE`).
+- Orchestrator: diffs read (bridge, command, main.cpp, pipeline, write, supervisor test, scenario
+  writer); docs diff boxes only; `trace_check` PASS 421/156, packages 22/0/6 of 28, rows 155/0/67;
+  the four new checks clean, three `--selftest` PASS (`check_no_graphical_toolkit` has none,
+  pre-existing). Parallel gate rerun: Python 1819 passed / 62 skipped, run 1881, 67 s; gtest 482/2,
+  1.9 s — the worker's early flakes did not recur. Noted, not blocking: `write.py::_verdict` ignores
+  its `findings` (a waiver with nothing blocking still reads `waived:`); `model.py` `recordings`
+  docstring still says "candidates, one drives"; SYT-SUP-03's POSIX fallback not run and its comment
+  says "the current count" where the code sets 1. Verdict: **accept**; committed and pushed under the
+  owner's latitude: vantage `c2` `7254f0f`.
+
+### 2026-11-04 · 8c-R1 · prompt
+- Planner: `D32` (the orchestrator's 8c answers) into DEV_PLAN §2 and §21; rows for (2) the bundle
+  folder key (replaces `_stage_bundles`), (3) `divergence_grace_steps`, (9) `--plan-only` (amends
+  `SYS-0001`), (7) `Checkpoint` kept; the `feedback` declaration-order gap into `WP-23`; the
+  register's five mechanical groups (viewer, contract, obsolete, waiting, scope). The six other
+  groups wait on the owner.
+- Worker: vantage-planner (Opus), relayed by the owner.
