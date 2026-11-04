@@ -3881,3 +3881,15 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   could collide in parallel; every test today goes through a written copy. Future prompts say so.
 - Verdict: accept. Committed under the owner's latitude: vantage `c2`. Every later prompt's full gate
   runs through the runner, natively.
+
+### 2026-11-04 · 8c · prompt (Vantage requirements, part 3)
+- One wide planner package: SYS areas suggested `LCH`, `WIN` (`D21`), `SCN` (`D22`), `BAT`, `CFG`,
+  `DIA`, `DLV`, `DET` and a safety-evidence stance; IMP rows for every `ARCH §11` part not yet
+  designed, `bridge.py`'s callers moved so `IMP-0112` and the `simengine` option removal land green,
+  one `DROP` row per retired Python file of the register's code table, packages sized for long build
+  sessions; tests and `ANL` checks; register Targets for every carried row a row states, the rest
+  grouped (viewer / contract / obsolete / other) with a recommended disposition and no Disposition
+  changed; budget entry. Open: SYS §12 questions 2–4, fault-window unit, the launcher's deadline
+  source, `progress.json`/`Checkpoint`, a pre-migration gate, the leftover groups.
+- Facts: 105 SYS / 124 IMP / 102 tests; 501 bare-`VNT` carried rows.
+- Worker: vantage-planner (Opus, high), relayed by the owner.
