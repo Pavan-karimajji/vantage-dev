@@ -7,12 +7,12 @@ Keep the report under 40 lines, in the §4.2 shape.
 This package makes the full gate take about a minute instead of six, with not one test left out.
 
 ## Context
-- Working copy `C:\wsepoantage-dev`, native Windows (`vs2026`). `modules/vantage` on **`c2`** —
+- Working copy `C:\ws\repo\vantage-dev`, native Windows (`vs2026`). `modules/vantage` on **`c2`** —
   stay on it. Never run `git checkout`, `git switch`, `git stash`, `git reset`, `git rm`,
   `git restore`, `git add`, `git commit`, `git push`, `pkill` or `kill`.
 - **Run everything natively on Windows (PowerShell or cmd), not from WSL**: the full suite took
   1713 s from WSL and 349 s natively on the same tree.
-- Python: `modulesantage\.venv-sim-win32\Scripts\python.exe`. Root scripts: `py -3.12`.
+- Python: `modules\vantage\.venv-sim-win32\Scripts\python.exe`. Root scripts: `py -3.12`.
 - Rules: `.claude/rules/testing.md` (R-TEST-1..7), `style.md` (file header on a new file).
 
 ## Steps
