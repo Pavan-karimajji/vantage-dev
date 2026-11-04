@@ -3820,3 +3820,12 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   readers and no viewer. Committed and pushed under the owner's latitude: interfaces `vantage`
   `3f007a7`, vantage-lab `main` `022bea3` (`LAB-53`), vantage `c2` `9e9234b`; superproject with this
   entry. The `c2` → `main` merge goes to the owner first (standing rule).
+
+### 2026-11-04 · VNT-CLEAN-1 · prompt (held for the `c2` → `main` merge)
+- One builder package, four ledger items: (A) `RCT:SYT-CTL-03`..`07` and `RCT:SYT-RSY-04` on Vantage —
+  no Vantage test named them, which is why `RCT:IMP-0023`/`0030`/`0032`/`0033` and `WP-06`..`08` stayed
+  open; no engine change, a failure reported; (B) `control_arrivals` bounded and looked up without a
+  full scan, with an `IMP-0065` gtest; (C) a recording read problem fails the run (`Kind::Input`,
+  exit 5) instead of the silent pass a cut recording gives today; (D) `_supervised` holds only the
+  cases that read the sealed outcome (the file went ≈69 → ≈123 s). Box dry run: RCT 13 of 13, PASS.
+- Lands on `c2` after the merge. Worker: vantage-builder (Sonnet, medium), relayed by the owner.
