@@ -3829,3 +3829,20 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   exit 5) instead of the silent pass a cut recording gives today; (D) `_supervised` holds only the
   cases that read the sealed outcome (the file went ≈69 → ≈123 s). Box dry run: RCT 13 of 13, PASS.
 - Lands on `c2` after the merge. Worker: vantage-builder (Sonnet, medium), relayed by the owner.
+
+### 2026-11-04 · VNT-CLEAN-1 · verdict
+- Worker report: A–E done. `test_vnt_rct_control.py` (`RCT:SYT-CTL-03`..`07`, `RCT:SYT-RSY-04` over
+  24 exact cases, 32 passed) and the lab's `SYT-CTL-02` pass; `control_arrivals` trimmed to the oldest
+  open control-started ticket's own (at most 2 held, two gtests), searched from the back; a read
+  problem kept and handed on (`Batch::error`, `Error::damaged_input` → exit 5, the live measurement
+  `fail`); `_supervised` defaults to `reader=False` (≈123 → ≈56 s). RCT 13 of 13 packages. gtest
+  483/483, pytest 1772 passed / 62 skipped (1713 s on the worker's machine), G4 files 168 passed.
+- Orchestrator: reran the new control and read-problem files (32 passed, 13 s) and the full suite
+  **1772 passed / 62 skipped in 352 s** — the worker's 1713 s was its machine, not the change. Read the
+  reader, trim and search diffs. **Finding:** `Open` calls any recording damaged whose strict
+  summary read fails, but a whole file with a valid footer and no summary or statistics returns
+  `MissingStatistics` (`mcap/reader.inl`) — valid mcap, refused with exit 5. Only an unreadable footer
+  is cut off. Open question 1 (a crashed run's recording has no footer, so it is refused): kept —
+  resim of a cut recording needs an explicit opt-in later if ever wanted.
+- Verdict: **rework** (`VNT-CLEAN-1-R1`). Nothing committed. The `c2` → `main` merge at G4 is still
+  with the owner.
