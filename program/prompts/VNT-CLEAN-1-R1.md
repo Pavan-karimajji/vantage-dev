@@ -4,7 +4,9 @@ Keep the report under 45 lines, in the §4.2 shape.
 # VNT-CLEAN-1-R1 — only a recording that is cut off is damaged; and the test suites run in parallel (vantage `c2`)
 
 The rework of `VNT-CLEAN-1`, widened. Its work is in the working copy, uncommitted: **build on it,
-never revert it.** Two parts: **A** the reader defect; **B** a parallel test runner, so the full gate
+never revert it.** **If Part A is already in the working copy** (an earlier run of this prompt did it:
+`Open` keeps a problem only for a status other than `MissingStatistics`, and the summary-less gtest
+exists), check it and go straight to Part B; report Part A as "found done". Two parts: **A** the reader defect; **B** a parallel test runner, so the full gate
 takes about a minute instead of six, with not one test left out. Then **C** the exit check.
 
 ## Context
