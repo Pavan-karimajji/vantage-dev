@@ -3855,3 +3855,15 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   by shards), per-worker isolation (live measurement names `_w<n>` where helpers copy a setup, temp
   paths), a reported serial tail instead of any skip, and proof — equal counts to serial, three
   parallel runs green. Workers told to run natively, not from WSL.
+
+### 2026-11-04 · VNT-CLEAN-1-R1 · verdict (Part A; the run read the prompt before Part B was added)
+- Worker report: `Open` keeps a problem only for a strict-read status other than `MissingStatistics`;
+  gtest `AWholeRecordingWithNoSummaryReadsEveryMessageAndReportsNoProblem` (written with
+  `mcap::McapWriter` directly — the engine's writer cannot turn the summary off; accepted). gtest
+  484/484, read-problem + G4 files 169 passed, pytest 1772 passed / 62 skipped (349 s, native),
+  `check_invariants` clean.
+- Orchestrator: read the `Open` diff; reran the reader, `IMP-0065`, `IMP-0083` gtests (18) and the
+  read-problem test; reference-term grep clean.
+- Verdict: accept. Committed under the owner's latitude: interfaces `vantage` `9e24dbc` (RCT 13 of 13),
+  vantage `c2` `556ea45` (CLEAN-1 + R1 Part A). The G4 merge, when approved, takes `9e9234b`. Part B
+  (the parallel runner) is the same prompt run again: it finds Part A done.
