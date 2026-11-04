@@ -3805,3 +3805,18 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   point; the fix is test-harness only (a gate file released after the reader prints `attached`), so
   the orchestrator proceeds under the owner's latitude and tells the owner. Nothing committed.
 - Worker: vantage-builder (Sonnet, medium), relayed by the owner.
+
+### 2026-11-04 · VNT-WP-18-R2 · verdict — **gate G4 green**
+- Worker report: `run_under_supervisor` takes `gate_file` (reader started, supervisor started, gate
+  written once the reader prints `attached`; the wait also ends when the supervisor exits);
+  `_supervised(reader=True)` adds the held stage. `test_vnt_supervisor.py` five times, 39/39 each
+  (≈123 s, was ≈69 s: every `reader=True` case is now held); the five G4 files 168 passed; gtest pass;
+  pytest 1740 passed / 0 failed / 62 skipped (none in a G4 file); lab unit tests 41; `check_invariants`
+  clean; `trace_check` vantage 17 done / 1 started, RCT 10 / 3 / 0.
+- Orchestrator: reran the five G4 files, 168 passed (364 s); reference-term grep over every added line
+  (3584) clean.
+- Verdict: accept. **G4 green:** for every lab topology `vantage-inspect check` finds every item of the
+  live measurement, and every `ARCH §10.3` drill plus the supervised `hang` and `crash` passes with test
+  readers and no viewer. Committed and pushed under the owner's latitude: interfaces `vantage`
+  `3f007a7`, vantage-lab `main` `022bea3` (`LAB-53`), vantage `c2` `9e9234b`; superproject with this
+  entry. The `c2` → `main` merge goes to the owner first (standing rule).
