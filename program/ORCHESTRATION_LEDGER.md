@@ -3970,3 +3970,26 @@ documents' checkboxes (`VANTAGE_PROGRAM.md` §3).
   register's five mechanical groups (viewer, contract, obsolete, waiting, scope). The six other
   groups wait on the owner.
 - Worker: vantage-planner (Opus), relayed by the owner.
+
+### 2026-11-04 · 8c-R1 · report
+- Worker: A `D32` in DEV_PLAN §2, SYS §21 closed, Blocked paragraph gone; B new `SYS-0200`..`0207`
+  (bundle folder key `config_bundle_path`, `divergence_grace_steps`, first differing field,
+  `--plan-only` x3, wiring order, batch deadline), `SYS-0001`/`0121`/`0144`/`0159`/`0187` changed,
+  `IMP-0223`..`0228` (`WP-23`), `IMP-0229`..`0238` (`WP-25`), 7 IMP widened, 6 new SYT; C register
+  partly: 55 rows disposed (waiting 7 placed, scope 42 retired, viewer 2, contract 1, obsolete 3
+  placed on their surviving half) — 13 viewer and 7 contract rows are mixed (a staying half no SYS
+  row states) and left bare; 305 rows / 254 lines bare.
+- Orchestrator: `trace_check` PASS 445/162, packages 22/0/6 of 28, rows 155/0/83 of 238; register 0
+  findings, `--require-placed` 261 lines; no `[x]` design row changed; new rows read. Answers to its
+  questions: the mixed rows go with the owner's register decision; `--plan-only` with `--supervise`
+  prints and exits (no row); ARCH rows 484/485 edited by the orchestrator (grace from
+  `divergence_grace_steps`, `Checkpoint` optional, `D32 (3)`/`(7)`). Verdict: **accept**; committed and
+  pushed: vantage `c2` `c3e2f70`.
+
+### 2026-11-05 · VNT-WP-23-26 · prompt
+- Second 8c build session, 60 rows: `WP-23` configuration (bundle key replaces `_stage_bundles`,
+  wiring order so `feedback` launches), `WP-24` batch on the supervisor (`worker.py` goes), `WP-25`
+  diagnostics (`--plan-only`, grace key, first differing field), `WP-26` determinism. Box dry run:
+  26 done / 0 started / 2 open of 28; rows 215 / 0 / 23 of 238; PASS 445/162.
+- Worker: vantage-builder (Sonnet, medium), relayed by the owner.
+- Status snapshot `program/status/2026-11-05_status.md`; the owner pauses the program here.
